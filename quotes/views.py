@@ -352,8 +352,25 @@ def memory_archive(request, pk):
     else:
         memory.status = Memory.Status.ACTIVE
     memory.save(update_fields=["is_archived", "status"])
+    
     if request.headers.get("HX-Request"):
+        from django.http import HttpResponse
+        current_url = request.headers.get("HX-Current-URL", "")
+
+        # If on single memory detail page, re-render card
+        if f"/memory/{pk}" in current_url:
+            return render(request, "quotes/partials/memory_card.html", {"memory": memory})
+
+        # If on /archive/ view and item was unarchived, remove from archive list
+        if "/archive/" in current_url and not memory.is_archived:
+            return HttpResponse("", status=200)
+
+        # If on active list view and item was archived, remove from active list
+        if "/archive/" not in current_url and memory.is_archived:
+            return HttpResponse("", status=200)
+
         return render(request, "quotes/partials/memory_card.html", {"memory": memory})
+
     return redirect("dashboard")
 
 
