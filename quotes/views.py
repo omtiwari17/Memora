@@ -512,13 +512,18 @@ def share_target(request):
     shared_title = request.GET.get("title", "").strip()
     shared_url = request.GET.get("url", "").strip()
 
-    body = shared_text or shared_title
+    body = shared_text or shared_title or shared_url
     if body:
+        cat_slug = suggest_category(body)
+        category = Category.objects.filter(slug=cat_slug).first() if cat_slug else None
+        status = Memory.Status.ACTIVE if category else Memory.Status.INBOX
+
         Memory.objects.create(
             title=shared_title or auto_title(body),
             content=body,
+            category=category,
             source_url=shared_url,
-            status=Memory.Status.INBOX,
+            status=status,
         )
     return redirect("dashboard")
 
