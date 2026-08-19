@@ -50,21 +50,22 @@
             <h2 class="text-sm font-semibold text-white/80 uppercase tracking-wider mb-4">+ Create Custom Category</h2>
             <form method="POST" action="{% url 'category_create' %}" class="space-y-4">
                 {% csrf_token %}
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                     <div class="sm:col-span-2">
-                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1">Emoji</label>
-                        <input type="text" name="emoji" id="create-emoji" value="📌" placeholder="🧠" class="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-3 py-2 text-center text-xl text-white outline-none focus:border-purple-400/50" required oninput="userManuallyEditedEmoji = true">
+                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Emoji</label>
+                        <input type="text" name="emoji" id="create-emoji" value="📌" placeholder="🧠" class="w-full h-11 bg-white/[0.03] border border-white/[0.08] rounded-xl px-3 text-center text-xl text-white outline-none focus:border-purple-400/50" required oninput="userManuallyEditedEmoji = true">
                     </div>
                     <div class="sm:col-span-6">
-                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1">Category Name</label>
-                        <input type="text" name="name" id="create-name" placeholder="e.g. Quotes, Finance, Fitness, Recipes..." class="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/50" required oninput="suggestEmoji(this.value)">
+                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Category Name</label>
+                        <input type="text" name="name" id="create-name" placeholder="e.g. Quotes, Finance, Fitness, Recipes..." class="w-full h-11 bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 text-sm text-white outline-none focus:border-purple-400/50" required oninput="suggestEmoji(this.value)">
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1">Accent Color</label>
-                        <input type="color" name="color" id="create-color" value="#14b8a6" class="w-full h-10 bg-white/[0.03] border border-white/[0.08] rounded-xl p-1 outline-none cursor-pointer">
+                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Accent Color</label>
+                        <input type="color" name="color" id="create-color" value="#14b8a6" class="w-full h-11 bg-white/[0.03] border border-white/[0.08] rounded-xl p-1 outline-none cursor-pointer">
                     </div>
-                    <div class="sm:col-span-2 flex items-end">
-                        <button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-xs font-semibold text-white shadow-lg shadow-purple-500/20 hover:shadow-purple-500/35 transition-all">
+                    <div class="sm:col-span-2">
+                        <label class="text-[10px] uppercase font-semibold block mb-1.5 opacity-0 select-none hidden sm:block">Action</label>
+                        <button type="submit" class="w-full h-11 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-xs font-semibold text-white shadow-lg shadow-purple-500/20 hover:shadow-purple-500/35 transition-all flex items-center justify-center">
                             Create
                         </button>
                     </div>
@@ -112,13 +113,13 @@
 
                 <!-- Actions -->
                 <div class="flex items-center gap-2">
-                    <button onclick="toggleEdit('{{ cat.id }}')" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white/60 hover:text-white transition-all">
+                    <button onclick="toggleEdit('{{ cat.id }}')" class="h-9 px-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white/60 hover:text-white transition-all flex items-center justify-center">
                         ✏️ Edit
                     </button>
                     {% if not cat.is_default %}
                     <form method="POST" action="{% url 'category_delete' cat.id %}" onsubmit="return confirm('Delete category {{ cat.name }}? Associated memories will be moved to Inbox.')">
                         {% csrf_token %}
-                        <button type="submit" class="px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-xs text-red-400 transition-all">
+                        <button type="submit" class="h-9 px-3.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-xs text-red-400 transition-all flex items-center justify-center">
                             🗑️ Delete
                         </button>
                     </form>
@@ -128,23 +129,23 @@
 
             <!-- Inline Edit Form -->
             <div id="edit-form-{{ cat.id }}" class="hidden glass rounded-2xl p-4 border border-purple-500/30 bg-purple-500/5">
-                <form method="POST" action="{% url 'category_edit' cat.id %}" class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <form method="POST" action="{% url 'category_edit' cat.id %}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                     {% csrf_token %}
                     <div class="sm:col-span-2">
-                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1">Emoji</label>
-                        <input type="text" name="emoji" value="{{ cat.emoji }}" class="w-full bg-[#181726] border border-white/10 rounded-xl px-3 py-2 text-center text-lg text-white outline-none">
+                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Emoji</label>
+                        <input type="text" name="emoji" value="{{ cat.emoji }}" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl px-3 text-center text-lg text-white outline-none">
                     </div>
                     <div class="sm:col-span-5">
-                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1">Name</label>
-                        <input type="text" name="name" value="{{ cat.name }}" class="w-full bg-[#181726] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Name</label>
+                        <input type="text" name="name" value="{{ cat.name }}" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl px-4 text-sm text-white outline-none">
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1">Color</label>
-                        <input type="color" name="color" value="{{ cat.color }}" class="w-full h-10 bg-[#181726] border border-white/10 rounded-xl p-1 cursor-pointer">
+                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Color</label>
+                        <input type="color" name="color" value="{{ cat.color }}" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl p-1 cursor-pointer">
                     </div>
-                    <div class="sm:col-span-3 flex items-end gap-2">
-                        <button type="submit" class="flex-1 py-2.5 rounded-xl bg-purple-600 text-xs font-semibold text-white">Save</button>
-                        <button type="button" onclick="toggleEdit('{{ cat.id }}')" class="py-2.5 px-3 rounded-xl bg-white/10 text-xs text-white/50">Cancel</button>
+                    <div class="sm:col-span-3 flex items-center gap-2">
+                        <button type="submit" class="flex-1 h-11 rounded-xl bg-purple-600 text-xs font-semibold text-white flex items-center justify-center">Save</button>
+                        <button type="button" onclick="toggleEdit('{{ cat.id }}')" class="h-11 px-4 rounded-xl bg-white/10 text-xs text-white/50 flex items-center justify-center">Cancel</button>
                     </div>
                 </form>
             </div>
