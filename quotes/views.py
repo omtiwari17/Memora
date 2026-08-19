@@ -372,13 +372,18 @@ def memory_status(request, pk):
     return redirect("dashboard")
 
 
-@require_http_methods(["POST"])
+@require_http_methods(["POST", "DELETE"])
 def memory_delete(request, pk):
     """Permanently delete a memory."""
     memory = get_object_or_404(Memory, pk=pk)
     memory.delete()
     if request.headers.get("HX-Request"):
-        return JsonResponse({"deleted": True})
+        from django.http import HttpResponse
+        response = HttpResponse("", status=200)
+        current_url = request.headers.get("HX-Current-URL", "")
+        if f"/memory/{pk}" in current_url or "/memory/" in current_url:
+            response["HX-Redirect"] = "/"
+        return response
     return redirect("dashboard")
 
 
