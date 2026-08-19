@@ -24,6 +24,9 @@ urlpatterns = [
     # Filtered views
     path("inbox/", views.memory_list, {"filter_type": "inbox"}, name="inbox"),
     path("important/", views.memory_list, {"filter_type": "important"}, name="important"),
+    path("tasks/", views.memory_list, {"filter_type": "tasks"}, name="tasks"),
+    path("reminders/", views.memory_list, {"filter_type": "reminders"}, name="reminders"),
+    path("priority/<str:filter_value>/", views.memory_list, {"filter_type": "priority"}, name="priority_filter"),
     path("archive/", views.memory_list, {"filter_type": "archive"}, name="archive"),
     path("today/", views.memory_list, {"filter_type": "today"}, name="today"),
     path("week/", views.memory_list, {"filter_type": "week"}, name="week"),

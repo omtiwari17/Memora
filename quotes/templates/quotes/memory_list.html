@@ -87,6 +87,11 @@
                 <a href="{% url 'important' %}" class="sidebar-link {% if active_filter == 'important' %}active{% endif %} flex items-center gap-3 text-sm text-white/70"><span class="sidebar-icon">❤️</span> Important</a>
                 <a href="{% url 'today' %}" class="sidebar-link {% if active_filter == 'today' %}active{% endif %} flex items-center gap-3 text-sm text-white/70"><span class="sidebar-icon">📅</span> Today</a>
                 <a href="{% url 'random_memory' %}" class="sidebar-link flex items-center gap-3 text-sm text-white/70"><span class="sidebar-icon">🎲</span> Random</a>
+                
+                <!-- PRODUCTIVITY section -->
+                <p class="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white/25">Productivity</p>
+                <a href="{% url 'tasks' %}" class="sidebar-link {% if active_filter == 'tasks' %}active{% endif %} flex items-center gap-3 text-sm text-white/70"><span class="sidebar-icon">✅</span> Tasks</a>
+                <a href="{% url 'reminders' %}" class="sidebar-link {% if active_filter == 'reminders' %}active{% endif %} flex items-center gap-3 text-sm text-white/70"><span class="sidebar-icon">📅</span> Reminders</a>
                 <div class="flex items-center justify-between px-3 pt-5 pb-1">
                     <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-white/25">Categories</p>
                     <a href="{% url 'category_manage' %}" class="text-[10px] text-purple-400/60 hover:text-purple-300 transition-colors">⚙️ Edit</a>

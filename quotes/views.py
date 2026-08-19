@@ -183,6 +183,15 @@ def memory_list(request, filter_type=None, filter_value=None):
         week_ago = timezone.now() - timedelta(days=7)
         memories = memories.filter(created_at__gte=week_ago)
         title = "📅 This Week"
+    elif filter_type == "tasks":
+        memories = memories.filter(category__slug="tasks")
+        title = "✅ Tasks"
+    elif filter_type == "reminders":
+        memories = memories.filter(due_date__isnull=False).order_by("due_date")
+        title = "📅 Reminders & Due Dates"
+    elif filter_type == "priority":
+        memories = memories.filter(priority=filter_value)
+        title = f"Priority: {filter_value.capitalize()}"
 
     categories = Category.objects.all().order_by("order", "name")
     
