@@ -1,6 +1,6 @@
 # AGENTS.md — Memora
 
-> This file is the single source of truth for any AI coding agent (or human) picking up this project. It contains full project context, architecture decisions, and the current codebase state.
+> This file is the single source of truth for any AI coding agent (or human) picking up this project. It contains full project context, architecture decisions, database configurations, deployment instructions, and current codebase state.
 
 ---
 
@@ -10,37 +10,47 @@
 
 A cross-device personal external memory system. Zero-friction capture for anything worth remembering — quotes, ideas, links, tasks, code snippets, purchase lists, places, people, and more. Everything goes into one app, organized later, found instantly.
 
-**Core philosophy:**
+**Core Philosophy:**
 1. **Capture first** — saving takes seconds, no mandatory metadata
 2. **Organize later** — categories, tags, collections available but never forced
 3. **Find anything** — universal search across all memory fields
 
 Not a notes app, not a to-do app, not a bookmark manager. It's a **personal second brain / memory inbox**.
 
+---
+
 ## 2. Tech Stack
 
 | Layer | Choice | Why |
 |---|---|---|
-| Backend | Python 3 / Django 5 | Familiar, batteries-included, fast to ship |
-| Interactivity | HTMX | Dynamic search/filter without a JS framework |
-| Styling | Tailwind CSS + DaisyUI (CDN) | Premium look without a build step |
-| Font | Space Grotesk (Google Fonts) | Modern, geometric, pairs well with glassmorphism |
-| DB | PostgreSQL (prod) / SQLite (local dev) | Free-tier Render Postgres |
-| Hosting | Render (Web Service + Postgres) | Free tier friendly |
-| Static files | WhiteNoise | No CDN/S3 needed for a small personal app |
+| **Backend** | Python 3.11 / Django 5 | Fast, batteries-included, stable |
+| **Interactivity** | HTMX 1.9 | Dynamic search, filtering, inline actions without JS framework overhead |
+| **Styling** | Tailwind CSS + DaisyUI (CDN) | Modern glassmorphism UI with zero build step |
+| **Typography** | Space Grotesk (Google Fonts) | Modern, geometric, suits dark glassmorphism |
+| **Database** | **SQLite** (local dev) / **Neon PostgreSQL** (production) | 100% Free forever PostgreSQL via `dj-database-url` |
+| **Hosting** | **Render** (Free Web Service) + **cron-job.org** (Keep-Alive Ping) | 100% Free production hosting, stays awake 24/7 without cold starts |
+| **Static Files** | WhiteNoise | Compressed static assets served directly by Django WSGI |
 
-**Explicitly excluded:** React, Node.js, any heavy frontend JS framework or build pipeline. Tailwind and DaisyUI are loaded via CDN — no npm build step.
+**Explicitly Excluded:** React, Node.js, npm build pipelines, heavy SPA frameworks. Tailwind and DaisyUI are loaded directly via CDN.
+
+---
 
 ## 3. Architecture Decisions
 
-- **Aesthetic: Dark Aurora + Glassmorphism** — aurora blur backgrounds (`filter: blur(120px)` + absolute positioned divs), glass cards with `backdrop-filter: blur(16px)`, gradient accents.
-- **Data model evolved** from Quote → Memory with Category, Tag, and Collection models for flexible organization.
-- **Smart Capture** uses keyword-based category suggestion (server-side, no ML) — matches content against keyword dictionaries per category and returns the highest-scoring match via a JSON API.
-- **Type-aware cards** — memory cards render differently based on category slug: tasks get checkboxes, code gets monospace, links show URLs, thoughts get quote marks, etc.
-- **HTMX for all dynamic interactions** — search, pin/archive/status toggling, capture feedback, random memory surfacing.
-- **Capture API is CSRF-exempt** by design (external bookmarklet/PWA can't carry a Django CSRF token). Known gap for single-user use.
-- **PWA share target** uses `GET` with query params per the Web Share Target API spec.
-- **DB config** uses `dj-database-url` — same `settings.py` works on Render and locally.
+- **Visual Theme: Dark Aurora + Glassmorphism** — Absolute animated aurora background blobs (`filter: blur(120px)`), glass cards (`backdrop-filter: blur(16px)`), CSS gradient accents, and Space Grotesk font.
+- **Generic Memory Model** — Replaced legacy Quote model with `Memory` (supports content, title, category, tags, collections, URLs, author, priority, status, due dates).
+- **Type-Aware Card Rendering** — Cards render custom visual layouts per category slug:
+  - `tasks`: Interactive checkbox with strike-through styling
+  - `code`: Monospace syntax block
+  - `links`: Clickable URL preview
+  - `watch` / `read` / `buy`: Status badges & purchase/watched indicators
+  - `thoughts`: Quotation typography with author attribution
+  - `places`: Map marker styling
+- **Smart Capture (Server-Side)** — Keyword dictionary matching algorithm in `quotes/views.py` auto-suggests category upon typing in the capture form via HTMX.
+- **Universal Capture API** — CSRF-exempt JSON endpoint (`/api/capture/`) enabling 1-click capture from desktop bookmarklets and browser extensions.
+- **PWA Web Share Target** — Accepts shared links, text, and titles from Android/iOS Web Share API via `/share/`.
+
+---
 
 ## 4. File Structure
 
@@ -50,16 +60,16 @@ Memora/
 ├── requirements.txt
 ├── .gitignore
 ├── AGENTS.md
-├── quotevault/              # Django project config (kept as quotevault internally)
+├── quotevault/              # Django project package (quotevault internally)
 │   ├── __init__.py
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
-├── quotes/                  # Main app (kept as quotes internally)
+├── quotes/                  # Main memory app (quotes internally)
 │   ├── __init__.py
 │   ├── admin.py
 │   ├── models.py            # Memory, Category, Tag, Collection
-│   ├── views.py             # Dashboard, capture, search, memory actions, API
+│   ├── views.py             # Dashboard, search, capture, API, actions
 │   ├── urls.py
 │   ├── management/
 │   │   └── commands/
@@ -72,21 +82,23 @@ Memora/
 │           ├── capture_form.html    # Full-page capture form
 │           ├── random_memory.html   # Random memory page
 │           └── partials/
-│               ├── memory_card.html      # Type-aware memory card
-│               ├── memory_grid.html      # Shared grid of memory cards
+│               ├── memory_card.html      # Type-aware memory card partial
+│               ├── memory_grid.html      # Shared grid of memory cards with empty state
 │               ├── capture_feedback.html  # Capture success/error feedback
 │               └── random_memory.html     # Random memory card partial
 ├── static/
-│   ├── manifest.json
-│   ├── bookmarklet.js
-│   ├── icon-192.png   (not yet created)
-│   └── icon-512.png   (not yet created)
+│   ├── manifest.json        # PWA Web Share Target manifest
+│   ├── bookmarklet.js       # Desktop browser bookmarklet script
+│   ├── icon-192.png
+│   └── icon-512.png
 └── venv/                    # Virtual environment (gitignored)
 ```
 
+---
+
 ## 5. Data Models
 
-### Memory (core model)
+### Memory
 - `title` (CharField, optional)
 - `content` (TextField, required)
 - `category` (FK → Category, optional)
@@ -94,13 +106,13 @@ Memora/
 - `collections` (M2M → Collection)
 - `source_url`, `source_title`, `author`
 - `created_at`, `updated_at`, `due_date`, `reminder_at`
-- `status` (inbox/active/done/archived)
-- `priority` (none/low/medium/high/urgent)
+- `status` (`inbox`, `active`, `done`, `archived`)
+- `priority` (`none`, `low`, `medium`, `high`, `urgent`)
 - `is_pinned`, `is_archived`
 
 ### Category
 - `name`, `slug`, `emoji`, `color`, `is_default`, `order`
-- 15 default categories seeded via management command
+- 15 default system categories seeded via `python manage.py seed_categories`
 
 ### Tag
 - `name`, `slug`
@@ -108,115 +120,115 @@ Memora/
 ### Collection
 - `name`, `description`, `created_at`, `updated_at`
 
+---
+
 ## 6. Default Categories
 
-🧠 Thoughts, 💡 Ideas, 📚 Learn, 🔖 Save, 🔗 Links, 🎬 Watch, 📖 Read, 🛒 Buy, ✅ Tasks, 📅 Reminders, ✈️ Places, 💻 Code, 👤 People, 🚀 Projects, ❤️ Important
+🧠 **Thoughts** • 💡 **Ideas** • 📚 **Learn** • 🔖 **Save** • 🔗 **Links** • 🎬 **Watch** • 📖 **Read** • 🛒 **Buy** • ✅ **Tasks** • 📅 **Reminders** • ✈️ **Places** • 💻 **Code** • 👤 **People** • 🚀 **Projects** • ❤️ **Important**
+
+---
 
 ## 7. URL Routes
 
 | Path | Name | Purpose |
 |---|---|---|
-| `/` | dashboard | Main dashboard |
-| `/search/` | search_memories | HTMX search endpoint |
-| `/capture/` | capture | Web capture form (GET/POST) |
-| `/api/capture/` | capture_api | JSON capture API (CSRF-exempt) |
-| `/api/suggest-category/` | suggest_category | Category suggestion API |
-| `/memory/<id>/` | memory_detail | Single memory detail |
-| `/memory/<id>/pin/` | memory_pin | Toggle pin |
-| `/memory/<id>/archive/` | memory_archive | Toggle archive |
-| `/memory/<id>/status/` | memory_status | Update status |
-| `/memory/<id>/delete/` | memory_delete | Delete memory |
-| `/inbox/` | inbox | Inbox view |
-| `/important/` | important | Pinned items |
-| `/archive/` | archive | Archived items |
-| `/today/` | today | Today's captures |
-| `/week/` | week | This week's captures |
-| `/category/<slug>/` | category_filter | Filter by category |
-| `/tag/<slug>/` | tag_filter | Filter by tag |
-| `/random/` | random_memory | Random memory surfacing |
-| `/share/` | share_target | PWA Web Share Target |
+| `/` | `dashboard` | Main dashboard with recent memories, pinned items & sidebar |
+| `/search/` | `search_memories` | HTMX real-time universal search endpoint |
+| `/capture/` | `capture` | Quick capture form handler |
+| `/api/capture/` | `capture_api` | CSRF-exempt JSON API endpoint for bookmarklet/share |
+| `/api/suggest-category/` | `suggest_category` | Category suggestion JSON API |
+| `/memory/<id>/` | `memory_detail` | Detailed view for a single memory |
+| `/memory/<id>/pin/` | `memory_pin` | HTMX toggle pin |
+| `/memory/<id>/archive/` | `memory_archive` | HTMX toggle archive |
+| `/memory/<id>/status/` | `memory_status` | HTMX update memory status (e.g. mark done) |
+| `/memory/<id>/delete/` | `memory_delete` | HTMX delete memory |
+| `/inbox/` | `inbox` | Unclassified Inbox view |
+| `/important/` | `important` | Pinned / Important memories |
+| `/archive/` | `archive` | Archived memories view |
+| `/today/` | `today` | Memories captured today |
+| `/week/` | `week` | Memories captured this week |
+| `/category/<slug>/` | `category_filter` | Filter memories by category |
+| `/tag/<slug>/` | `tag_filter` | Filter memories by tag |
+| `/random/` | `random_memory` | "Remember This" random memory resurfacing |
+| `/share/` | `share_target` | Mobile PWA Web Share Target handler |
 
-## 8. Completed Work (Phase 1 — Foundation)
+---
 
-- [x] Memory model with full field set
-- [x] Category, Tag, Collection models
-- [x] 15 default categories with seed command
-- [x] Dashboard with sidebar navigation
-- [x] Universal capture modal with smart category suggestion
-- [x] HTMX-powered search across all fields
-- [x] Type-aware memory cards (different visual per category)
-- [x] Filtered views (inbox, category, tag, today, important, archive)
-- [x] Memory actions (pin, archive, status change, delete)
-- [x] Random memory "Remember This" feature
-- [x] Capture API (CSRF-exempt, JSON)
-- [x] PWA Web Share Target
-- [x] Desktop bookmarklet
-- [x] Dark Aurora + Glassmorphism visual design
-- [x] Mobile responsive bottom navigation
-- [x] Keyboard shortcut (Ctrl+K for capture)
+## 8. Completed Work (Phase 1 Foundation & UI Fixes)
 
-## 9. Pending Tasks
+- [x] Memory, Category, Tag, Collection models implemented
+- [x] 15 default categories seeded with custom colors and emojis
+- [x] Dashboard with sidebar navigation & category chips
+- [x] Fast universal capture modal (`Ctrl+K` keyboard shortcut)
+- [x] Smart category auto-suggestion engine
+- [x] Type-aware memory cards (custom UI per category)
+- [x] Fixed SVG sizing (`w-5 h-5`) across search & icons to prevent browser expansion bugs
+- [x] Enhanced glassmorphic Empty State UI for search and empty views
+- [x] HTMX universal search across title, content, author, URL, tags
+- [x] Inline memory actions (pin, archive, mark done, delete)
+- [x] Random memory "Remember This" resurfacing engine
+- [x] Desktop bookmarklet script & PWA Web Share Target
+- [x] GitHub repository setup and initial commit pushes (`omtiwari17/Memora`)
+- [x] Production deployment configuration for **100% Free Forever Hosting** (Neon Postgres + Render + cron-job.org keep-alive)
 
-### Phase 2 — Organization
-- [ ] Tag management UI (view all tags, rename, merge)
-- [ ] Collection management (create, edit, add/remove memories)
-- [ ] Bulk actions (select multiple → archive, tag, categorize)
-- [ ] Drag-and-drop reordering within collections
-- [ ] Edit memory form (inline or modal)
+---
 
-### Phase 3 — Productivity
-- [ ] Task completion tracking with statistics
-- [ ] Reminder notifications (if possible in PWA)
-- [ ] Due date calendar view
-- [ ] Status workflow per category type
-
-### Phase 4 — Smart Capture
-- [ ] URL metadata extraction (title, description, favicon)
-- [ ] Image/screenshot attachment support
-- [ ] Automatic title extraction improvements
-- [ ] Better bookmarklet with floating UI
-
-### Phase 5 — Memory Features
-- [ ] "On this day" — memories from the same date in previous years
-- [ ] Recently viewed tracking
-- [ ] Smart suggestions based on usage patterns
-- [ ] Export (JSON, Markdown)
-
-### Infrastructure
-- [ ] Generate real PWA icons (icon-192.png, icon-512.png)
-- [ ] Replace bookmarklet domain placeholder
-- [ ] Add shared-secret header to capture API
-- [ ] Pagination / infinite scroll for large archives
-- [ ] Deploy to Render
-
-## 10. Known Gaps
-
-- `/api/capture/` has **no authentication** — acceptable for single-user use.
-- Free-tier Render Postgres **expires after 90 days**.
-- Dashboard loads all recent memories with no pagination.
-- PWA icons not yet generated.
-- No edit form for existing memories (must use Django admin).
-- Reminder notifications not implemented (model field exists but no scheduling).
-
-## 11. Local Development
+## 9. Local Development Setup
 
 ```bash
-# Setup
+# 1. Clone repository
+git clone https://github.com/omtiwari17/Memora.git
+cd Memora
+
+# 2. Setup virtual environment
 python -m venv venv
-venv\Scripts\activate        # Windows
+venv\Scripts\activate        # On Windows (or source venv/bin/activate on Linux/Mac)
+
+# 3. Install dependencies
 pip install -r requirements.txt
+
+# 4. Run database migrations & seed default categories
 python manage.py migrate
 python manage.py seed_categories
-python manage.py runserver    # Set DEBUG=True env var
 
-# Create superuser for admin
-python manage.py createsuperuser
+# 5. Start dev server (sets DEBUG=True)
+$env:DEBUG="True"             # PowerShell
+python manage.py runserver
 ```
 
-## 12. Deployment (Render)
+---
 
-1. Create Postgres instance, copy Internal Database URL.
-2. Create Web Service:
-   - Build: `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py seed_categories`
-   - Start: `gunicorn quotevault.wsgi:application`
-3. Env vars: `SECRET_KEY`, `DEBUG=False`, `DATABASE_URL`, `ALLOWED_HOSTS`
+## 10. 100% Free Forever Production Deployment Guide
+
+Memora is configured to run **100% free forever** without paying for database or hosting subscriptions, and without Render going to sleep:
+
+### Step 1: Database Setup (Neon — Free PostgreSQL)
+1. Register at **[Neon.tech](https://neon.tech)** (100% free PostgreSQL, no credit card required).
+2. Create a project `memora-db` and copy the **Connection String** (`postgres://...`).
+
+### Step 2: Web Hosting (Render — Free Web Service)
+1. Go to **[Render.com](https://render.com)** and create a new **Web Service** connected to `omtiwari17/Memora`.
+2. Configure settings:
+   - **Environment**: `Python 3`
+   - **Build Command**:
+     ```bash
+     pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py seed_categories
+     ```
+   - **Start Command**:
+     ```bash
+     gunicorn quotevault.wsgi:application
+     ```
+3. Set **Environment Variables** in Render dashboard:
+   - `DATABASE_URL` = *(Your Neon PostgreSQL connection string)*
+   - `SECRET_KEY` = *(Random secret string)*
+   - `DEBUG` = `False`
+   - `ALLOWED_HOSTS` = `*`
+
+### Step 3: Prevent Render Sleep (cron-job.org — Free 24/7 Keep-Alive)
+Render's free tier puts web services to sleep after 15 minutes of inactivity. To keep your app **awake 24/7 with zero loading delays**:
+1. Register at **[cron-job.org](https://cron-job.org)** (100% free).
+2. Click **+ CREATE CRONJOB**:
+   - **Title**: `Memora Keep Alive`
+   - **URL**: `https://your-app.onrender.com`
+   - **Schedule**: `Every 10 minutes`
+3. Save the job. Your app will now stay online 24/7 with **0-second cold starts** for $0/month!
