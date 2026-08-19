@@ -1,0 +1,37 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    # Dashboard
+    path("", views.dashboard, name="dashboard"),
+    
+    # Search
+    path("search/", views.search_memories, name="search_memories"),
+    
+    # Capture
+    path("capture/", views.capture, name="capture"),
+    path("api/capture/", views.capture_api, name="capture_api"),
+    path("api/suggest-category/", views.suggest_category_api, name="suggest_category"),
+    
+    # Memory actions
+    path("memory/<int:pk>/", views.memory_detail, name="memory_detail"),
+    path("memory/<int:pk>/pin/", views.memory_pin, name="memory_pin"),
+    path("memory/<int:pk>/archive/", views.memory_archive, name="memory_archive"),
+    path("memory/<int:pk>/status/", views.memory_status, name="memory_status"),
+    path("memory/<int:pk>/delete/", views.memory_delete, name="memory_delete"),
+    
+    # Filtered views
+    path("inbox/", views.memory_list, {"filter_type": "inbox"}, name="inbox"),
+    path("important/", views.memory_list, {"filter_type": "important"}, name="important"),
+    path("archive/", views.memory_list, {"filter_type": "archive"}, name="archive"),
+    path("today/", views.memory_list, {"filter_type": "today"}, name="today"),
+    path("week/", views.memory_list, {"filter_type": "week"}, name="week"),
+    path("category/<slug:filter_value>/", views.memory_list, {"filter_type": "category"}, name="category_filter"),
+    path("tag/<slug:filter_value>/", views.memory_list, {"filter_type": "tag"}, name="tag_filter"),
+    
+    # Random memory
+    path("random/", views.random_memory, name="random_memory"),
+    
+    # PWA
+    path("share/", views.share_target, name="share_target"),
+]
