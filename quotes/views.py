@@ -12,7 +12,20 @@ from django.db.models import Q
 from .models import Memory, Category, Tag, Collection
 
 
-# ── Category suggestion (simple keyword matching) ──────────────────────
+# ── Category suggestion (pattern + keyword matching) ──────────────────────
+CODE_PATTERNS = [
+    r"<[a-zA-Z0-9]+[^>]*>",           # HTML/XML opening tags (<meta, <div, <head)
+    r"</[a-zA-Z0-9]+>",              # HTML closing tags (</div>, </head>)
+    r"<!DOCTYPE\s+html>",            # HTML doctype
+    r"\b(const|let|var|function|async|await)\b",  # JavaScript / JS keywords
+    r"\b(def|import|from|self|elif)\b",           # Python keywords
+    r"\b(public|private|protected|class|void|int|string|boolean)\b", # Java/C#/C++
+    r"(console\.log|print\(|System\.out\.println)", # Print statements
+    r"(git\s+commit|git\s+push|git\s+checkout|npm\s+install|pip\s+install|docker\s+run|sudo\s+apt)", # CLI
+    r"[\{\}\[\];]\s*$",              # Code lines ending with semicolon or brackets
+    r"=>|\$env:|\$\(document\)"      # Arrow functions & shell variables
+]
+
 CATEGORY_KEYWORDS = {
     "watch": ["watch", "movie", "film", "show", "series", "episode", "netflix", "youtube", "video", "documentary", "anime"],
     "read": ["read", "book", "article", "paper", "blog", "novel", "manga", "ebook"],
@@ -21,8 +34,8 @@ CATEGORY_KEYWORDS = {
     "reminders": ["remind", "remember to", "don't forget", "dont forget", "appointment", "meeting", "schedule"],
     "learn": ["learn", "study", "understand", "how to", "tutorial", "course", "lesson", "concept", "explain"],
     "ideas": ["idea", "what if", "build", "create", "make a", "app that", "website that", "project", "startup"],
-    "code": ["code", "command", "snippet", "function", "script", "api", "git", "npm", "pip", "sudo", "terminal", "debug"],
-    "links": ["http://", "https://", "www.", ".com", ".org", ".io", "website", "link", "url", "resource"],
+    "code": ["code", "command", "snippet", "function", "script", "api", "git", "npm", "pip", "sudo", "terminal", "debug", "html", "css", "js", "sql"],
+    "links": ["http://", "https://", "www.", "website", "link", "url", "resource"],
     "places": ["visit", "travel", "restaurant", "hotel", "cafe", "place", "destination", "trip", "location"],
     "people": ["person", "contact", "met", "talked to", "called", "phone number", "email"],
     "projects": ["project", "roadmap", "milestone", "sprint", "feature", "requirement"],
@@ -32,13 +45,24 @@ CATEGORY_KEYWORDS = {
 
 
 def suggest_category(text):
-    """Simple keyword-based category suggestion. Returns slug or None."""
+    """Smart category suggestion with code pattern detection."""
+    if not text or len(text.strip()) < 3:
+        return None
+
+    # Check for code syntax & HTML structure first
+    for pattern in CODE_PATTERNS:
+        if re.search(pattern, text, re.IGNORECASE):
+            return "code"
+
     text_lower = text.lower()
     scores = {}
+
+    # Check keyword matches
     for slug, keywords in CATEGORY_KEYWORDS.items():
         score = sum(1 for kw in keywords if kw in text_lower)
         if score > 0:
             scores[slug] = score
+
     if scores:
         return max(scores, key=scores.get)
     return None
