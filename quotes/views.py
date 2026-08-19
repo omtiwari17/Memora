@@ -44,20 +44,36 @@ CATEGORY_KEYWORDS = {
 }
 
 
+QUOTE_PATTERNS = [
+    r'["“«].+["”»]',                     # Text enclosed in double quotes
+    r'[\n\r]\s*[-—–~]\s*[A-Z]',          # Author dash attribution on a new line (e.g. - Benjamin Franklin)
+    r'\s+[-—–~]\s*[A-Z][a-zA-Z\s\.]+$',  # Author attribution at end of text
+    r'\b(quote|quotes|saying|wisdom|motto|inspiration)\b',
+]
+
+
 def suggest_category(text):
-    """Smart category suggestion with code pattern detection."""
+    """Smart category suggestion with code and quote pattern detection."""
     if not text or len(text.strip()) < 3:
         return None
 
-    # Check for code syntax & HTML structure first
+    # 1. Check for code syntax & HTML structure
     for pattern in CODE_PATTERNS:
         if re.search(pattern, text, re.IGNORECASE):
             return "code"
 
+    # 2. Check for quotes & author attributions
+    for pattern in QUOTE_PATTERNS:
+        if re.search(pattern, text, re.IGNORECASE):
+            if Category.objects.filter(slug="quotes").exists():
+                return "quotes"
+            if Category.objects.filter(slug="thoughts").exists():
+                return "thoughts"
+
     text_lower = text.lower()
     scores = {}
 
-    # Check keyword matches
+    # 3. Check keyword matches
     for slug, keywords in CATEGORY_KEYWORDS.items():
         score = sum(1 for kw in keywords if kw in text_lower)
         if score > 0:
@@ -80,7 +96,7 @@ def auto_title(content):
 # ── Dashboard ──────────────────────────────────────────────────────────
 def dashboard(request):
     """Main dashboard — shows recent memories, pinned items, upcoming."""
-    categories = Category.objects.filter(is_default=True)
+    categories = Category.objects.all().order_by("order", "name")
     inbox_count = Memory.objects.filter(status=Memory.Status.INBOX, is_archived=False).count()
     pinned = Memory.objects.filter(is_pinned=True, is_archived=False)[:6]
     recent = Memory.objects.filter(is_archived=False)[:12]
@@ -138,7 +154,7 @@ def memory_list(request, filter_type=None, filter_value=None):
         memories = memories.filter(created_at__gte=week_ago)
         title = "📅 This Week"
 
-    categories = Category.objects.filter(is_default=True)
+    categories = Category.objects.all().order_by("order", "name")
     
     # Check if this is an HTMX request for just the memory grid
     if request.headers.get("HX-Request"):
@@ -237,7 +253,7 @@ def capture(request):
         return redirect("dashboard")
 
     # GET — show capture form (for direct navigation)
-    categories = Category.objects.filter(is_default=True)
+    categories = Category.objects.all().order_by("order", "name")
     return render(request, "quotes/capture_form.html", {"categories": categories})
 
 
@@ -266,7 +282,7 @@ def suggest_category_api(request):
 def memory_detail(request, pk):
     """View a single memory."""
     memory = get_object_or_404(Memory, pk=pk)
-    categories = Category.objects.filter(is_default=True)
+    categories = Category.objects.all().order_by("order", "name")
     return render(request, "quotes/memory_detail.html", {
         "memory": memory,
         "categories": categories,
