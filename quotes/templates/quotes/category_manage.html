@@ -112,13 +112,25 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="flex items-center gap-2">
-                    <button onclick="toggleEdit('{{ cat.id }}')" class="h-9 px-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white/60 hover:text-white transition-all flex items-center justify-center">
+                <div class="flex items-center gap-1.5">
+                    <form method="POST" action="{% url 'category_reorder' cat.id 'up' %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="h-9 w-9 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white/60 hover:text-white transition-all flex items-center justify-center" title="Move Up">
+                            ⬆️
+                        </button>
+                    </form>
+                    <form method="POST" action="{% url 'category_reorder' cat.id 'down' %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="h-9 w-9 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white/60 hover:text-white transition-all flex items-center justify-center" title="Move Down">
+                            ⬇️
+                        </button>
+                    </form>
+                    <button onclick="toggleEdit('{{ cat.id }}')" class="h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white/60 hover:text-white transition-all flex items-center justify-center">
                         ✏️ Edit
                     </button>
                     <form method="POST" action="{% url 'category_delete' cat.id %}" onsubmit="return confirm('Delete category {{ cat.name }}? Associated memories will be moved to Inbox.')">
                         {% csrf_token %}
-                        <button type="submit" class="h-9 px-3.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-xs text-red-400 transition-all flex items-center justify-center">
+                        <button type="submit" class="h-9 px-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-xs text-red-400 transition-all flex items-center justify-center">
                             🗑️ Delete
                         </button>
                     </form>

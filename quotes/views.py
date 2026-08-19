@@ -637,6 +637,33 @@ def category_delete(request, pk):
     return redirect("category_manage")
 
 
+@require_http_methods(["POST"])
+def category_reorder(request, pk, direction):
+    """Reorder category up or down."""
+    category = get_object_or_404(Category, pk=pk)
+    cats = list(Category.objects.all().order_by("order", "name"))
+    
+    # Ensure clean 1..N order
+    for idx, c in enumerate(cats, start=1):
+        if c.order != idx:
+            c.order = idx
+            c.save()
+
+    curr_idx = cats.index(category)
+    if direction == "up" and curr_idx > 0:
+        other = cats[curr_idx - 1]
+        category.order, other.order = other.order, category.order
+        category.save()
+        other.save()
+    elif direction == "down" and curr_idx < len(cats) - 1:
+        other = cats[curr_idx + 1]
+        category.order, other.order = other.order, category.order
+        category.save()
+        other.save()
+
+    return redirect("category_manage")
+
+
 # ── Seed default categories ───────────────────────────────────────────
 def seed_categories():
     """Create default categories if they don't exist."""
