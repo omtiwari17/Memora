@@ -273,6 +273,64 @@ def memory_detail(request, pk):
     })
 
 
+def memory_edit(request, pk):
+    """Edit memory view (handles GET form modal and POST update)."""
+    memory = get_object_or_404(Memory, pk=pk)
+
+    if request.method == "POST":
+        content = request.POST.get("content", "").strip()
+        if content:
+            memory.content = content
+            memory.title = request.POST.get("title", "").strip() or auto_title(content)
+            
+            cat_slug = request.POST.get("category", "").strip()
+            if cat_slug:
+                memory.category = Category.objects.filter(slug=cat_slug).first()
+                if memory.status == Memory.Status.INBOX:
+                    memory.status = Memory.Status.ACTIVE
+            else:
+                memory.category = None
+
+            memory.source_url = request.POST.get("source_url", "").strip()
+            memory.priority = request.POST.get("priority", Memory.Priority.NONE)
+            
+            # Tags
+            tags_str = request.POST.get("tags", "").strip()
+            memory.tags.clear()
+            if tags_str:
+                tag_names = [t.strip().lower() for t in tags_str.split(",") if t.strip()]
+                for tag_name in tag_names:
+                    from django.utils.text import slugify
+                    tag, _ = Tag.objects.get_or_create(
+                        slug=slugify(tag_name),
+                        defaults={"name": tag_name}
+                    )
+                    memory.tags.add(tag)
+
+            memory.save()
+
+        if request.headers.get("HX-Request"):
+            return render(request, "quotes/partials/memory_card.html", {"memory": memory})
+        return redirect("dashboard")
+
+    # GET request - return edit modal HTML
+    categories = Category.objects.all()
+    tags_str = ", ".join([t.name for t in memory.tags.all()])
+    if request.headers.get("HX-Request"):
+        return render(request, "quotes/partials/memory_edit_modal.html", {
+            "memory": memory,
+            "categories": categories,
+            "tags_str": tags_str,
+        })
+
+    return render(request, "quotes/memory_detail.html", {
+        "memory": memory,
+        "categories": categories,
+        "editing": True,
+        "tags_str": tags_str,
+    })
+
+
 @require_http_methods(["POST"])
 def memory_pin(request, pk):
     """Toggle pin status."""

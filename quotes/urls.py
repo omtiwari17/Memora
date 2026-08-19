@@ -15,6 +15,7 @@ urlpatterns = [
     
     # Memory actions
     path("memory/<int:pk>/", views.memory_detail, name="memory_detail"),
+    path("memory/<int:pk>/edit/", views.memory_edit, name="memory_edit"),
     path("memory/<int:pk>/pin/", views.memory_pin, name="memory_pin"),
     path("memory/<int:pk>/archive/", views.memory_archive, name="memory_archive"),
     path("memory/<int:pk>/status/", views.memory_status, name="memory_status"),
