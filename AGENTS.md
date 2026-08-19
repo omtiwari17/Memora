@@ -232,3 +232,41 @@ Render's free tier puts web services to sleep after 15 minutes of inactivity. To
    - **URL**: `https://your-app.onrender.com`
    - **Schedule**: `Every 10 minutes`
 3. Save the job. Your app will now stay online 24/7 with **0-second cold starts** for $0/month!
+
+---
+
+## 11. Implementation Roadmap & Milestones
+
+### Phase 1 — Foundation
+- [x] Rename Quote → Memory
+- [x] Generic capture
+- [x] Inbox
+- [x] Categories
+- [x] Universal search
+- [x] Recent memories
+
+### Phase 2 — Organization
+- [x] Tags
+- [x] Collections
+- [x] Pinning
+- [x] Archive
+- [x] Filters
+
+### Phase 3 — Productivity
+- [x] Tasks
+- [x] Reminders
+- [x] Due dates
+- [x] Statuses
+
+### Phase 4 — Smart Capture
+- [x] Automatic category suggestions
+- [x] Automatic title extraction
+- [x] URL metadata
+- [x] Better browser/mobile capture
+
+### Phase 5 — Memory Features
+- [x] Random memory
+- [x] Resurfacing
+- [ ] Recently viewed
+- [ ] "On this day"
+- [ ] Smart suggestions
