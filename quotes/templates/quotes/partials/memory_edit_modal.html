@@ -19,7 +19,7 @@
         </div>
 
         <!-- Form -->
-        <form hx-post="{% url 'memory_edit' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML" onsubmit="closeEditModal('{{ memory.id }}')" class="flex flex-col flex-1 overflow-hidden">
+        <form hx-post="{% url 'memory_edit' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML" hx-on::after-request="closeEditModal('{{ memory.id }}')" class="flex flex-col flex-1 overflow-hidden">
             {% csrf_token %}
             <!-- Scrollable Content Body -->
             <div class="px-6 py-4 space-y-4 overflow-y-auto flex-1 max-h-[calc(85vh-120px)]">

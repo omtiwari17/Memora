@@ -38,7 +38,7 @@
             Back to Memora
         </a>
 
-        <article class="glass rounded-3xl overflow-hidden">
+        <article class="glass rounded-3xl overflow-hidden" id="memory-{{ memory.id }}">
             {# Accent bar #}
             {% if memory.category %}
             <div class="h-1 w-full" style="background: {{ memory.category.color }};"></div>
