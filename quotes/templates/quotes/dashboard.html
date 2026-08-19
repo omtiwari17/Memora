@@ -1,0 +1,583 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dracula">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memora — Your memory, outside your head</title>
+    <meta name="description" content="Memora: capture anything worth remembering. Quotes, ideas, links, tasks — everything in one place.">
+
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#0f0e17">
+
+    <!-- Tailwind + DaisyUI via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Space Grotesk', 'sans-serif'] },
+                    colors: {
+                        surface: { DEFAULT: 'rgba(255,255,255,0.04)', hover: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.08)' },
+                        aurora: { purple: '#a78bfa', indigo: '#818cf8', pink: '#f472b6', cyan: '#22d3ee' },
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; }
+
+        /* Aurora background blobs */
+        .aurora-blob { filter: blur(120px); opacity: 0.6; }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(20px, -25px) scale(1.04); }
+            66% { transform: translate(-15px, 15px) scale(0.97); }
+        }
+        .float-1 { animation: float 16s ease-in-out infinite; }
+        .float-2 { animation: float 22s ease-in-out infinite reverse; }
+        .float-3 { animation: float 19s ease-in-out infinite 3s; }
+
+        /* Glass card base */
+        .glass {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .glass-hover:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.14);
+            transform: translateY(-2px);
+        }
+
+        /* Memory card types */
+        .memory-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .memory-card:hover {
+            transform: translateY(-3px) scale(1.008);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+
+        /* Sidebar */
+        .sidebar-link {
+            transition: all 0.2s ease;
+            border-radius: 0.75rem;
+            padding: 0.5rem 0.75rem;
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            background: rgba(255,255,255,0.06);
+        }
+        .sidebar-link.active {
+            color: #a78bfa;
+            font-weight: 600;
+        }
+        .sidebar-link .sidebar-icon { width: 1.25rem; text-align: center; }
+
+        /* Capture modal */
+        .modal-glass {
+            background: rgba(15, 14, 23, 0.95);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Category chip */
+        .cat-chip {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .cat-chip:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+        /* Search indicator */
+        .htmx-indicator { opacity: 0; transition: opacity 0.2s ease; }
+        .htmx-request .htmx-indicator, .htmx-request.htmx-indicator { opacity: 1; }
+
+        /* Pulse for inbox badge */
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
+        /* Category suggestion slide-in */
+        @keyframes slide-up {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-up { animation: slide-up 0.25s ease-out; }
+
+        /* Fade in for cards */
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fade-in 0.4s ease-out both; }
+
+        /* Stagger children */
+        .stagger > *:nth-child(1) { animation-delay: 0.04s; }
+        .stagger > *:nth-child(2) { animation-delay: 0.08s; }
+        .stagger > *:nth-child(3) { animation-delay: 0.12s; }
+        .stagger > *:nth-child(4) { animation-delay: 0.16s; }
+        .stagger > *:nth-child(5) { animation-delay: 0.20s; }
+        .stagger > *:nth-child(6) { animation-delay: 0.24s; }
+        .stagger > *:nth-child(7) { animation-delay: 0.28s; }
+        .stagger > *:nth-child(8) { animation-delay: 0.32s; }
+        .stagger > *:nth-child(9) { animation-delay: 0.36s; }
+        .stagger > *:nth-child(10) { animation-delay: 0.40s; }
+        .stagger > *:nth-child(11) { animation-delay: 0.44s; }
+        .stagger > *:nth-child(12) { animation-delay: 0.48s; }
+
+        /* Mobile bottom nav */
+        .bottom-nav {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(15, 14, 23, 0.9);
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        /* Code-style card */
+        .code-card {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+        }
+    </style>
+</head>
+<body class="bg-[#0f0e17] text-white min-h-screen relative overflow-x-hidden">
+
+    <!-- Dark Aurora background -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div class="aurora-blob float-1 absolute -top-40 -left-32 w-[500px] h-[500px] rounded-full bg-purple-600/30"></div>
+        <div class="aurora-blob float-2 absolute top-1/3 -right-40 w-[550px] h-[550px] rounded-full bg-indigo-500/20"></div>
+        <div class="aurora-blob float-3 absolute bottom-0 left-1/4 w-[450px] h-[450px] rounded-full bg-fuchsia-600/20"></div>
+    </div>
+
+    <div class="flex min-h-screen">
+
+        <!-- ═══════ SIDEBAR (Desktop) ═══════ -->
+        <aside id="sidebar" class="hidden lg:flex flex-col w-64 fixed inset-y-0 left-0 z-30 border-r border-white/[0.06] bg-[#0f0e17]/80 backdrop-blur-xl overflow-y-auto">
+            <!-- Logo -->
+            <div class="px-5 py-6 flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg font-bold shadow-lg shadow-purple-500/25">M</div>
+                <div>
+                    <h1 class="text-lg font-bold bg-gradient-to-r from-white via-purple-200 to-indigo-300 bg-clip-text text-transparent">Memora</h1>
+                    <p class="text-[10px] text-white/30 tracking-wider uppercase">Your memory vault</p>
+                </div>
+            </div>
+
+            <!-- Capture button -->
+            <div class="px-4 mb-5">
+                <button onclick="openCapture()" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-sm font-semibold shadow-lg shadow-purple-500/25 transition-all duration-200 hover:shadow-purple-500/40 hover:-translate-y-0.5 active:translate-y-0">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                    Capture
+                </button>
+            </div>
+
+            <nav class="flex-1 px-3 space-y-1">
+                <!-- MEMORY section -->
+                <p class="px-3 pt-3 pb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white/25">Memory</p>
+                <a href="{% url 'dashboard' %}" class="sidebar-link active flex items-center gap-3 text-sm text-white/70">
+                    <span class="sidebar-icon">🏠</span> All
+                </a>
+                <a href="{% url 'inbox' %}" class="sidebar-link flex items-center gap-3 text-sm text-white/70">
+                    <span class="sidebar-icon">📥</span> Inbox
+                    {% if inbox_count %}<span class="ml-auto px-2 py-0.5 text-[10px] rounded-full bg-purple-500/20 text-purple-300 pulse-soft">{{ inbox_count }}</span>{% endif %}
+                </a>
+                <a href="{% url 'important' %}" class="sidebar-link flex items-center gap-3 text-sm text-white/70">
+                    <span class="sidebar-icon">❤️</span> Important
+                </a>
+                <a href="{% url 'today' %}" class="sidebar-link flex items-center gap-3 text-sm text-white/70">
+                    <span class="sidebar-icon">📅</span> Today
+                </a>
+                <a href="{% url 'random_memory' %}" class="sidebar-link flex items-center gap-3 text-sm text-white/70">
+                    <span class="sidebar-icon">🎲</span> Random
+                </a>
+
+                <!-- CATEGORIES section -->
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white/25">Categories</p>
+                {% for cat in categories %}
+                <a href="{% url 'category_filter' cat.slug %}" class="sidebar-link flex items-center gap-3 text-sm text-white/60 hover:text-white/90">
+                    <span class="sidebar-icon">{{ cat.emoji }}</span> {{ cat.name }}
+                </a>
+                {% endfor %}
+
+                <!-- ORGANIZE section -->
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white/25">Organize</p>
+                <a href="{% url 'archive' %}" class="sidebar-link flex items-center gap-3 text-sm text-white/60 hover:text-white/90">
+                    <span class="sidebar-icon">🗄️</span> Archive
+                </a>
+            </nav>
+
+            <!-- Footer -->
+            <div class="p-4 border-t border-white/[0.06]">
+                <p class="text-[10px] text-white/20 text-center">Memora v1.0 — Phase 1</p>
+            </div>
+        </aside>
+
+        <!-- ═══════ MAIN CONTENT ═══════ -->
+        <main class="flex-1 lg:ml-64 pb-24 lg:pb-8">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+
+                <!-- Mobile header -->
+                <div class="lg:hidden flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-500/25">M</div>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-indigo-300 bg-clip-text text-transparent">Memora</h1>
+                    </div>
+                    <button onclick="openCapture()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-xs font-semibold shadow-lg shadow-purple-500/25">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        Capture
+                    </button>
+                </div>
+
+                <!-- Header -->
+                <header class="mb-8">
+                    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                        <div>
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-[10px] uppercase tracking-widest text-purple-300 mb-3">
+                                <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+                                Personal Archive
+                            </div>
+                            <h2 class="text-2xl sm:text-3xl font-bold text-white/95">Everything worth remembering</h2>
+                            <p class="text-sm text-white/40 mt-1.5">Capture anything. Organize later. Find always.</p>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Search -->
+                <div class="max-w-2xl mb-8">
+                    <div class="glass rounded-2xl flex items-center px-4 py-3 focus-within:border-purple-400/40 transition-colors duration-200">
+                        <svg class="w-5 h-5 text-white/30 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>
+                        </svg>
+                        <input
+                            type="text"
+                            name="q"
+                            placeholder="Search everything..."
+                            class="bg-transparent outline-none w-full placeholder-white/25 text-sm"
+                            hx-get="{% url 'search_memories' %}"
+                            hx-trigger="keyup changed delay:300ms, search"
+                            hx-target="#memory-stream"
+                            hx-swap="innerHTML"
+                            hx-indicator="#search-spinner"
+                        >
+                        <span id="search-spinner" class="htmx-indicator loading loading-spinner loading-sm text-purple-400"></span>
+                    </div>
+                </div>
+
+                <!-- Category chips -->
+                <div class="flex flex-wrap gap-2 mb-8">
+                    <a href="{% url 'inbox' %}" class="cat-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full glass text-xs text-white/70 hover:text-white">
+                        📥 Inbox {% if inbox_count %}<span class="px-1.5 py-0.5 text-[10px] rounded-full bg-purple-500/30 text-purple-300">{{ inbox_count }}</span>{% endif %}
+                    </a>
+                    {% for cat in categories %}
+                    <a href="{% url 'category_filter' cat.slug %}" class="cat-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full glass text-xs text-white/60 hover:text-white" style="--cat-color: {{ cat.color }}">
+                        {{ cat.emoji }} {{ cat.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+
+                <!-- Pinned / Important -->
+                {% if pinned %}
+                <section class="mb-10">
+                    <div class="flex items-center gap-2 mb-4">
+                        <h3 class="text-sm font-semibold text-white/50 uppercase tracking-wider">❤️ Important</h3>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+                        {% for memory in pinned %}
+                            {% include "quotes/partials/memory_card.html" %}
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
+                <!-- Upcoming -->
+                {% if upcoming %}
+                <section class="mb-10">
+                    <div class="flex items-center gap-2 mb-4">
+                        <h3 class="text-sm font-semibold text-white/50 uppercase tracking-wider">📅 Upcoming</h3>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+                        {% for memory in upcoming %}
+                            {% include "quotes/partials/memory_card.html" %}
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
+                <!-- Recent memories stream -->
+                <section>
+                    <div class="flex items-center gap-2 mb-4">
+                        <h3 class="text-sm font-semibold text-white/50 uppercase tracking-wider">🕐 Recent</h3>
+                    </div>
+                    <div id="memory-stream" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+                        {% for memory in recent %}
+                            {% include "quotes/partials/memory_card.html" %}
+                        {% empty %}
+                            <div class="col-span-full flex flex-col items-center justify-center py-16 px-6 glass rounded-3xl text-center border border-white/[0.08] shadow-xl">
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 flex items-center justify-center text-2xl mb-4 border border-purple-500/30 text-purple-300">🧠</div>
+                                <h4 class="text-base font-semibold text-white/90 mb-1">Your memory vault is empty</h4>
+                                <p class="text-xs text-white/40 max-w-sm mb-5">Capture your first thought, quote, link, or task to get started.</p>
+                                <button onclick="openCapture()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-xs font-semibold text-white shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                    + Capture something
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ═══════ CAPTURE MODAL ═══════ -->
+    <div id="capture-overlay" class="fixed inset-0 z-50 hidden">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeCapture()"></div>
+
+        <!-- Modal -->
+        <div class="absolute inset-x-4 top-[10vh] sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-xl">
+            <div class="modal-glass rounded-3xl shadow-2xl shadow-black/40 overflow-hidden">
+                <!-- Header -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
+                            <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        </div>
+                        <span class="text-sm font-semibold text-white/80">Quick Capture</span>
+                    </div>
+                    <button onclick="closeCapture()" class="p-1.5 rounded-lg hover:bg-white/10 transition-colors text-white/40 hover:text-white/70">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+
+                <!-- Form -->
+                <form id="capture-form" hx-post="{% url 'capture' %}" hx-target="#capture-feedback" hx-swap="innerHTML" hx-on::after-request="onCaptureSuccess(event)">
+                    {% csrf_token %}
+                    <div class="px-6 py-4 space-y-4">
+                        <!-- Content (main text area) -->
+                        <div>
+                            <textarea
+                                name="content"
+                                id="capture-content"
+                                rows="4"
+                                placeholder="What do you want to remember?"
+                                class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white/90 placeholder-white/25 outline-none focus:border-purple-400/40 resize-none transition-colors"
+                                required
+                                oninput="onContentChange(this.value)"
+                            ></textarea>
+                        </div>
+
+                        <!-- Category suggestion -->
+                        <div id="category-suggestion" class="hidden">
+                            <!-- Filled dynamically -->
+                        </div>
+
+                        <!-- Collapsed optional fields -->
+                        <div id="optional-fields" class="hidden space-y-3">
+                            <!-- Title -->
+                            <input type="text" name="title" placeholder="Title (auto-generated if empty)" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors">
+
+                            <!-- Category select -->
+                            <select name="category" id="capture-category" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 outline-none focus:border-purple-400/40 transition-colors appearance-none" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22rgba(255,255,255,0.3)%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center;">
+                                <option value="">No category (Inbox)</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.slug }}">{{ cat.emoji }} {{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <!-- Tags -->
+                            <input type="text" name="tags" placeholder="Tags (comma separated)" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors">
+
+                            <!-- URL -->
+                            <input type="url" name="source_url" placeholder="URL (optional)" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors">
+
+                            <!-- Priority -->
+                            <select name="priority" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 outline-none focus:border-purple-400/40 transition-colors appearance-none" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22rgba(255,255,255,0.3)%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center;">
+                                <option value="none">No priority</option>
+                                <option value="low">🟢 Low</option>
+                                <option value="medium">🟡 Medium</option>
+                                <option value="high">🟠 High</option>
+                                <option value="urgent">🔴 Urgent</option>
+                            </select>
+                        </div>
+
+                        <!-- Toggle optional fields -->
+                        <button type="button" onclick="toggleOptionalFields()" id="toggle-fields-btn" class="text-xs text-white/30 hover:text-white/50 transition-colors flex items-center gap-1">
+                            <svg class="w-3 h-3" id="toggle-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                            More options
+                        </button>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="flex items-center justify-between px-6 py-3.5 border-t border-white/[0.06] bg-white/[0.02]">
+                        <div id="capture-feedback" class="text-xs text-white/30">
+                            <!-- HTMX feedback goes here -->
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="closeCapture()" class="px-4 py-2 rounded-xl text-xs text-white/40 hover:text-white/60 hover:bg-white/5 transition-all">Cancel</button>
+                            <button type="submit" class="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-xs font-semibold shadow-lg shadow-purple-500/20 hover:shadow-purple-500/35 hover:-translate-y-0.5 transition-all active:translate-y-0">
+                                Save Memory
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ MOBILE BOTTOM NAV ═══════ -->
+    <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bottom-nav">
+        <div class="flex items-center justify-around py-2 px-2">
+            <a href="{% url 'dashboard' %}" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-purple-400">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+                <span class="text-[10px]">Home</span>
+            </a>
+            <a href="{% url 'inbox' %}" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-white/40 hover:text-white/70">
+                <div class="relative">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859M12 3v8.25m0 0l-3-3m3 3l3-3"/></svg>
+                    {% if inbox_count %}<span class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-purple-500 rounded-full flex items-center justify-center text-[8px] font-bold pulse-soft">{{ inbox_count }}</span>{% endif %}
+                </div>
+                <span class="text-[10px]">Inbox</span>
+            </a>
+            <button onclick="openCapture()" class="flex flex-col items-center gap-0.5 -mt-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                </div>
+                <span class="text-[10px] text-white/40 mt-0.5">Capture</span>
+            </button>
+            <a href="{% url 'search_memories' %}?q=" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-white/40 hover:text-white/70">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+                <span class="text-[10px]">Search</span>
+            </a>
+            <a href="{% url 'random_memory' %}" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-white/40 hover:text-white/70">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"/></svg>
+                <span class="text-[10px]">Random</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ═══════ MOBILE CATEGORY DRAWER ═══════ -->
+
+    <script>
+    // Capture modal
+    function openCapture() {
+        document.getElementById('capture-overlay').classList.remove('hidden');
+        document.getElementById('capture-content').focus();
+        document.body.style.overflow = 'hidden';
+    }
+    function closeCapture() {
+        document.getElementById('capture-overlay').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    // Toggle optional fields
+    function toggleOptionalFields() {
+        const fields = document.getElementById('optional-fields');
+        const icon = document.getElementById('toggle-icon');
+        const btn = document.getElementById('toggle-fields-btn');
+        if (fields.classList.contains('hidden')) {
+            fields.classList.remove('hidden');
+            icon.style.transform = 'rotate(180deg)';
+            btn.childNodes[btn.childNodes.length - 1].textContent = ' Less options';
+        } else {
+            fields.classList.add('hidden');
+            icon.style.transform = '';
+            btn.childNodes[btn.childNodes.length - 1].textContent = ' More options';
+        }
+    }
+
+    // Smart category suggestion
+    let suggestTimeout = null;
+    function onContentChange(value) {
+        clearTimeout(suggestTimeout);
+        if (value.trim().length < 5) {
+            document.getElementById('category-suggestion').classList.add('hidden');
+            return;
+        }
+        suggestTimeout = setTimeout(() => {
+            fetch(`{% url 'suggest_category' %}?content=${encodeURIComponent(value)}`)
+                .then(r => r.json())
+                .then(data => {
+                    const el = document.getElementById('category-suggestion');
+                    if (data.suggestion) {
+                        el.innerHTML = `
+                            <div class="slide-up flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                                <span class="text-xs text-purple-300">Suggested:</span>
+                                <button type="button" onclick="acceptSuggestion('${data.suggestion.slug}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-500/20 text-xs text-purple-200 hover:bg-purple-500/30 transition-colors">
+                                    ${data.suggestion.emoji} ${data.suggestion.name}
+                                </button>
+                                <button type="button" onclick="dismissSuggestion()" class="ml-auto text-white/20 hover:text-white/40 text-xs">✕</button>
+                            </div>
+                        `;
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                });
+        }, 600);
+    }
+
+    function acceptSuggestion(slug) {
+        // Show optional fields and select the category
+        const fields = document.getElementById('optional-fields');
+        fields.classList.remove('hidden');
+        document.getElementById('capture-category').value = slug;
+        document.getElementById('category-suggestion').classList.add('hidden');
+    }
+
+    function dismissSuggestion() {
+        document.getElementById('category-suggestion').classList.add('hidden');
+    }
+
+    // After successful capture
+    function onCaptureSuccess(event) {
+        if (event.detail.successful) {
+            // Reset form
+            document.getElementById('capture-form').reset();
+            document.getElementById('optional-fields').classList.add('hidden');
+            document.getElementById('category-suggestion').classList.add('hidden');
+            // Close modal after brief delay to show feedback
+            setTimeout(() => {
+                closeCapture();
+                // Reload the page to show new memory
+                window.location.reload();
+            }, 800);
+        }
+    }
+
+    // Keyboard shortcut: Ctrl/Cmd + K to open capture
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            openCapture();
+        }
+        if (e.key === 'Escape') {
+            closeCapture();
+        }
+    });
+    </script>
+</body>
+</html>
