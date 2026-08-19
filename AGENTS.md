@@ -26,7 +26,7 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 | **Backend** | Python 3.11 / Django 5 | Fast, batteries-included, stable |
 | **Interactivity** | HTMX 1.9 | Dynamic search, filtering, inline actions without JS framework overhead |
 | **Styling** | Tailwind CSS + DaisyUI (CDN) | Modern glassmorphism UI with zero build step |
-| **Typography** | Space Grotesk (Google Fonts) | Modern, geometric, suits dark glassmorphism |
+| **Typography** | Space Grotesk (Google Fonts) | Modern, geometric, suits dark glassmorphic UI |
 | **Database** | **SQLite** (local dev) / **Neon PostgreSQL** (production) | 100% Free forever PostgreSQL via `dj-database-url` |
 | **Hosting** | **Render** (Free Web Service) + **cron-job.org** (Keep-Alive Ping) | 100% Free production hosting, stays awake 24/7 without cold starts |
 | **Static Files** | WhiteNoise | Compressed static assets served directly by Django WSGI |
@@ -44,11 +44,23 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
   - `code`: Monospace syntax block
   - `links`: Clickable URL preview
   - `watch` / `read` / `buy`: Status badges & purchase/watched indicators
-  - `thoughts`: Quotation typography with author attribution
+  - `quotes` / `thoughts`: Warm golden serif quotation typography with author attribution & decorative quotation mark
   - `places`: Map marker styling
-- **Smart Capture (Server-Side)** — Keyword dictionary matching algorithm in `quotes/views.py` auto-suggests category upon typing in the capture form via HTMX.
+- **High-Confidence Auto-Categorization** — Real-time 200ms auto-categorization algorithm in `quotes/views.py` using strict regex pattern matching:
+  - `Code`: HTML tags (`<div`, `<meta`), JS/Python/SQL keywords, CLI commands
+  - `Quotes`: Explicit author attributions on new lines (e.g. `- Benjamin Franklin`) or quoted text with named author
+  - `Links`: HTTP/HTTPS URL detection
+  - `Inbox`: Plain text notes default to Inbox cleanly without false positive suggestions
+- **Smart Auto-Titling** — Automatically formats titles on client & server:
+  - Quotes: `"`Short phrase..." — Author Name`
+  - HTML Snippets: `<title>` tag content extraction
+  - URLs: Domain and path extraction
+- **Instant HTMX Actions** — Returning `HttpResponse("")` for delete and archive requests with `hx-swap="outerHTML"` causes HTMX to remove cards instantly (0ms delay) without page reloads.
+- **Form Edit Lifecycle Safety** — Uses `hx-on::after-request="closeEditModal('...')"` to ensure HTMX completes the POST submission and DOM swap before removing modal elements.
+- **Category Reordering System** — Custom ordering endpoint (`/categories/<id>/reorder/<direction>/`) swaps integer sequence values between adjacent categories with live sidebar & dropdown updates.
+- **Environment-Aware Sidebar Branding** — Conditionally renders `Memora v5.0 — All 5 Phases Complete 🎉` in development (`DEBUG=True`) and clean product branding `Memora v5.0 — Personal Vault` in production (`DEBUG=False`).
 - **Universal Capture API** — CSRF-exempt JSON endpoint (`/api/capture/`) enabling 1-click capture from desktop bookmarklets and browser extensions.
-- **PWA Web Share Target** — Accepts shared links, text, and titles from Android/iOS Web Share API via `/share/`.
+- **PWA Web Share Target** — Accepts shared links, text, and titles from Android/iOS Web Share API via `/share/` with server-side auto-categorization.
 
 ---
 
@@ -69,23 +81,26 @@ Memora/
 │   ├── __init__.py
 │   ├── admin.py
 │   ├── models.py            # Memory, Category, Tag, Collection
-│   ├── views.py             # Dashboard, search, capture, API, actions
+│   ├── views.py             # Dashboard, search, capture, API, category CRUD, reorder
 │   ├── urls.py
 │   ├── management/
 │   │   └── commands/
 │   │       └── seed_categories.py
 │   └── templates/
 │       └── quotes/
-│           ├── dashboard.html       # Main dashboard with sidebar + capture modal
-│           ├── memory_list.html     # Filtered list view (inbox, category, tag, etc.)
-│           ├── memory_detail.html   # Single memory detail page
+│           ├── dashboard.html       # Main dashboard with sidebar + header capture button
+│           ├── memory_list.html     # Filtered list view (inbox, category, tag, tasks, etc.)
+│           ├── memory_detail.html   # Single memory detail page with related suggestions
+│           ├── category_manage.html # Category manager with CRUD, palette, emoji suggest, reorder
 │           ├── capture_form.html    # Full-page capture form
 │           ├── random_memory.html   # Random memory page
 │           └── partials/
 │               ├── memory_card.html      # Type-aware memory card partial
 │               ├── memory_grid.html      # Shared grid of memory cards with empty state
-│               ├── capture_feedback.html  # Capture success/error feedback
-│               └── random_memory.html     # Random memory card partial
+│               ├── memory_edit_modal.html# Pre-filled edit modal partial with HTMX swap
+│               ├── capture_modal.html   # Quick capture modal with live title & auto-category
+│               ├── capture_feedback.html # Capture success/error feedback partial
+│               └── random_memory.html    # Random memory card partial
 ├── static/
 │   ├── manifest.json        # PWA Web Share Target manifest
 │   ├── bookmarklet.js       # Desktop browser bookmarklet script
@@ -112,7 +127,7 @@ Memora/
 
 ### Category
 - `name`, `slug`, `emoji`, `color`, `is_default`, `order`
-- 15 default system categories seeded via `python manage.py seed_categories`
+- 16 default system categories seeded via `python manage.py seed_categories`
 
 ### Tag
 - `name`, `slug`
@@ -124,7 +139,7 @@ Memora/
 
 ## 6. Default Categories
 
-🧠 **Thoughts** • 💡 **Ideas** • 📚 **Learn** • 🔖 **Save** • 🔗 **Links** • 🎬 **Watch** • 📖 **Read** • 🛒 **Buy** • ✅ **Tasks** • 📅 **Reminders** • ✈️ **Places** • 💻 **Code** • 👤 **People** • 🚀 **Projects** • ❤️ **Important**
+💬 **Quotes** • 🧠 **Thoughts** • 💡 **Ideas** • 📚 **Learn** • 🔖 **Save** • 🔗 **Links** • 🎬 **Watch** • 📖 **Read** • 🛒 **Buy** • ✅ **Tasks** • 📅 **Reminders** • ✈️ **Places** • 💻 **Code** • 👤 **People** • 🚀 **Projects** • ❤️ **Important**
 
 ---
 
@@ -137,37 +152,52 @@ Memora/
 | `/capture/` | `capture` | Quick capture form handler |
 | `/api/capture/` | `capture_api` | CSRF-exempt JSON API endpoint for bookmarklet/share |
 | `/api/suggest-category/` | `suggest_category` | Category suggestion JSON API |
-| `/memory/<id>/` | `memory_detail` | Detailed view for a single memory |
+| `/memory/<id>/` | `memory_detail` | Detailed view for a single memory + smart suggestions |
+| `/memory/<id>/edit/` | `memory_edit` | HTMX memory edit modal & POST handler |
 | `/memory/<id>/pin/` | `memory_pin` | HTMX toggle pin |
-| `/memory/<id>/archive/` | `memory_archive` | HTMX toggle archive |
+| `/memory/<id>/archive/` | `memory_archive` | HTMX toggle archive (0ms DOM swap) |
 | `/memory/<id>/status/` | `memory_status` | HTMX update memory status (e.g. mark done) |
-| `/memory/<id>/delete/` | `memory_delete` | HTMX delete memory |
+| `/memory/<id>/delete/` | `memory_delete` | HTMX delete memory (0ms DOM swap) |
 | `/inbox/` | `inbox` | Unclassified Inbox view |
 | `/important/` | `important` | Pinned / Important memories |
+| `/tasks/` | `tasks` | Dedicated Tasks productivity workspace |
+| `/reminders/` | `reminders` | Chronological Reminders & Due Dates timeline |
+| `/priority/<level>/` | `priority_filter` | Filter memories by priority level |
 | `/archive/` | `archive` | Archived memories view |
 | `/today/` | `today` | Memories captured today |
 | `/week/` | `week` | Memories captured this week |
 | `/category/<slug>/` | `category_filter` | Filter memories by category |
 | `/tag/<slug>/` | `tag_filter` | Filter memories by tag |
 | `/random/` | `random_memory` | "Remember This" random memory resurfacing |
+| `/on-this-day/` | `on_this_day` | Historical memory resurfacing engine |
+| `/recently-viewed/` | `recently_viewed` | Session-based recently viewed history |
+| `/categories/` | `category_manage` | Full category management dashboard |
+| `/categories/create/` | `category_create` | Create new category endpoint |
+| `/categories/<id>/edit/` | `category_edit` | Edit category endpoint |
+| `/categories/<id>/delete/` | `category_delete` | Delete category with Inbox fallback |
+| `/categories/<id>/reorder/<dir>/` | `category_reorder` | Swap category order (up/down) |
 | `/share/` | `share_target` | Mobile PWA Web Share Target handler |
 
 ---
 
-## 8. Completed Work (Phase 1 Foundation & UI Fixes)
+## 8. Completed Work (Phase 1 — Phase 5 Complete)
 
 - [x] Memory, Category, Tag, Collection models implemented
-- [x] 15 default categories seeded with custom colors and emojis
+- [x] 16 default categories seeded with custom colors and emojis
+- [x] Full Category Management suite (Create, Edit, Delete with Inbox fallback, 20-color preset palette, 32-emoji quick picker, Up/Down reordering)
 - [x] Dashboard with sidebar navigation & category chips
-- [x] Fast universal capture modal (`Ctrl+K` keyboard shortcut)
-- [x] Smart category auto-suggestion engine
-- [x] Type-aware memory cards (custom UI per category)
-- [x] Fixed SVG sizing (`w-5 h-5`) across search & icons to prevent browser expansion bugs
-- [x] Enhanced glassmorphic Empty State UI for search and empty views
-- [x] HTMX universal search across title, content, author, URL, tags
-- [x] Inline memory actions (pin, archive, mark done, delete)
-- [x] Random memory "Remember This" resurfacing engine
-- [x] Desktop bookmarklet script & PWA Web Share Target
+- [x] Persistent top-right **`+ Capture New Memory`** header button (`Ctrl+K` shortcut indicator)
+- [x] Real-time 200ms high-confidence auto-categorization engine
+- [x] Real-time live auto-title preview on client & smart quote author titling on server
+- [x] Type-aware memory cards (Tasks, Code, Links, Watch/Read/Buy, Golden Serif Quotes, Places)
+- [x] Full Memory Editing system (`memory_edit_modal.html` with HTMX live DOM swap)
+- [x] Instant 0ms DOM removal for Delete and Archive actions
+- [x] Dedicated Productivity workspaces (`/tasks/`, `/reminders/`, `/priority/`)
+- [x] Memory Resurfacing ("Remember This" random memory & "On This Day" historical resurfacing)
+- [x] Recently Viewed session history (`/recently-viewed/`)
+- [x] Smart Related Memory suggestions on memory detail page
+- [x] Desktop bookmarklet script & PWA Web Share Target with auto-categorization
+- [x] Environment-aware sidebar version badge (Dev milestone vs Production branding)
 - [x] GitHub repository setup and initial commit pushes (`omtiwari17/Memora`)
 - [x] Production deployment configuration for **100% Free Forever Hosting** (Neon Postgres + Render + cron-job.org keep-alive)
 
