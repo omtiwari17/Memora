@@ -85,18 +85,27 @@ def suggest_category(text):
 
 
 def auto_title(content, category_slug=None):
-    """Generate a clean, smart title from content if none provided."""
+    """Generate a clean, smart title from content."""
     if not content:
         return "Untitled Memory"
 
     clean = content.strip()
 
-    # 1. HTML title tag extraction
+    # 1. Author quote extraction (e.g. - Benjamin Franklin)
+    author_match = re.search(r'[\n\r\s]+[-—–~]\s*([A-Z][a-zA-Z\s\.]+)', clean)
+    if author_match and author_match.group(1).strip():
+        author = author_match.group(1).strip()
+        quote_text = clean.split('\n')[0].replace('"', '').replace('“', '').replace('”', '').strip()
+        words = quote_text.split()
+        short_quote = " ".join(words[:5]) + "..." if len(words) > 5 else quote_text
+        return f'"{short_quote}" — {author}'
+
+    # 2. HTML title tag extraction
     title_match = re.search(r"<title>(.*?)</title>", clean, re.IGNORECASE)
     if title_match and title_match.group(1).strip():
         return title_match.group(1).strip()[:80]
 
-    # 2. URL title extraction
+    # 3. URL title extraction
     if clean.startswith("http://") or clean.startswith("https://"):
         from urllib.parse import urlparse
         parsed = urlparse(clean.split()[0])
@@ -105,7 +114,7 @@ def auto_title(content, category_slug=None):
             return f"{parsed.netloc}{path}"
         return parsed.netloc or "Saved Link"
 
-    # 3. Clean leading quotes, dashes, bullets
+    # 4. Clean first line summary
     first_line = clean.split("\n")[0].strip()
     first_line = re.sub(r'^[“"\'\`\s\-*\d\.]+', '', first_line)
     first_line = re.sub(r'[”"\'\`\s]+$', '', first_line).strip()
@@ -113,9 +122,10 @@ def auto_title(content, category_slug=None):
     if not first_line:
         first_line = clean[:80]
 
-    if len(first_line) <= 80:
-        return first_line
-    return first_line[:77] + "..."
+    words = first_line.split()
+    if len(words) > 8:
+        return " ".join(words[:8]) + "..."
+    return first_line
 
 
 # ── Dashboard ──────────────────────────────────────────────────────────
@@ -580,21 +590,22 @@ def category_delete(request, pk):
 def seed_categories():
     """Create default categories if they don't exist."""
     defaults = [
-        {"name": "Thoughts", "slug": "thoughts", "emoji": "🧠", "color": "#a78bfa", "order": 1},
-        {"name": "Ideas", "slug": "ideas", "emoji": "💡", "color": "#fbbf24", "order": 2},
-        {"name": "Learn", "slug": "learn", "emoji": "📚", "color": "#34d399", "order": 3},
-        {"name": "Save", "slug": "save", "emoji": "🔖", "color": "#60a5fa", "order": 4},
-        {"name": "Links", "slug": "links", "emoji": "🔗", "color": "#38bdf8", "order": 5},
-        {"name": "Watch", "slug": "watch", "emoji": "🎬", "color": "#f87171", "order": 6},
-        {"name": "Read", "slug": "read", "emoji": "📖", "color": "#fb923c", "order": 7},
-        {"name": "Buy", "slug": "buy", "emoji": "🛒", "color": "#4ade80", "order": 8},
-        {"name": "Tasks", "slug": "tasks", "emoji": "✅", "color": "#22d3ee", "order": 9},
-        {"name": "Reminders", "slug": "reminders", "emoji": "📅", "color": "#e879f9", "order": 10},
-        {"name": "Places", "slug": "places", "emoji": "✈️", "color": "#2dd4bf", "order": 11},
-        {"name": "Code", "slug": "code", "emoji": "💻", "color": "#a3e635", "order": 12},
-        {"name": "People", "slug": "people", "emoji": "👤", "color": "#f472b6", "order": 13},
-        {"name": "Projects", "slug": "projects", "emoji": "🚀", "color": "#818cf8", "order": 14},
-        {"name": "Important", "slug": "important", "emoji": "❤️", "color": "#ef4444", "order": 15},
+        {"name": "Quotes", "slug": "quotes", "emoji": "💬", "color": "#f59e0b", "order": 1},
+        {"name": "Thoughts", "slug": "thoughts", "emoji": "🧠", "color": "#a78bfa", "order": 2},
+        {"name": "Ideas", "slug": "ideas", "emoji": "💡", "color": "#fbbf24", "order": 3},
+        {"name": "Learn", "slug": "learn", "emoji": "📚", "color": "#34d399", "order": 4},
+        {"name": "Save", "slug": "save", "emoji": "🔖", "color": "#60a5fa", "order": 5},
+        {"name": "Links", "slug": "links", "emoji": "🔗", "color": "#38bdf8", "order": 6},
+        {"name": "Watch", "slug": "watch", "emoji": "🎬", "color": "#f87171", "order": 7},
+        {"name": "Read", "slug": "read", "emoji": "📖", "color": "#fb923c", "order": 8},
+        {"name": "Buy", "slug": "buy", "emoji": "🛒", "color": "#4ade80", "order": 9},
+        {"name": "Tasks", "slug": "tasks", "emoji": "✅", "color": "#22d3ee", "order": 10},
+        {"name": "Reminders", "slug": "reminders", "emoji": "📅", "color": "#e879f9", "order": 11},
+        {"name": "Places", "slug": "places", "emoji": "✈️", "color": "#2dd4bf", "order": 12},
+        {"name": "Code", "slug": "code", "emoji": "💻", "color": "#a3e635", "order": 13},
+        {"name": "People", "slug": "people", "emoji": "👤", "color": "#f472b6", "order": 14},
+        {"name": "Projects", "slug": "projects", "emoji": "🚀", "color": "#818cf8", "order": 15},
+        {"name": "Important", "slug": "important", "emoji": "❤️", "color": "#ef4444", "order": 16},
     ]
     for cat_data in defaults:
         Category.objects.get_or_create(

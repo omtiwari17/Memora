@@ -95,15 +95,32 @@ function generateLiveTitle(val) {
         return;
     }
     let clean = val.trim();
+
+    // 1. Author quote extraction (e.g. - Benjamin Franklin)
+    const authorMatch = clean.match(/[\n\r\s]+[-—–~]\s*([A-Z][a-zA-Z\s\.]+)/);
+    if (authorMatch && authorMatch[1]) {
+        const author = authorMatch[1].trim();
+        const quoteText = clean.split('\n')[0].replace(/["“”']/g, '').trim();
+        const words = quoteText.split(/\s+/);
+        const shortQuote = words.length > 5 ? words.slice(0, 5).join(' ') + '...' : quoteText;
+        titleInput.value = `"${shortQuote}" — ${author}`;
+        return;
+    }
+
+    // 2. HTML title tag extraction
     const titleMatch = clean.match(/<title>(.*?)<\/title>/i);
     if (titleMatch && titleMatch[1]) {
         titleInput.value = titleMatch[1].trim().slice(0, 80);
         return;
     }
+
+    // 3. Short 8-word summary
     let firstLine = clean.split('\n')[0].trim();
     firstLine = firstLine.replace(/^[“"'`\s\-*\d\.]+/g, '').replace(/[”"'`\s]+$/g, '').trim();
     if (!firstLine) firstLine = clean.slice(0, 80);
-    titleInput.value = firstLine.length > 77 ? firstLine.slice(0, 77) + '...' : firstLine;
+    
+    const words = firstLine.split(/\s+/);
+    titleInput.value = words.length > 8 ? words.slice(0, 8).join(' ') + '...' : firstLine;
 }
 
 function openCapture() {
@@ -150,13 +167,16 @@ function onContentChange(value) {
             .then(data => {
                 const el = document.getElementById('category-suggestion');
                 if (data.suggestion) {
+                    // Auto-select category in dropdown
+                    const catSelect = document.getElementById('capture-category');
+                    if (catSelect) catSelect.value = data.suggestion.slug;
+
                     el.innerHTML = `
-                        <div class="slide-up flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
-                            <span class="text-xs text-purple-300">Suggested:</span>
-                            <button type="button" onclick="acceptSuggestion('${data.suggestion.slug}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-500/20 text-xs text-purple-200 hover:bg-purple-500/30 transition-colors">
+                        <div class="slide-up flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-500/15 border border-purple-500/30">
+                            <span class="text-xs font-semibold text-purple-300">✨ Auto-categorized as:</span>
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-500/25 text-xs font-semibold text-purple-200">
                                 ${data.suggestion.emoji} ${data.suggestion.name}
-                            </button>
-                            <button type="button" onclick="dismissSuggestion()" class="ml-auto text-white/20 hover:text-white/40 text-xs">✕</button>
+                            </span>
                         </div>
                     `;
                     el.classList.remove('hidden');
@@ -164,7 +184,7 @@ function onContentChange(value) {
                     el.classList.add('hidden');
                 }
             });
-    }, 600);
+    }, 200);
 }
 
 function acceptSuggestion(slug) {
