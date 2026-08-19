@@ -110,15 +110,25 @@
                     </a>
                 </div>
 
-                <!-- Page title -->
-                <header class="mb-8">
-                    <div class="flex items-center gap-3 mb-2">
-                        <a href="{% url 'dashboard' %}" class="text-white/30 hover:text-white/60 transition-colors">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
-                        </a>
-                        <h2 class="text-2xl font-bold text-white/90">{{ title }}</h2>
+                <!-- Page title & Top Right Capture Button -->
+                <header class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-3 mb-1">
+                            <a href="{% url 'dashboard' %}" class="text-white/30 hover:text-white/60 transition-colors">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+                            </a>
+                            <h2 class="text-2xl font-bold text-white/90">{{ title }}</h2>
+                        </div>
+                        <p class="text-sm text-white/30 ml-7">{{ memories.count }} memor{{ memories.count|pluralize:"y,ies" }}</p>
                     </div>
-                    <p class="text-sm text-white/30">{{ memories.count }} memor{{ memories.count|pluralize:"y,ies" }}</p>
+
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="openCapture('{% if active_filter == 'category' %}{{ filter_value }}{% endif %}')" class="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-xs font-bold text-white shadow-xl shadow-purple-500/25 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            <span>+ Capture New Memory</span>
+                            <span class="hidden md:inline-block px-1.5 py-0.5 rounded-md bg-white/20 text-[10px] font-mono">Ctrl+K</span>
+                        </button>
+                    </div>
                 </header>
 
                 <!-- Search within this view -->

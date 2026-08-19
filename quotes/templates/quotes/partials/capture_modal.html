@@ -123,10 +123,16 @@ function generateLiveTitle(val) {
     titleInput.value = words.length > 8 ? words.slice(0, 8).join(' ') + '...' : firstLine;
 }
 
-function openCapture() {
+function openCapture(catSlug) {
     const el = document.getElementById('capture-overlay');
     if (el) {
         el.classList.remove('hidden');
+        if (catSlug) {
+            const fields = document.getElementById('optional-fields');
+            if (fields) fields.classList.remove('hidden');
+            const catSelect = document.getElementById('capture-category');
+            if (catSelect) catSelect.value = catSlug;
+        }
         document.getElementById('capture-content').focus();
         document.body.style.overflow = 'hidden';
     }
