@@ -45,42 +45,37 @@ CATEGORY_KEYWORDS = {
 
 
 QUOTE_PATTERNS = [
-    r'["“«].+["”»]',                     # Text enclosed in double quotes
-    r'[\n\r]\s*[-—–~]\s*[A-Z]',          # Author dash attribution on a new line (e.g. - Benjamin Franklin)
-    r'\s+[-—–~]\s*[A-Z][a-zA-Z\s\.]+$',  # Author attribution at end of text
-    r'\b(quote|quotes|saying|wisdom|motto|inspiration)\b',
+    # Explicit quote with double quotes AND an author attribution
+    r'^["“].+["”]\s*([\n\r]|\s+[-—–~])',
+    # Author attribution on a new line: - Firstname Lastname (at least 2 capitalized name words)
+    r'[\n\r]\s*[-—–~]\s*[A-Z][a-z]{2,}\s+[A-Z][a-z]{2,}',
+    # Explicit quote keywords
+    r'\b(famous quote|quote by|quote of the day)\b',
 ]
 
 
 def suggest_category(text):
-    """Smart category suggestion with code and quote pattern detection."""
-    if not text or len(text.strip()) < 3:
+    """High-confidence smart category suggestion."""
+    if not text or len(text.strip()) < 5:
         return None
 
-    # 1. Check for code syntax & HTML structure
+    # 1. High-confidence Code syntax & HTML structure
     for pattern in CODE_PATTERNS:
         if re.search(pattern, text, re.IGNORECASE):
             return "code"
 
-    # 2. Check for quotes & author attributions
+    # 2. High-confidence Quote attributions
     for pattern in QUOTE_PATTERNS:
-        if re.search(pattern, text, re.IGNORECASE):
+        if re.search(pattern, text):
             if Category.objects.filter(slug="quotes").exists():
                 return "quotes"
             if Category.objects.filter(slug="thoughts").exists():
                 return "thoughts"
 
-    text_lower = text.lower()
-    scores = {}
+    # 3. High-confidence Link detection
+    if re.search(r'\b(https?://|www\.)\S+', text, re.IGNORECASE):
+        return "links"
 
-    # 3. Check keyword matches
-    for slug, keywords in CATEGORY_KEYWORDS.items():
-        score = sum(1 for kw in keywords if kw in text_lower)
-        if score > 0:
-            scores[slug] = score
-
-    if scores:
-        return max(scores, key=scores.get)
     return None
 
 
