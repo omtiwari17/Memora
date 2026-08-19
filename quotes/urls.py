@@ -29,6 +29,12 @@ urlpatterns = [
     path("category/<slug:filter_value>/", views.memory_list, {"filter_type": "category"}, name="category_filter"),
     path("tag/<slug:filter_value>/", views.memory_list, {"filter_type": "tag"}, name="tag_filter"),
     
+    # Category Management
+    path("categories/", views.category_manage, name="category_manage"),
+    path("categories/create/", views.category_create, name="category_create"),
+    path("categories/<int:pk>/edit/", views.category_edit, name="category_edit"),
+    path("categories/<int:pk>/delete/", views.category_delete, name="category_delete"),
+    
     # Random memory
     path("random/", views.random_memory, name="random_memory"),
     

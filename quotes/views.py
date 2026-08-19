@@ -364,6 +364,73 @@ def share_target(request):
     return redirect("dashboard")
 
 
+# ── Category Management ────────────────────────────────────────────────
+def category_manage(request):
+    """View to list, create, edit, and delete categories."""
+    categories = Category.objects.all().order_by("order", "name")
+    return render(request, "quotes/category_manage.html", {"categories": categories})
+
+
+@require_http_methods(["POST"])
+def category_create(request):
+    """Create a new category."""
+    name = request.POST.get("name", "").strip()
+    emoji = request.POST.get("emoji", "📌").strip() or "📌"
+    color = request.POST.get("color", "#a78bfa").strip() or "#a78bfa"
+    
+    if not name:
+        return redirect("category_manage")
+    
+    from django.utils.text import slugify
+    slug = slugify(name)
+    
+    base_slug = slug
+    counter = 1
+    while Category.objects.filter(slug=slug).exists():
+        slug = f"{base_slug}-{counter}"
+        counter += 1
+
+    Category.objects.create(
+        name=name,
+        slug=slug,
+        emoji=emoji,
+        color=color,
+        is_default=False,
+        order=Category.objects.count() + 1
+    )
+    return redirect("category_manage")
+
+
+@require_http_methods(["POST"])
+def category_edit(request, pk):
+    """Edit an existing category."""
+    category = get_object_or_404(Category, pk=pk)
+    name = request.POST.get("name", "").strip()
+    emoji = request.POST.get("emoji", "").strip()
+    color = request.POST.get("color", "").strip()
+
+    if name:
+        category.name = name
+        from django.utils.text import slugify
+        category.slug = slugify(name)
+    if emoji:
+        category.emoji = emoji
+    if color:
+        category.color = color
+    category.save()
+    return redirect("category_manage")
+
+
+@require_http_methods(["POST"])
+def category_delete(request, pk):
+    """Delete a category (reassign memories to Inbox)."""
+    category = get_object_or_404(Category, pk=pk)
+    # Reassign memories to Inbox before deleting
+    Memory.objects.filter(category=category).update(category=None, status=Memory.Status.INBOX)
+    category.delete()
+    return redirect("category_manage")
+
+
 # ── Seed default categories ───────────────────────────────────────────
 def seed_categories():
     """Create default categories if they don't exist."""
