@@ -57,7 +57,7 @@
                     </div>
                     <div class="sm:col-span-6">
                         <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1">Category Name</label>
-                        <input type="text" name="name" id="create-name" placeholder="e.g. Finance, Fitness, Recipes, Gaming..." class="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/50" required oninput="suggestEmoji(this.value)">
+                        <input type="text" name="name" id="create-name" placeholder="e.g. Quotes, Finance, Fitness, Recipes..." class="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/50" required oninput="suggestEmoji(this.value)">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1">Accent Color</label>
@@ -70,9 +70,17 @@
                     </div>
                 </div>
 
+                <!-- Quick Emoji Selector Bar -->
+                <div>
+                    <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Quick Emoji Selector (Click to pick)</label>
+                    <div class="flex flex-wrap gap-1.5 p-2 rounded-2xl bg-white/[0.02] border border-white/[0.05]" id="emoji-picker-bar">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+
                 <!-- Palette presets & used indicators -->
                 <div>
-                    <label class="text-[10px] text-white/40 uppercase font-semibold block mb-2">Color Palette (<span class="text-purple-300">✓</span> = Already in use)</label>
+                    <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Color Palette (<span class="text-purple-300">✓</span> = Already in use)</label>
                     <div class="flex flex-wrap gap-2 items-center" id="color-palette"></div>
                 </div>
             </form>
@@ -189,26 +197,50 @@
     document.getElementById('create-color').addEventListener('input', renderPalette);
     renderPalette();
 
-    // Emoji Auto-Suggestion Engine
+    // Quick Emoji Bar Picker
+    const popularEmojis = ["💬", "📝", "💡", "📚", "🔖", "🔗", "🎬", "📖", "🛒", "✅", "📅", "✈️", "💻", "👤", "🚀", "❤️", "🎯", "💰", "🏋️", "🍕", "🎮", "🎵", "🏎️", "🤖", "📰", "📸", "🔐", "🐛", "🏠", "🐾", "⭐", "📜"];
+    
+    function renderEmojiPicker() {
+        const bar = document.getElementById('emoji-picker-bar');
+        if (!bar) return;
+        bar.innerHTML = popularEmojis.map(e => `
+            <button type="button" onclick="pickEmoji('${e}')" class="w-8 h-8 rounded-xl bg-white/5 hover:bg-purple-500/20 hover:scale-110 flex items-center justify-center text-sm transition-all">
+                ${e}
+            </button>
+        `).join('');
+    }
+    
+    function pickEmoji(e) {
+        document.getElementById('create-emoji').value = e;
+        userManuallyEditedEmoji = true;
+    }
+    renderEmojiPicker();
+
+    // Comprehensive Emoji Auto-Suggestion Engine
     let userManuallyEditedEmoji = false;
     const EMOJI_DICTIONARY = {
-        "finance": "💰", "money": "💰", "budget": "💰", "crypto": "🪙", "stock": "📈", "invest": "📈", "expense": "💵",
+        "quote": "💬", "quotes": "💬", "saying": "💬", "sayings": "💬", "motto": "💬", "inspiration": "💬", "wisdom": "💬", "words": "💬", "thought": "🧠", "thoughts": "🧠",
+        "note": "📝", "notes": "📝", "journal": "📝", "diary": "📝", "memo": "📝", "todo": "✅", "task": "✅", "tasks": "✅",
+        "goal": "🎯", "goals": "🎯", "target": "🎯", "habit": "🎯", "habits": "🎯",
+        "finance": "💰", "money": "💰", "budget": "💰", "crypto": "🪙", "stock": "📈", "invest": "📈", "expense": "💵", "wallet": "💳",
         "fitness": "🏋️", "gym": "🏋️", "health": "🩺", "workout": "💪", "exercise": "🏃",
-        "recipe": "🍕", "food": "🥗", "cooking": "🍳", "kitchen": "🍳", "meal": "🍱", "dinner": "🍝",
-        "gaming": "🎮", "game": "🎮", "play": "🎮", "steam": "🎮", "xbox": "🎮", "ps5": "🎮",
-        "music": "🎵", "song": "🎧", "audio": "🔊", "album": "💿", "podcast": "🎙️",
+        "recipe": "🍕", "food": "🥗", "cooking": "🍳", "kitchen": "🍳", "meal": "🍱", "dinner": "🍝", "restaurant": "🍔",
+        "gaming": "🎮", "game": "🎮", "games": "🎮", "play": "🎮", "steam": "🎮", "xbox": "🎮", "ps5": "🎮",
+        "music": "🎵", "song": "🎧", "songs": "🎵", "audio": "🔊", "album": "💿", "podcast": "🎙️",
         "car": "🏎️", "auto": "🚗", "vehicle": "🚘", "drive": "🚘",
         "work": "💼", "job": "💼", "office": "🏢", "career": "🎯",
-        "travel": "✈️", "trip": "✈️", "flight": "✈️", "vacation": "🏖️", "hotel": "🏨",
-        "book": "📖", "reading": "📚", "novel": "📖",
+        "travel": "✈️", "trip": "✈️", "flight": "✈️", "vacation": "🏖️", "hotel": "🏨", "place": "✈️", "places": "✈️",
+        "book": "📖", "books": "📚", "reading": "📖", "novel": "📖",
         "design": "🎨", "art": "🎨", "drawing": "🎨", "sketch": "✏️",
         "security": "🔐", "password": "🔑", "vault": "🔒",
-        "shopping": "🛒", "buy": "🛒", "store": "🛍️",
-        "movie": "🎬", "film": "🎬", "cinema": "🍿", "show": "📺",
-        "pet": "🐾", "dog": "🐶", "cat": "🐱",
+        "shopping": "🛒", "buy": "🛒", "store": "🛍️", "purchase": "🛒",
+        "movie": "🎬", "movies": "🎬", "film": "🎬", "cinema": "🍿", "show": "📺", "watch": "🎬",
+        "pet": "🐾", "pets": "🐾", "dog": "🐶", "cat": "🐱",
         "home": "🏠", "house": "🏡", "family": "👨‍👩‍👧",
-        "code": "💻", "dev": "💻", "program": "💻", "web": "🌐",
+        "code": "💻", "dev": "💻", "program": "💻", "web": "🌐", "coding": "💻", "api": "⚡", "bug": "🐛", "bugs": "🐛",
         "event": "📅", "calendar": "📅", "meeting": "🤝",
+        "ai": "🤖", "bot": "🤖", "prompt": "🧠", "gpt": "🤖",
+        "news": "📰", "article": "📰", "photo": "📸", "picture": "📸",
     };
 
     function suggestEmoji(name) {
