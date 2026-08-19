@@ -39,8 +39,10 @@ urlpatterns = [
     path("categories/<int:pk>/edit/", views.category_edit, name="category_edit"),
     path("categories/<int:pk>/delete/", views.category_delete, name="category_delete"),
     
-    # Random memory
+    # Phase 5 — Memory Features
     path("random/", views.random_memory, name="random_memory"),
+    path("on-this-day/", views.memory_list, {"filter_type": "on_this_day"}, name="on_this_day"),
+    path("recently-viewed/", views.recently_viewed, name="recently_viewed"),
     
     # PWA
     path("share/", views.share_target, name="share_target"),

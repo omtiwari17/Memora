@@ -192,6 +192,15 @@ def memory_list(request, filter_type=None, filter_value=None):
     elif filter_type == "priority":
         memories = memories.filter(priority=filter_value)
         title = f"Priority: {filter_value.capitalize()}"
+    elif filter_type == "on_this_day":
+        today = timezone.now()
+        memories = memories.filter(
+            created_at__month=today.month,
+            created_at__day=today.day
+        )
+        if not memories.exists():
+            memories = Memory.objects.filter(is_archived=False).order_by("created_at")[:12]
+        title = "✨ On This Day"
 
     categories = Category.objects.all().order_by("order", "name")
     
@@ -208,6 +217,24 @@ def memory_list(request, filter_type=None, filter_value=None):
         "categories": categories,
         "active_filter": active_filter,
         "filter_value": filter_value,
+    })
+
+
+# ── Recently Viewed View ──────────────────────────────────────────────
+def recently_viewed(request):
+    """View list of recently viewed memories."""
+    recent_ids = request.session.get("recently_viewed", [])
+    memories = []
+    if recent_ids:
+        memory_map = {m.id: m for m in Memory.objects.filter(id__in=recent_ids, is_archived=False)}
+        memories = [memory_map[m_id] for m_id in recent_ids if m_id in memory_map]
+    
+    categories = Category.objects.all().order_by("order", "name")
+    return render(request, "quotes/memory_list.html", {
+        "memories": memories,
+        "title": "🕒 Recently Viewed",
+        "categories": categories,
+        "active_filter": "recently_viewed",
     })
 
 
@@ -319,12 +346,27 @@ def suggest_category_api(request):
 
 # ── Memory detail & actions ────────────────────────────────────────────
 def memory_detail(request, pk):
-    """View a single memory."""
+    """View a single memory detail page + track recently viewed + smart suggestions."""
     memory = get_object_or_404(Memory, pk=pk)
+    
+    # Track in session
+    recent_ids = request.session.get("recently_viewed", [])
+    if memory.id in recent_ids:
+        recent_ids.remove(memory.id)
+    recent_ids.insert(0, memory.id)
+    request.session["recently_viewed"] = recent_ids[:20]
+
+    # Smart suggestions (related memories sharing category or tags)
+    suggestions = Memory.objects.filter(is_archived=False).exclude(id=memory.id)
+    if memory.category:
+        suggestions = suggestions.filter(category=memory.category)
+    suggestions = suggestions[:3]
+
     categories = Category.objects.all().order_by("order", "name")
     return render(request, "quotes/memory_detail.html", {
         "memory": memory,
         "categories": categories,
+        "suggestions": suggestions,
     })
 
 

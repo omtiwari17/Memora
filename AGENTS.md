@@ -267,6 +267,6 @@ Render's free tier puts web services to sleep after 15 minutes of inactivity. To
 ### Phase 5 — Memory Features
 - [x] Random memory
 - [x] Resurfacing
-- [ ] Recently viewed
-- [ ] "On this day"
-- [ ] Smart suggestions
+- [x] Recently viewed
+- [x] "On this day"
+- [x] Smart suggestions

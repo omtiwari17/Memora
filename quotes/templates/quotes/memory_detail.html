@@ -171,6 +171,23 @@
                 </div>
             </div>
         </article>
+
+        {# Related Memories Suggestions #}
+        {% if suggestions %}
+        <div class="mt-8">
+            <h3 class="text-sm font-semibold text-white/50 mb-4 flex items-center gap-2">
+                <span>✨ You might also want to remember...</span>
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {% for suggestion in suggestions %}
+                <a href="{% url 'memory_detail' suggestion.id %}" class="glass glass-hover p-3.5 rounded-2xl flex flex-col justify-between transition-all">
+                    <p class="text-xs font-medium text-white/80 line-clamp-2 mb-2">{{ suggestion.title|default:suggestion.content|truncatewords:10 }}</p>
+                    <span class="text-[10px] text-white/30">{{ suggestion.category.emoji|default:"📥" }} {{ suggestion.category.name|default:"Inbox" }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>
