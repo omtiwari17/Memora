@@ -84,10 +84,35 @@ def suggest_category(text):
     return None
 
 
-def auto_title(content):
-    """Generate a short title from content if none provided."""
-    # Take first line or first 80 chars
-    first_line = content.strip().split("\n")[0].strip()
+def auto_title(content, category_slug=None):
+    """Generate a clean, smart title from content if none provided."""
+    if not content:
+        return "Untitled Memory"
+
+    clean = content.strip()
+
+    # 1. HTML title tag extraction
+    title_match = re.search(r"<title>(.*?)</title>", clean, re.IGNORECASE)
+    if title_match and title_match.group(1).strip():
+        return title_match.group(1).strip()[:80]
+
+    # 2. URL title extraction
+    if clean.startswith("http://") or clean.startswith("https://"):
+        from urllib.parse import urlparse
+        parsed = urlparse(clean.split()[0])
+        path = parsed.path.rstrip("/")
+        if path:
+            return f"{parsed.netloc}{path}"
+        return parsed.netloc or "Saved Link"
+
+    # 3. Clean leading quotes, dashes, bullets
+    first_line = clean.split("\n")[0].strip()
+    first_line = re.sub(r'^[“"\'\`\s\-*\d\.]+', '', first_line)
+    first_line = re.sub(r'[”"\'\`\s]+$', '', first_line).strip()
+
+    if not first_line:
+        first_line = clean[:80]
+
     if len(first_line) <= 80:
         return first_line
     return first_line[:77] + "..."
