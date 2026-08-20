@@ -46,19 +46,22 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
   - `watch` / `read` / `buy`: Status badges & purchase/watched indicators
   - `quotes` / `thoughts`: Warm golden serif quotation typography with author attribution & decorative quotation mark
   - `places`: Map marker styling
-- **High-Confidence Auto-Categorization** — Real-time 200ms auto-categorization algorithm in `quotes/views.py` using strict regex pattern matching:
-  - `Code`: HTML tags (`<div`, `<meta`), JS/Python/SQL keywords, CLI commands
-  - `Quotes`: Explicit author attributions on new lines (e.g. `- Benjamin Franklin`) or quoted text with named author
-  - `Links`: HTTP/HTTPS URL detection
-  - `Inbox`: Plain text notes default to Inbox cleanly without false positive suggestions
+- **High-Confidence Auto-Categorization** — Real-time 200ms auto-categorization algorithm in `quotes/views.py` using strict regex pattern matching AND keyword-based dictionary matching:
+  - `Code`: HTML tags (`<div`, `<meta`), JS/Python/SQL keywords, CLI commands (regex)
+  - `Quotes`: Explicit author attributions on new lines (e.g. `- Benjamin Franklin`) or quoted text with named author (regex)
+  - `Links`: HTTP/HTTPS URL detection (regex)
+  - `Tasks`, `Watch`, `Read`, `Buy`, `Places`, `Ideas`, `Learn`, `Reminders`, `People`, `Projects`, `Thoughts`, `Important`: Keyword dictionary matching via `CATEGORY_KEYWORDS`
+  - `Inbox`: Plain text notes default to Inbox cleanly when no patterns match
 - **Smart Auto-Titling** — Automatically formats titles on client & server:
   - Quotes: `"`Short phrase..." — Author Name`
   - HTML Snippets: `<title>` tag content extraction
   - URLs: Domain and path extraction
+- **Full Capture Form** — Capture modal includes: content, title, category (auto-suggested), tags, author, priority, due date, and source URL.
+- **Full Edit Modal** — Edit modal includes: content, title, category, tags, author, priority, due date, status, and source URL with HTMX live DOM swap.
 - **Instant HTMX Actions** — Returning `HttpResponse("")` for delete and archive requests with `hx-swap="outerHTML"` causes HTMX to remove cards instantly (0ms delay) without page reloads.
 - **Form Edit Lifecycle Safety** — Uses `hx-on::after-request="closeEditModal('...')"` to ensure HTMX completes the POST submission and DOM swap before removing modal elements.
 - **Category Reordering System** — Custom ordering endpoint (`/categories/<id>/reorder/<direction>/`) swaps integer sequence values between adjacent categories with live sidebar & dropdown updates.
-- **Environment-Aware Sidebar Branding** — Conditionally renders `Memora v5.0 — All 5 Phases Complete 🎉` in development (`DEBUG=True`) and clean product branding `Memora v5.0 — Personal Vault` in production (`DEBUG=False`).
+- **Environment-Aware Sidebar Branding** — Conditionally renders `Memora v5.0 — All 5 Phases Complete 🎉` in development (`DEBUG=True` + `INTERNAL_IPS`) and clean product branding `Memora v5.0 — Personal Vault` in production (`DEBUG=False`).
 - **Universal Capture API** — CSRF-exempt JSON endpoint (`/api/capture/`) enabling 1-click capture from desktop bookmarklets and browser extensions.
 - **PWA Web Share Target** — Accepts shared links, text, and titles from Android/iOS Web Share API via `/share/` with server-side auto-categorization.
 
