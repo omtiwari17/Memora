@@ -44,9 +44,9 @@
                     <input type="text" name="title" id="capture-title" placeholder="Title (auto-generated if empty)" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors" oninput="userEditedTitle = true">
 
                     <select name="category" id="capture-category" class="w-full bg-[#181726] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/50 transition-colors appearance-none cursor-pointer" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22rgba(255,255,255,0.6)%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center;">
-                        <option value="" class="bg-[#181726] text-white py-2">📥 No category (Inbox)</option>
+                        <option value="" class="bg-[#181726] text-white py-2">No category (Inbox)</option>
                         {% for cat in categories %}
-                        <option value="{{ cat.slug }}" class="bg-[#181726] text-white py-2" {% if filter_value == cat.slug %}selected{% endif %}>{{ cat.emoji }} {{ cat.name }}</option>
+                        <option value="{{ cat.slug }}" class="bg-[#181726] text-white py-2" {% if filter_value == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
                         {% endfor %}
                     </select>
 
@@ -65,10 +65,10 @@
                             <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Priority</label>
                             <select name="priority" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl px-3 text-sm text-white outline-none focus:border-purple-500/50 transition-colors">
                                 <option value="none">None</option>
-                                <option value="low">🟢 Low</option>
-                                <option value="medium">🟡 Medium</option>
-                                <option value="high">🟠 High</option>
-                                <option value="urgent">🔴 Urgent</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
                             </select>
                         </div>
                         <div>

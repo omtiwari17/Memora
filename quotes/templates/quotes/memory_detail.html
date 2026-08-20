@@ -38,62 +38,67 @@
             Back to Memora
         </a>
 
-        <article class="glass rounded-3xl overflow-hidden" id="memory-{{ memory.id }}">
-            {# Accent bar #}
-            {% if memory.category %}
-            <div class="h-1 w-full" style="background: {{ memory.category.color }};"></div>
-            {% endif %}
-
+        <article class="glass rounded-3xl overflow-hidden border-l-4" id="memory-{{ memory.id }}" style="{% if memory.category %}border-left-color: {{ memory.category.color }};{% else %}border-left-color: rgba(255,255,255,0.15);{% endif %}">
             <div class="p-6 sm:p-8">
                 {# Meta badges #}
                 <div class="flex flex-wrap items-center gap-2 mb-5">
                     {% if memory.category %}
-                    <a href="{% url 'category_filter' memory.category.slug %}" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium hover:opacity-80 transition-opacity" style="background: {{ memory.category.color }}20; color: {{ memory.category.color }};">
-                        {{ memory.category.emoji }} {{ memory.category.name }}
+                    <a href="{% url 'category_filter' memory.category.slug %}" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold hover:opacity-80 transition-opacity" style="background: {{ memory.category.color }}20; color: {{ memory.category.color }}; border: 1px solid {{ memory.category.color }}30;">
+                        <span class="w-2 h-2 rounded-full inline-block" style="background: {{ memory.category.color }}; box-shadow: 0 0 6px {{ memory.category.color }};"></span>
+                        {{ memory.category.name }}
                     </a>
                     {% else %}
-                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium bg-white/5 text-white/30">📥 Inbox</span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-white/5 text-white/40 border border-white/10">
+                        <svg class="w-3.5 h-3.5 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.008 1.251l.258.516a2.25 2.25 0 002.008 1.251h3.232a2.25 2.25 0 002.008-1.251l.258-.516a2.25 2.25 0 012.008-1.251h3.86m-15.462 0a2.25 2.25 0 01-2.25-2.25V6.75A2.25 2.25 0 014.5 4.5h15a2.25 2.25 0 012.25 2.25v4.5a2.25 2.25 0 01-2.25 2.25m-15.462 0V19.5a2.25 2.25 0 002.25 2.25h15a2.25 2.25 0 002.25-2.25V13.5"/></svg>
+                        Inbox
+                    </span>
                     {% endif %}
 
                     {% if memory.is_pinned %}
-                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs bg-red-500/10 text-red-400/80">❤️ Pinned</span>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/20">
+                        <svg class="w-3.5 h-3.5 text-red-400 fill-current" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        Pinned
+                    </span>
                     {% endif %}
 
                     {% if memory.priority != 'none' and memory.priority %}
-                    <span class="text-xs px-2 py-1 rounded-lg
-                        {% if memory.priority == 'urgent' %}bg-red-500/15 text-red-400
-                        {% elif memory.priority == 'high' %}bg-orange-500/15 text-orange-400
-                        {% elif memory.priority == 'medium' %}bg-yellow-500/15 text-yellow-400
-                        {% else %}bg-green-500/15 text-green-400{% endif %}">
+                    <span class="text-xs px-2.5 py-1 rounded-lg font-semibold uppercase tracking-wider
+                        {% if memory.priority == 'urgent' %}bg-red-500/15 text-red-400 border border-red-500/30
+                        {% elif memory.priority == 'high' %}bg-orange-500/15 text-orange-400 border border-orange-500/30
+                        {% elif memory.priority == 'medium' %}bg-yellow-500/15 text-yellow-400 border border-yellow-500/30
+                        {% else %}bg-emerald-500/15 text-emerald-400 border border-emerald-500/30{% endif %}">
                         {{ memory.get_priority_display }} Priority
                     </span>
                     {% endif %}
 
-                    <span class="text-xs px-2 py-1 rounded-lg bg-white/5 text-white/30">{{ memory.get_status_display }}</span>
+                    <span class="text-xs px-2.5 py-1 rounded-lg bg-white/5 text-white/40 font-medium">{{ memory.get_status_display }}</span>
                     {% if memory.due_date %}
-                    <div class="flex items-center gap-2">
-                        <span class="text-white/30 text-xs">📅 Due:</span>
-                        <span class="text-sm text-blue-400">{{ memory.due_date|date:'M d, Y' }}</span>
+                    <div class="flex items-center gap-1.5 text-xs text-blue-400 font-semibold bg-blue-500/10 px-2.5 py-1 rounded-lg border border-blue-500/20">
+                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5"/></svg>
+                        Due: {{ memory.due_date|date:'M d, Y' }}
                     </div>
                     {% endif %}
                 </div>
 
                 {# Title #}
                 {% if memory.title %}
-                <h1 class="text-xl sm:text-2xl font-bold text-white/95 mb-4">{{ memory.title }}</h1>
+                <h1 class="text-xl sm:text-2xl font-bold text-white/95 mb-4 leading-tight">{{ memory.title }}</h1>
                 {% endif %}
 
                 {# Content #}
                 {% if memory.category.slug == 'code' %}
-                <div class="code-card bg-black/30 rounded-xl p-4 border border-white/[0.04] mb-4">
-                    <pre class="text-sm text-green-300/80 whitespace-pre-wrap break-words leading-relaxed">{{ memory.content }}</pre>
+                <div class="code-card bg-black/40 rounded-xl p-4 border border-white/[0.06] mb-4">
+                    <pre class="text-sm text-emerald-300/90 whitespace-pre-wrap break-words leading-relaxed font-mono">{{ memory.content }}</pre>
                 </div>
-                {% elif memory.category.slug == 'thoughts' or memory.category.slug == 'important' %}
-                <div class="mb-4">
-                    <svg class="w-8 h-8 text-purple-400/20 mb-3" fill="currentColor" viewBox="0 0 24 24">
+                {% elif memory.category.slug == 'quotes' or memory.category.slug == 'thoughts' or memory.category.slug == 'important' %}
+                <div class="mb-4 bg-amber-500/[0.04] p-5 rounded-2xl border border-amber-500/20 relative">
+                    <svg class="w-8 h-8 text-amber-400/20 absolute top-3 right-4 pointer-events-none" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z"/>
                     </svg>
-                    <p class="text-lg text-white/85 leading-relaxed italic">{{ memory.content }}</p>
+                    <p class="text-lg font-serif italic text-amber-100/90 leading-relaxed pr-6">"{{ memory.content }}"</p>
+                    {% if memory.author %}
+                    <p class="text-xs font-semibold text-amber-400/80 mt-3">— {{ memory.author }}</p>
+                    {% endif %}
                 </div>
                 {% else %}
                 <div class="mb-4">
@@ -101,15 +106,15 @@
                 </div>
                 {% endif %}
 
-                {# Author #}
-                {% if memory.author %}
-                <p class="text-sm text-purple-300/60 mb-4">— {{ memory.author }}</p>
+                {# Author for general categories #}
+                {% if memory.author and memory.category.slug != 'quotes' and memory.category.slug != 'thoughts' %}
+                <p class="text-sm text-purple-300/70 font-medium mb-4">— {{ memory.author }}</p>
                 {% endif %}
 
                 {# Source URL #}
                 {% if memory.source_url %}
-                <a href="{{ memory.source_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs text-indigo-300/60 hover:text-indigo-300 hover:border-indigo-300/20 transition-all mb-4">
-                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.06a4.5 4.5 0 00-1.242-7.244l-4.5-4.5a4.5 4.5 0 00-6.364 6.364l1.757 1.757"/></svg>
+                <a href="{{ memory.source_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-indigo-300/80 hover:text-indigo-300 hover:border-indigo-300/30 transition-all mb-4">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.06a4.5 4.5 0 00-1.242-7.244l-4.5-4.5a4.5 4.5 0 00-6.364 6.364l1.757 1.757"/></svg>
                     {{ memory.source_url|truncatechars:60 }}
                 </a>
                 {% endif %}
@@ -118,27 +123,15 @@
                 {% if memory.tags.all %}
                 <div class="flex flex-wrap gap-2 mb-4">
                     {% for tag in memory.tags.all %}
-                    <a href="{% url 'tag_filter' tag.slug %}" class="text-xs px-2.5 py-1 rounded-lg bg-white/[0.04] text-white/40 hover:text-white/70 hover:bg-white/[0.08] transition-all">
+                    <a href="{% url 'tag_filter' tag.slug %}" class="text-xs px-2.5 py-1 rounded-lg bg-white/[0.05] text-white/50 hover:text-white/80 hover:bg-white/[0.1] transition-all font-mono">
                         #{{ tag.name }}
                     </a>
                     {% endfor %}
                 </div>
                 {% endif %}
 
-                {# Due date / Reminder #}
-                {% if memory.due_date %}
-                <div class="flex items-center gap-2 text-xs text-white/30 mb-2">
-                    <span>📅 Due: {{ memory.due_date|date:"M d, Y g:i A" }}</span>
-                </div>
-                {% endif %}
-                {% if memory.reminder_at %}
-                <div class="flex items-center gap-2 text-xs text-white/30 mb-2">
-                    <span>🔔 Reminder: {{ memory.reminder_at|date:"M d, Y g:i A" }}</span>
-                </div>
-                {% endif %}
-
                 {# Timestamps #}
-                <div class="mt-6 pt-4 border-t border-white/[0.06] flex flex-wrap gap-4 text-[11px] text-white/20">
+                <div class="mt-6 pt-4 border-t border-white/[0.06] flex flex-wrap gap-4 text-[11px] text-white/30">
                     <span>Created {{ memory.created_at|date:"M d, Y g:i A" }}</span>
                     {% if memory.updated_at != memory.created_at %}
                     <span>Updated {{ memory.updated_at|date:"M d, Y g:i A" }}</span>
@@ -146,35 +139,40 @@
                 </div>
 
                 {# Actions #}
-                <div class="mt-6 pt-4 border-t border-white/[0.06] flex flex-wrap gap-2">
-                    <button hx-get="{% url 'memory_edit' memory.id %}" hx-target="body" hx-swap="beforeend" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-sm text-white/70 hover:text-white transition-all">
-                        ✏️ Edit
+                <div class="mt-6 pt-4 border-t border-white/[0.06] flex flex-wrap gap-2 items-center">
+                    <button hx-get="{% url 'memory_edit' memory.id %}" hx-target="body" hx-swap="beforeend" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-white/80 hover:text-white transition-all border border-white/10">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                        Edit
                     </button>
                     <form hx-post="{% url 'memory_pin' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML" class="inline">
                         {% csrf_token %}
-                        <button type="submit" class="px-3 py-1.5 rounded-lg glass text-xs text-white/50 hover:text-white/80 hover:bg-white/[0.06] transition-all">
-                            {% if memory.is_pinned %}💔 Unpin{% else %}❤️ Pin{% endif %}
+                        <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-white/70 hover:text-white transition-all border border-white/10">
+                            <svg class="w-3.5 h-3.5 {% if memory.is_pinned %}text-red-400 fill-current{% endif %}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            {% if memory.is_pinned %}Unpin{% else %}Pin{% endif %}
                         </button>
                     </form>
                     <form hx-post="{% url 'memory_archive' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML" class="inline">
                         {% csrf_token %}
-                        <button type="submit" class="px-3 py-1.5 rounded-lg glass text-xs text-white/50 hover:text-white/80 hover:bg-white/[0.06] transition-all">
-                            {% if memory.is_archived %}📤 Restore{% else %}🗄️ Archive{% endif %}
+                        <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-white/70 hover:text-white transition-all border border-white/10">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+                            {% if memory.is_archived %}Restore{% else %}Archive{% endif %}
                         </button>
                     </form>
                     {% if memory.category.slug == 'tasks' or memory.category.slug == 'watch' or memory.category.slug == 'read' or memory.category.slug == 'buy' %}
                     <form hx-post="{% url 'memory_status' memory.id %}" class="inline">
                         {% csrf_token %}
                         <input type="hidden" name="status" value="{% if memory.status == 'done' %}active{% else %}done{% endif %}">
-                        <button type="submit" class="px-3 py-1.5 rounded-lg glass text-xs text-white/50 hover:text-white/80 hover:bg-white/[0.06] transition-all">
-                            {% if memory.status == 'done' %}↩️ Undo Done{% else %}✅ Mark Done{% endif %}
+                        <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-white/70 hover:text-white transition-all border border-white/10">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                            {% if memory.status == 'done' %}Undo Done{% else %}Mark Done{% endif %}
                         </button>
                     </form>
                     {% endif %}
                     <form hx-post="{% url 'memory_delete' memory.id %}" hx-confirm="Permanently delete this memory?" class="inline ml-auto">
                         {% csrf_token %}
-                        <button type="submit" class="px-3 py-1.5 rounded-lg text-xs text-red-400/40 hover:text-red-400 hover:bg-red-400/10 transition-all">
-                            🗑️ Delete
+                        <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-xs font-semibold text-red-400 transition-all">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                            Delete
                         </button>
                     </form>
                 </div>
@@ -184,14 +182,18 @@
         {# Related Memories Suggestions #}
         {% if suggestions %}
         <div class="mt-8">
-            <h3 class="text-sm font-semibold text-white/50 mb-4 flex items-center gap-2">
-                <span>✨ You might also want to remember...</span>
+            <h3 class="text-sm font-semibold text-white/60 mb-4 flex items-center gap-2">
+                <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+                <span>You might also want to remember...</span>
             </h3>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {% for suggestion in suggestions %}
-                <a href="{% url 'memory_detail' suggestion.id %}" class="glass glass-hover p-3.5 rounded-2xl flex flex-col justify-between transition-all">
-                    <p class="text-xs font-medium text-white/80 line-clamp-2 mb-2">{{ suggestion.title|default:suggestion.content|truncatewords:10 }}</p>
-                    <span class="text-[10px] text-white/30">{{ suggestion.category.emoji|default:"📥" }} {{ suggestion.category.name|default:"Inbox" }}</span>
+                <a href="{% url 'memory_detail' suggestion.id %}" class="glass glass-hover p-3.5 rounded-2xl flex flex-col justify-between transition-all border border-white/10">
+                    <p class="text-xs font-semibold text-white/90 line-clamp-2 mb-2">{{ suggestion.title|default:suggestion.content|truncatewords:10 }}</p>
+                    <span class="text-[10px] text-white/40 flex items-center gap-1 font-medium">
+                        <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: {{ suggestion.category.color|default:'#a78bfa' }};"></span>
+                        {{ suggestion.category.name|default:"Inbox" }}
+                    </span>
                 </a>
                 {% endfor %}
             </div>
