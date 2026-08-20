@@ -159,10 +159,6 @@ def dashboard(request):
         "recent": recent,
         "upcoming": upcoming,
     })
-        "pinned": pinned,
-        "recent": recent,
-        "upcoming": upcoming,
-    })
 
 
 # ── Memory list (filtered by category, tag, collection, status) ───────
