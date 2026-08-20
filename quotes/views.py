@@ -7,6 +7,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.db.models import Q
 
 from .models import Memory, Category, Tag, Collection
@@ -45,11 +48,8 @@ CATEGORY_KEYWORDS = {
 
 
 QUOTE_PATTERNS = [
-    # Explicit quote with double quotes AND an author attribution
     r'^["“].+["”]\s*([\n\r]|\s+[-—–~])',
-    # Author attribution on a new line: - Firstname Lastname (at least 2 capitalized name words)
     r'[\n\r]\s*[-—–~]\s*[A-Z][a-z]{2,}\s+[A-Z][a-z]{2,}',
-    # Explicit quote keywords
     r'\b(famous quote|quote by|quote of the day)\b',
 ]
 
@@ -59,64 +59,51 @@ def suggest_category(text):
     if not text or len(text.strip()) < 5:
         return None
 
-    # 1. High-confidence Code syntax & HTML structure
+    clean = text.strip()
+    lower_text = clean.lower()
+
     for pattern in CODE_PATTERNS:
-        if re.search(pattern, text, re.IGNORECASE):
+        if re.search(pattern, clean, re.MULTILINE):
             return "code"
 
-    # 2. High-confidence Quote attributions
     for pattern in QUOTE_PATTERNS:
-        if re.search(pattern, text):
-            if Category.objects.filter(slug="quotes").exists():
-                return "quotes"
-            if Category.objects.filter(slug="thoughts").exists():
-                return "thoughts"
+        if re.search(pattern, clean, re.MULTILINE):
+            return "quotes"
 
-    # 3. High-confidence Link detection
-    if re.search(r'\b(https?://|www\.)\S+', text, re.IGNORECASE):
+    if re.search(r"https?://", lower_text):
         return "links"
 
-    # 4. Keyword matching
-    text_lower = text.lower()
     for slug, keywords in CATEGORY_KEYWORDS.items():
-        for keyword in keywords:
-            if re.search(r'\b' + re.escape(keyword) + r'\b', text_lower):
+        for kw in keywords:
+            if re.search(r'\b' + re.escape(kw) + r'\b', lower_text):
                 return slug
 
-    return None
+    return "inbox"
 
 
-def auto_title(content):
-    """Generate a clean, smart title from content."""
-    if not content:
-        return "Untitled Memory"
-
-    clean = content.strip()
-
-    # 1. Author quote extraction (e.g. - Benjamin Franklin)
+def extract_title(text):
+    """Auto-generate a title from memory content."""
+    clean = text.strip()
     author_match = re.search(r'[\n\r\s]+[-—–~]\s*([A-Z][a-zA-Z\s\.]+)', clean)
-    if author_match and author_match.group(1).strip():
-        author = author_match.group(1).strip()
-        quote_text = clean.replace(author_match.group(0), '').split('\n')[0].replace('"', '').replace('“', '').replace('”', '').strip()
+    quote_text = re.sub(r'[\n\r\s]+[-—–~].*$', '', clean).strip()
+    quote_text = re.sub(r'^[“"\'\`\s]+|[”"\'\`\s]+$', '', quote_text)
+
+    if author_match and quote_text:
+        author_name = author_match.group(1).strip()
         words = quote_text.split()
         short_quote = " ".join(words[:5]) + "..." if len(words) > 5 else quote_text
-        return f'"{short_quote}" — {author}'
+        return f'"{short_quote}" — {author_name}'
 
-    # 2. HTML title tag extraction
-    title_match = re.search(r"<title>(.*?)</title>", clean, re.IGNORECASE)
-    if title_match and title_match.group(1).strip():
-        return title_match.group(1).strip()[:80]
+    if clean.startswith("<") and ">" in clean:
+        tag_title = re.search(r'<title[^>]*>(.*?)</title>', clean, re.IGNORECASE)
+        if tag_title:
+            return tag_title.group(1).strip()
 
-    # 3. URL title extraction
     if clean.startswith("http://") or clean.startswith("https://"):
-        from urllib.parse import urlparse
-        parsed = urlparse(clean.split()[0])
-        path = parsed.path.rstrip("/")
-        if path:
-            return f"{parsed.netloc}{path}"
-        return parsed.netloc or "Saved Link"
+        parts = clean.split("/")
+        domain = parts[2] if len(parts) > 2 else clean
+        return domain.replace("www.", "")
 
-    # 4. Clean first line summary
     first_line = clean.split("\n")[0].strip()
     first_line = re.sub(r'^[“"\'\`\s\-*\d\.]+', '', first_line)
     first_line = re.sub(r'[”"\'\`\s]+$', '', first_line).strip()
@@ -130,21 +117,74 @@ def auto_title(content):
     return first_line
 
 
+def get_user_categories(user):
+    """Return categories accessible by user."""
+    return Category.objects.filter(Q(is_default=True) | Q(user=user)).order_by("order", "name")
+
+
+# ── Authentication (Vault Handle + 6-Digit PIN) ──────────────────────
+def vault_login(request):
+    """Unlock or create a personal memory vault with Vault Handle + 6-Digit PIN."""
+    if request.user.is_authenticated:
+        return redirect("dashboard")
+
+    error = None
+    handle = ""
+
+    if request.method == "POST":
+        raw_handle = request.POST.get("handle", "").strip().lower().replace("@", "")
+        pin = request.POST.get("pin", "").strip()
+
+        handle = re.sub(r'[^a-z0-9_]', '', raw_handle)
+
+        if not handle or len(handle) < 2:
+            error = "Vault handle must be at least 2 characters long (letters/numbers)."
+        elif not pin.isdigit() or len(pin) != 6:
+            error = "PIN must be exactly a 6-digit number (e.g. 123456)."
+        else:
+            user = User.objects.filter(username=handle).first()
+            if user:
+                authenticated_user = authenticate(request, username=handle, password=pin)
+                if authenticated_user:
+                    login(request, authenticated_user)
+                    return redirect("dashboard")
+                else:
+                    error = f"Incorrect 6-digit PIN for @{handle}. Please try again."
+            else:
+                user = User.objects.create_user(username=handle, password=pin)
+                # Claim unassigned memories in fresh DB if any
+                Memory.objects.filter(user=None).update(user=user)
+                Category.objects.filter(user=None, is_default=False).update(user=user)
+                Collection.objects.filter(user=None).update(user=user)
+                
+                login(request, user)
+                return redirect("dashboard")
+
+    return render(request, "quotes/login.html", {"error": error, "handle": handle})
+
+
+def vault_logout(request):
+    """Lock current memory vault."""
+    logout(request)
+    return redirect("login")
+
+
 # ── Dashboard ──────────────────────────────────────────────────────────
+@login_required(login_url="login")
 def dashboard(request):
     """Main dashboard — shows recent memories, pinned items, upcoming."""
-    categories = Category.objects.all().order_by("order", "name")
-    total_count = Memory.objects.filter(is_archived=False).count()
-    inbox_count = Memory.objects.filter(status=Memory.Status.INBOX, is_archived=False).count()
-    tasks_done = Memory.objects.filter(status=Memory.Status.DONE, is_archived=False).count()
-    due_soon = Memory.objects.filter(is_archived=False, due_date__isnull=False, due_date__gte=timezone.now()).count()
+    categories = get_user_categories(request.user)
+    user_memories = Memory.objects.filter(user=request.user, is_archived=False)
 
-    pinned = Memory.objects.filter(is_pinned=True, is_archived=False)[:6]
-    recent = Memory.objects.filter(is_archived=False)[:12]
+    total_count = user_memories.count()
+    inbox_count = user_memories.filter(status=Memory.Status.INBOX).count()
+    tasks_done = user_memories.filter(status=Memory.Status.DONE).count()
+    due_soon = user_memories.filter(due_date__isnull=False, due_date__gte=timezone.now()).count()
+
+    pinned = user_memories.filter(is_pinned=True)[:6]
+    recent = user_memories[:12]
     
-    # Upcoming: tasks/reminders with due dates in the future
-    upcoming = Memory.objects.filter(
-        is_archived=False,
+    upcoming = user_memories.filter(
         due_date__isnull=False,
         due_date__gte=timezone.now()
     ).order_by("due_date")[:5]
@@ -162,47 +202,50 @@ def dashboard(request):
 
 
 # ── Memory list (filtered by category, tag, collection, status) ───────
+@login_required(login_url="login")
 def memory_list(request, filter_type=None, filter_value=None):
     """Filtered memory list view."""
-    memories = Memory.objects.filter(is_archived=False)
+    memories = Memory.objects.filter(user=request.user, is_archived=False)
     title = "All Memories"
     active_filter = filter_type
 
     if filter_type == "category":
         category = get_object_or_404(Category, slug=filter_value)
         memories = memories.filter(category=category)
-        title = str(category)
+        title = category.name
     elif filter_type == "tag":
         tag = get_object_or_404(Tag, slug=filter_value)
         memories = memories.filter(tags=tag)
         title = f"#{tag.name}"
     elif filter_type == "collection":
-        collection = get_object_or_404(Collection, pk=filter_value)
+        collection = get_object_or_404(Collection, pk=filter_value, user=request.user)
         memories = memories.filter(collections=collection)
         title = collection.name
     elif filter_type == "inbox":
         memories = memories.filter(status=Memory.Status.INBOX)
-        title = "📥 Inbox"
+        title = "Inbox"
     elif filter_type == "important":
         memories = memories.filter(is_pinned=True)
-        title = "❤️ Important"
+        title = "Important"
     elif filter_type == "archive":
-        memories = Memory.objects.filter(is_archived=True)
-        title = "🗄️ Archive"
+        memories = Memory.objects.filter(user=request.user, is_archived=True)
+        title = "Archive"
     elif filter_type == "today":
         today = timezone.now().date()
         memories = memories.filter(created_at__date=today)
-        title = "📅 Today"
+        title = "Today"
     elif filter_type == "week":
         week_ago = timezone.now() - timedelta(days=7)
         memories = memories.filter(created_at__gte=week_ago)
-        title = "📅 This Week"
+        title = "This Week"
     elif filter_type == "tasks":
-        memories = memories.filter(category__slug="tasks")
-        title = "✅ Tasks"
+        category = Category.objects.filter(slug="tasks").first()
+        if category:
+            memories = memories.filter(category=category)
+        title = "Tasks Workspace"
     elif filter_type == "reminders":
-        memories = memories.filter(Q(due_date__isnull=False) | Q(reminder_at__isnull=False)).order_by('due_date')
-        title = "📅 Reminders & Due Dates"
+        memories = memories.filter(due_date__isnull=False).order_by("due_date")
+        title = "Reminders & Timeline"
     elif filter_type == "priority":
         memories = memories.filter(priority=filter_value)
         title = f"Priority: {filter_value.capitalize()}"
@@ -211,150 +254,265 @@ def memory_list(request, filter_type=None, filter_value=None):
         memories = memories.filter(
             created_at__month=today.month,
             created_at__day=today.day
-        )
-        if not memories.exists():
-            memories = Memory.objects.filter(is_archived=False).order_by("created_at")[:12]
-        title = "✨ On This Day"
+        ).exclude(created_at__year=today.year)
+        title = "On This Day"
 
-    categories = Category.objects.all().order_by("order", "name")
-    
-    if request.headers.get("HX-Request"):
-        return render(request, "quotes/partials/memory_grid.html", {
-            "memories": memories,
-            "title": title,
-        })
-
-    inbox_count = Memory.objects.filter(status=Memory.Status.INBOX, is_archived=False).count()
+    categories = get_user_categories(request.user)
+    inbox_count = Memory.objects.filter(user=request.user, status=Memory.Status.INBOX, is_archived=False).count()
 
     return render(request, "quotes/memory_list.html", {
         "memories": memories,
         "title": title,
         "categories": categories,
+        "inbox_count": inbox_count,
         "active_filter": active_filter,
         "filter_value": filter_value,
-        "inbox_count": inbox_count,
-    })
-
-
-# ── Recently Viewed View ──────────────────────────────────────────────
-def recently_viewed(request):
-    """View list of recently viewed memories."""
-    recent_ids = request.session.get("recently_viewed", [])
-    memories = []
-    if recent_ids:
-        memory_map = {m.id: m for m in Memory.objects.filter(id__in=recent_ids, is_archived=False)}
-        memories = [memory_map[m_id] for m_id in recent_ids if m_id in memory_map]
-    
-    categories = Category.objects.all().order_by("order", "name")
-    return render(request, "quotes/memory_list.html", {
-        "memories": memories,
-        "title": "🕒 Recently Viewed",
-        "categories": categories,
-        "active_filter": "recently_viewed",
     })
 
 
 # ── Search ─────────────────────────────────────────────────────────────
+@login_required(login_url="login")
 def search_memories(request):
-    """Universal search across all memory fields."""
+    """HTMX search handler."""
     query = request.GET.get("q", "").strip()
-    category_filter = request.GET.get("category", "").strip()
-    
-    memories = Memory.objects.filter(is_archived=False)
-    
+    category_slug = request.GET.get("category", "").strip()
+
+    memories = Memory.objects.filter(user=request.user, is_archived=False)
+
+    if category_slug:
+        memories = memories.filter(category__slug=category_slug)
+
     if query:
         memories = memories.filter(
-            Q(title__icontains=query)
-            | Q(content__icontains=query)
-            | Q(author__icontains=query)
-            | Q(source_url__icontains=query)
-            | Q(source_title__icontains=query)
-            | Q(tags__name__icontains=query)
-            | Q(category__name__icontains=query)
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(author__icontains=query) |
+            Q(tags__name__icontains=query) |
+            Q(source_url__icontains=query)
         ).distinct()
-    
-    if category_filter:
-        memories = memories.filter(category__slug=category_filter)
-    
+
     return render(request, "quotes/partials/memory_grid.html", {
-        "memories": memories,
+        "memories": memories[:30],
         "query": query,
     })
 
 
-# ── Capture (web form) ─────────────────────────────────────────────────
-def capture(request):
-    """Handle the universal capture form submission."""
+# ── Memory Detail ──────────────────────────────────────────────────────
+@login_required(login_url="login")
+def memory_detail(request, pk):
+    """Individual memory detail view with smart related suggestions."""
+    memory = get_object_or_404(Memory, pk=pk, user=request.user)
+
+    viewed_ids = request.session.get("recently_viewed", [])
+    if pk in viewed_ids:
+        viewed_ids.remove(pk)
+    viewed_ids.insert(0, pk)
+    request.session["recently_viewed"] = viewed_ids[:20]
+
+    suggestions = Memory.objects.filter(
+        user=request.user,
+        is_archived=False
+    ).exclude(pk=memory.pk)
+
+    if memory.category:
+        suggestions = suggestions.filter(category=memory.category)
+
+    suggestions = suggestions[:3]
+
+    return render(request, "quotes/memory_detail.html", {
+        "memory": memory,
+        "suggestions": suggestions,
+    })
+
+
+# ── Memory Edit Modal & Save ───────────────────────────────────────────
+@login_required(login_url="login")
+def memory_edit(request, pk):
+    """HTMX endpoint to render edit modal (GET) or update memory (POST)."""
+    memory = get_object_or_404(Memory, pk=pk, user=request.user)
+
     if request.method == "POST":
         content = request.POST.get("content", "").strip()
         if not content:
-            if request.headers.get("HX-Request"):
-                return render(request, "quotes/partials/capture_feedback.html", {
-                    "error": "Content is required."
-                })
-            return redirect("dashboard")
+            return HttpResponseBadRequest("Content cannot be empty.")
 
-        title = request.POST.get("title", "").strip() or auto_title(content)
+        title = request.POST.get("title", "").strip()
         category_slug = request.POST.get("category", "").strip()
         tags_str = request.POST.get("tags", "").strip()
         source_url = request.POST.get("source_url", "").strip()
-        priority = request.POST.get("priority", Memory.Priority.NONE)
         author = request.POST.get("author", "").strip()
-
-        due_date = None
+        priority = request.POST.get("priority", "none").strip()
+        status = request.POST.get("status", "inbox").strip()
         due_date_str = request.POST.get("due_date", "").strip()
+
+        memory.content = content
+        memory.title = title or extract_title(content)
+        memory.source_url = source_url
+        memory.author = author
+        memory.priority = priority
+        memory.status = status
+
+        if category_slug:
+            category = Category.objects.filter(slug=category_slug).first()
+            memory.category = category
+        else:
+            memory.category = None
+
         if due_date_str:
-            from datetime import datetime
-            due_date = datetime.strptime(due_date_str, '%Y-%m-%d').date()
+            try:
+                memory.due_date = timezone.datetime.strptime(due_date_str, "%Y-%m-%d")
+            except ValueError:
+                pass
+        else:
+            memory.due_date = None
+
+        memory.save()
+
+        memory.tags.clear()
+        if tags_str:
+            tag_names = [t.strip() for t in tags_str.split(",") if t.strip()]
+            for name in tag_names:
+                slug = name.lower().replace(" ", "-")
+                tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": name})
+                memory.tags.add(tag)
+
+        return render(request, "quotes/partials/memory_card.html", {"memory": memory})
+
+    categories = get_user_categories(request.user)
+    tags_str = ", ".join(t.name for t in memory.tags.all())
+
+    return render(request, "quotes/partials/memory_edit_modal.html", {
+        "memory": memory,
+        "categories": categories,
+        "tags_str": tags_str,
+    })
+
+
+# ── Quick Capture ──────────────────────────────────────────────────────
+@login_required(login_url="login")
+def capture(request):
+    """Handle memory creation (from modal or standalone capture page)."""
+    if request.method == "POST":
+        content = request.POST.get("content", "").strip()
+        if not content:
+            return render(request, "quotes/partials/capture_feedback.html", {
+                "success": False,
+                "error": "Content cannot be empty."
+            })
+
+        title = request.POST.get("title", "").strip()
+        category_slug = request.POST.get("category", "").strip()
+        tags_str = request.POST.get("tags", "").strip()
+        source_url = request.POST.get("source_url", "").strip()
+        author = request.POST.get("author", "").strip()
+        priority = request.POST.get("priority", "none").strip()
+        due_date_str = request.POST.get("due_date", "").strip()
+
+        if not category_slug:
+            category_slug = suggest_category(content) or "inbox"
 
         category = None
         if category_slug:
             category = Category.objects.filter(slug=category_slug).first()
 
-        status = Memory.Status.INBOX
-        if category:
-            status = Memory.Status.ACTIVE
+        if not title:
+            title = extract_title(content)
+
+        due_date = None
+        if due_date_str:
+            try:
+                due_date = timezone.datetime.strptime(due_date_str, "%Y-%m-%d")
+            except ValueError:
+                pass
 
         memory = Memory.objects.create(
+            user=request.user,
             title=title,
             content=content,
             category=category,
             source_url=source_url,
             author=author,
             priority=priority,
-            status=status,
             due_date=due_date,
+            status=Memory.Status.INBOX if not category or category.slug == "inbox" else Memory.Status.ACTIVE
         )
 
-        # Handle tags
         if tags_str:
-            tag_names = [t.strip().lower() for t in tags_str.split(",") if t.strip()]
-            for tag_name in tag_names:
-                from django.utils.text import slugify
-                tag, _ = Tag.objects.get_or_create(
-                    slug=slugify(tag_name),
-                    defaults={"name": tag_name}
-                )
+            tag_names = [t.strip() for t in tags_str.split(",") if t.strip()]
+            for name in tag_names:
+                slug = name.lower().replace(" ", "-")
+                tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": name})
                 memory.tags.add(tag)
 
         if request.headers.get("HX-Request"):
             return render(request, "quotes/partials/capture_feedback.html", {
-                "success": True, "memory": memory
+                "success": True,
+                "memory": memory,
             })
+
         return redirect("dashboard")
 
-    # GET — show capture form (for direct navigation)
-    categories = Category.objects.all().order_by("order", "name")
+    categories = get_user_categories(request.user)
     return render(request, "quotes/capture_form.html", {"categories": categories})
 
 
-# ── Category suggestion API (for smart capture) ───────────────────────
+# ── Universal Capture API (for extension/bookmarklet) ──────────────────
+@csrf_exempt
+def capture_api(request):
+    """CSRF-exempt JSON endpoint for browser extensions and bookmarklets."""
+    if request.method != "POST":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        data = request.POST
+
+    content = data.get("content", "").strip()
+    if not content:
+        return JsonResponse({"error": "Content is required"}, status=400)
+
+    user = request.user if request.user.is_authenticated else User.objects.first()
+
+    title = data.get("title", "").strip() or extract_title(content)
+    source_url = data.get("url", "").strip() or data.get("source_url", "").strip()
+    category_slug = data.get("category", "").strip() or suggest_category(content)
+
+    category = None
+    if category_slug:
+        category = Category.objects.filter(slug=category_slug).first()
+
+    memory = Memory.objects.create(
+        user=user,
+        title=title,
+        content=content,
+        category=category,
+        source_url=source_url,
+        status=Memory.Status.INBOX
+    )
+
+    tags_str = data.get("tags", "")
+    if tags_str:
+        tag_names = [t.strip() for t in tags_str.split(",") if t.strip()]
+        for name in tag_names:
+            slug = name.lower().replace(" ", "-")
+            tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": name})
+            memory.tags.add(tag)
+
+    return JsonResponse({
+        "success": True,
+        "memory_id": memory.id,
+        "title": memory.title,
+        "category": category.name if category else "Inbox",
+    }, status=201)
+
+
 def suggest_category_api(request):
     """Return a category suggestion based on content text."""
     content = request.GET.get("content", "").strip()
     if not content:
         return JsonResponse({"suggestion": None})
-    
+
     slug = suggest_category(content)
     if slug:
         category = Category.objects.filter(slug=slug).first()
@@ -363,342 +521,219 @@ def suggest_category_api(request):
                 "suggestion": {
                     "slug": category.slug,
                     "name": category.name,
-                    "emoji": category.emoji,
+                    "color": category.color,
                 }
             })
     return JsonResponse({"suggestion": None})
 
 
-# ── Memory detail & actions ────────────────────────────────────────────
-def memory_detail(request, pk):
-    """View a single memory detail page + track recently viewed + smart suggestions."""
-    memory = get_object_or_404(Memory, pk=pk)
-    
-    # Track in session
-    recent_ids = request.session.get("recently_viewed", [])
-    if memory.id in recent_ids:
-        recent_ids.remove(memory.id)
-    recent_ids.insert(0, memory.id)
-    request.session["recently_viewed"] = recent_ids[:20]
-
-    # Smart suggestions (related memories sharing category or tags)
-    suggestions = Memory.objects.filter(is_archived=False).exclude(id=memory.id)
-    if memory.category:
-        suggestions = suggestions.filter(category=memory.category)
-    suggestions = suggestions[:3]
-
-    categories = Category.objects.all().order_by("order", "name")
-    return render(request, "quotes/memory_detail.html", {
-        "memory": memory,
-        "categories": categories,
-        "suggestions": suggestions,
-    })
-
-
-def memory_edit(request, pk):
-    """Edit memory view (handles GET form modal and POST update)."""
-    memory = get_object_or_404(Memory, pk=pk)
-
-    if request.method == "POST":
-        content = request.POST.get("content", "").strip()
-        if content:
-            memory.content = content
-            memory.title = request.POST.get("title", "").strip() or auto_title(content)
-            
-            cat_slug = request.POST.get("category", "").strip()
-            if cat_slug:
-                memory.category = Category.objects.filter(slug=cat_slug).first()
-                if memory.status == Memory.Status.INBOX:
-                    memory.status = Memory.Status.ACTIVE
-            else:
-                memory.category = None
-
-            memory.source_url = request.POST.get("source_url", "").strip()
-            memory.priority = request.POST.get("priority", Memory.Priority.NONE)
-            memory.author = request.POST.get("author", "").strip()
-            
-            status = request.POST.get("status", "").strip()
-            if status:
-                memory.status = status
-
-            due_date_str = request.POST.get("due_date", "").strip()
-            if due_date_str:
-                from datetime import datetime
-                memory.due_date = datetime.strptime(due_date_str, '%Y-%m-%d').date()
-            else:
-                memory.due_date = None
-            
-            # Tags
-            tags_str = request.POST.get("tags", "").strip()
-            memory.tags.clear()
-            if tags_str:
-                tag_names = [t.strip().lower() for t in tags_str.split(",") if t.strip()]
-                for tag_name in tag_names:
-                    from django.utils.text import slugify
-                    tag, _ = Tag.objects.get_or_create(
-                        slug=slugify(tag_name),
-                        defaults={"name": tag_name}
-                    )
-                    memory.tags.add(tag)
-
-            memory.save()
-
-        if request.headers.get("HX-Request"):
-            return render(request, "quotes/partials/memory_card.html", {"memory": memory})
-        return redirect("dashboard")
-
-    # GET request - return edit modal HTML
-    categories = Category.objects.all()
-    tags_str = ", ".join([t.name for t in memory.tags.all()])
-    if request.headers.get("HX-Request"):
-        return render(request, "quotes/partials/memory_edit_modal.html", {
-            "memory": memory,
-            "categories": categories,
-            "tags_str": tags_str,
-        })
-
-    return render(request, "quotes/memory_detail.html", {
-        "memory": memory,
-        "categories": categories,
-        "editing": True,
-        "tags_str": tags_str,
-    })
-
-
+# ── HTMX Toggle Pin / Archive / Status / Delete ───────────────────────
+@login_required(login_url="login")
 @require_http_methods(["POST"])
 def memory_pin(request, pk):
-    """Toggle pin status."""
-    memory = get_object_or_404(Memory, pk=pk)
+    """Toggle memory pinned state."""
+    memory = get_object_or_404(Memory, pk=pk, user=request.user)
     memory.is_pinned = not memory.is_pinned
-    memory.save(update_fields=["is_pinned"])
-    if request.headers.get("HX-Request"):
-        return render(request, "quotes/partials/memory_card.html", {"memory": memory})
-    return redirect("dashboard")
+    memory.save()
+    return render(request, "quotes/partials/memory_card.html", {"memory": memory})
 
 
+@login_required(login_url="login")
 @require_http_methods(["POST"])
 def memory_archive(request, pk):
-    """Toggle archive status."""
-    memory = get_object_or_404(Memory, pk=pk)
+    """Toggle memory archived state with instant HTMX removal."""
+    memory = get_object_or_404(Memory, pk=pk, user=request.user)
     memory.is_archived = not memory.is_archived
-    if memory.is_archived:
-        memory.status = Memory.Status.ARCHIVED
-    else:
-        memory.status = Memory.Status.ACTIVE
-    memory.save(update_fields=["is_archived", "status"])
-    
+    memory.save()
+
     if request.headers.get("HX-Request"):
         from django.http import HttpResponse
-        current_url = request.headers.get("HX-Current-URL", "")
+        return HttpResponse("")
 
-        # If on single memory detail page, re-render card
-        if f"/memory/{pk}" in current_url:
-            return render(request, "quotes/partials/memory_card.html", {"memory": memory})
-
-        # If on /archive/ view and item was unarchived, remove from archive list
-        if "/archive/" in current_url and not memory.is_archived:
-            return HttpResponse("", status=200)
-
-        # If on active list view and item was archived, remove from active list
-        if "/archive/" not in current_url and memory.is_archived:
-            return HttpResponse("", status=200)
-
-        return render(request, "quotes/partials/memory_card.html", {"memory": memory})
-
-    return redirect("dashboard")
+    return render(request, "quotes/partials/memory_card.html", {"memory": memory})
 
 
+@login_required(login_url="login")
 @require_http_methods(["POST"])
 def memory_status(request, pk):
-    """Update memory status (e.g. mark task as done)."""
-    memory = get_object_or_404(Memory, pk=pk)
-    new_status = request.POST.get("status", "").strip()
-    if new_status in dict(Memory.Status.choices):
+    """Update memory status (e.g., done/active)."""
+    memory = get_object_or_404(Memory, pk=pk, user=request.user)
+    new_status = request.POST.get("status", "")
+    if new_status in Memory.Status.values:
         memory.status = new_status
-        if new_status == Memory.Status.ARCHIVED:
-            memory.is_archived = True
-        memory.save(update_fields=["status", "is_archived"])
-    if request.headers.get("HX-Request"):
-        return render(request, "quotes/partials/memory_card.html", {"memory": memory})
-    return redirect("dashboard")
+        memory.save()
+    return render(request, "quotes/partials/memory_card.html", {"memory": memory})
 
 
-@require_http_methods(["POST", "DELETE"])
+@login_required(login_url="login")
+@require_http_methods(["POST"])
 def memory_delete(request, pk):
-    """Permanently delete a memory."""
-    memory = get_object_or_404(Memory, pk=pk)
+    """Delete a memory with instant HTMX removal."""
+    memory = get_object_or_404(Memory, pk=pk, user=request.user)
     memory.delete()
+
     if request.headers.get("HX-Request"):
         from django.http import HttpResponse
-        response = HttpResponse("", status=200)
-        current_url = request.headers.get("HX-Current-URL", "")
-        if f"/memory/{pk}" in current_url or "/memory/" in current_url:
-            response["HX-Redirect"] = "/"
-        return response
+        return HttpResponse("")
+
     return redirect("dashboard")
 
 
-# ── Random memory ("Remember This") ───────────────────────────────────
+# ── Memory Resurfacing ────────────────────────────────────────────────
+@login_required(login_url="login")
 def random_memory(request):
-    """Return a random memory for the 'Remember This' feature."""
-    memory = Memory.random_memory()
+    """Resurface a random past memory."""
+    memories = list(Memory.objects.filter(user=request.user, is_archived=False))
+    chosen = None
+    if memories:
+        import random as rnd
+        chosen = rnd.choice(memories)
+
     if request.headers.get("HX-Request"):
-        return render(request, "quotes/partials/random_memory.html", {"memory": memory})
-    return render(request, "quotes/random_memory.html", {"memory": memory})
+        return render(request, "quotes/partials/random_memory.html", {"memory": chosen})
+
+    return render(request, "quotes/random_memory.html", {"memory": chosen})
 
 
-# ── Capture API (bookmarklet / external) ──────────────────────────────
-@csrf_exempt
-@require_http_methods(["POST"])
-def capture_api(request):
-    """Bookmarklet / generic capture endpoint. Accepts JSON body."""
-    try:
-        payload = json.loads(request.body.decode("utf-8"))
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return HttpResponseBadRequest(
-            json.dumps({"error": "Invalid JSON"}), content_type="application/json"
-        )
+@login_required(login_url="login")
+def recently_viewed(request):
+    """Show memories recently viewed in this session."""
+    viewed_ids = request.session.get("recently_viewed", [])
+    memories = Memory.objects.filter(user=request.user, pk__in=viewed_ids)
 
-    content = (payload.get("text") or payload.get("content") or "").strip()
-    if not content:
-        return JsonResponse({"error": "Content is required."}, status=400)
+    memories_dict = {m.pk: m for m in memories}
+    ordered = [memories_dict[pk] for pk in viewed_ids if pk in memories_dict]
 
-    title = (payload.get("title") or "").strip() or auto_title(content)
-    
-    # Try to auto-suggest category
-    category = None
-    cat_slug = suggest_category(content)
-    if cat_slug:
-        category = Category.objects.filter(slug=cat_slug).first()
+    categories = get_user_categories(request.user)
+    inbox_count = Memory.objects.filter(user=request.user, status=Memory.Status.INBOX, is_archived=False).count()
 
-    memory = Memory.objects.create(
-        title=title,
-        content=content,
-        category=category,
-        author=(payload.get("author") or "").strip(),
-        source_url=(payload.get("source_url") or payload.get("url") or "").strip(),
-        source_title=(payload.get("source_title") or "").strip(),
-        status=Memory.Status.ACTIVE if category else Memory.Status.INBOX,
-    )
-    return JsonResponse({"success": True, "id": memory.id})
+    return render(request, "quotes/memory_list.html", {
+        "memories": ordered,
+        "title": "Recently Viewed",
+        "categories": categories,
+        "inbox_count": inbox_count,
+        "active_filter": "recently_viewed",
+    })
 
 
-# ── PWA Web Share Target ──────────────────────────────────────────────
-@require_http_methods(["GET"])
-def share_target(request):
-    """PWA Web Share Target endpoint."""
-    shared_text = request.GET.get("text", "").strip()
-    shared_title = request.GET.get("title", "").strip()
-    shared_url = request.GET.get("url", "").strip()
-
-    body = shared_text or shared_title or shared_url
-    if body:
-        cat_slug = suggest_category(body)
-        category = Category.objects.filter(slug=cat_slug).first() if cat_slug else None
-        status = Memory.Status.ACTIVE if category else Memory.Status.INBOX
-
-        Memory.objects.create(
-            title=shared_title or auto_title(body),
-            content=body,
-            category=category,
-            source_url=shared_url,
-            status=status,
-        )
-    return redirect("dashboard")
-
-
-# ── Category Management ────────────────────────────────────────────────
+# ── Category Management ───────────────────────────────────────────────
+@login_required(login_url="login")
 def category_manage(request):
-    """View to list, create, edit, and delete categories."""
-    categories = Category.objects.all().order_by("order", "name")
+    """Category manager view."""
+    categories = get_user_categories(request.user)
     return render(request, "quotes/category_manage.html", {"categories": categories})
 
 
+@login_required(login_url="login")
 @require_http_methods(["POST"])
 def category_create(request):
     """Create a new category."""
     name = request.POST.get("name", "").strip()
-    emoji = request.POST.get("emoji", "📌").strip() or "📌"
-    color = request.POST.get("color", "#a78bfa").strip() or "#a78bfa"
-    
+    color = request.POST.get("color", "#a78bfa").strip()
+
     if not name:
         return redirect("category_manage")
-    
-    from django.utils.text import slugify
-    slug = slugify(name)
-    
-    base_slug = slug
-    counter = 1
-    while Category.objects.filter(slug=slug).exists():
-        slug = f"{base_slug}-{counter}"
-        counter += 1
+
+    slug = name.lower().replace(" ", "-")
+    slug = re.sub(r"[^a-z0-9-]", "", slug)
+
+    max_order = Category.objects.filter(Q(is_default=True) | Q(user=request.user)).count()
 
     Category.objects.create(
+        user=request.user,
         name=name,
         slug=slug,
-        emoji=emoji,
+        emoji="",
         color=color,
         is_default=False,
-        order=Category.objects.count() + 1
+        order=max_order + 1
     )
+
     return redirect("category_manage")
 
 
+@login_required(login_url="login")
 @require_http_methods(["POST"])
 def category_edit(request, pk):
     """Edit an existing category."""
     category = get_object_or_404(Category, pk=pk)
     name = request.POST.get("name", "").strip()
-    emoji = request.POST.get("emoji", "").strip()
-    color = request.POST.get("color", "").strip()
+    color = request.POST.get("color", category.color).strip()
 
     if name:
         category.name = name
-        from django.utils.text import slugify
-        category.slug = slugify(name)
-    if emoji:
-        category.emoji = emoji
-    if color:
-        category.color = color
+        category.slug = re.sub(r"[^a-z0-9-]", "", name.lower().replace(" ", "-"))
+    category.color = color
     category.save()
+
     return redirect("category_manage")
 
 
+@login_required(login_url="login")
 @require_http_methods(["POST"])
 def category_delete(request, pk):
-    """Delete a category (reassign memories to Inbox)."""
+    """Delete a category; associated memories default to Inbox."""
     category = get_object_or_404(Category, pk=pk)
-    # Reassign memories to Inbox before deleting
     Memory.objects.filter(category=category).update(category=None, status=Memory.Status.INBOX)
     category.delete()
     return redirect("category_manage")
 
 
+@login_required(login_url="login")
 @require_http_methods(["POST"])
 def category_reorder(request, pk, direction):
-    """Reorder category up or down."""
-    category = get_object_or_404(Category, pk=pk)
-    cats = list(Category.objects.all().order_by("order", "name"))
-    
-    # Ensure clean 1..N order
-    for idx, c in enumerate(cats, start=1):
-        if c.order != idx:
-            c.order = idx
-            c.save()
+    """Swap category order value with adjacent category."""
+    cat = get_object_or_404(Category, pk=pk)
+    categories = list(get_user_categories(request.user))
 
-    curr_idx = cats.index(category)
-    if direction == "up" and curr_idx > 0:
-        other = cats[curr_idx - 1]
-        category.order, other.order = other.order, category.order
-        category.save()
-        other.save()
-    elif direction == "down" and curr_idx < len(cats) - 1:
-        other = cats[curr_idx + 1]
-        category.order, other.order = other.order, category.order
-        category.save()
-        other.save()
+    try:
+        idx = categories.index(cat)
+    except ValueError:
+        return redirect("category_manage")
+
+    target_idx = idx - 1 if direction == "up" else idx + 1
+
+    if 0 <= target_idx < len(categories):
+        target = categories[target_idx]
+        cat.order, target.order = target.order, cat.order
+        cat.save()
+        target.save()
 
     return redirect("category_manage")
+
+
+# ── PWA Share Target Handler ──────────────────────────────────────────
+@login_required(login_url="login")
+def share_target(request):
+    """Accept PWA Web Share Target POST payload."""
+    title = request.GET.get("title") or request.POST.get("title", "")
+    text = request.GET.get("text") or request.POST.get("text", "")
+    url = request.GET.get("url") or request.POST.get("url", "")
+
+    content_parts = []
+    if text:
+        content_parts.append(text)
+    if url:
+        content_parts.append(url)
+
+    content = "\n".join(content_parts).strip()
+    if not content and title:
+        content = title
+
+    if content:
+        category_slug = suggest_category(content)
+        category = Category.objects.filter(slug=category_slug).first() if category_slug else None
+
+        Memory.objects.create(
+            user=request.user,
+            title=title or extract_title(content),
+            content=content,
+            category=category,
+            source_url=url,
+            status=Memory.Status.INBOX
+        )
+
+    return redirect("dashboard")
 
 
 # ── Seed default categories ───────────────────────────────────────────

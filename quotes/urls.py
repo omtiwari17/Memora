@@ -2,6 +2,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # Auth
+    path("login/", views.vault_login, name="login"),
+    path("logout/", views.vault_logout, name="logout"),
+
     # Dashboard
     path("", views.dashboard, name="dashboard"),
     

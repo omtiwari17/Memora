@@ -1,12 +1,14 @@
 from django.db import models
+from django.contrib.auth.models import User
 import random
 
 
 class Category(models.Model):
     """User-defined or system-default categories for organizing memories."""
-    name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(max_length=100, unique=True)
-    emoji = models.CharField(max_length=10, default="📌")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="categories")
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100)
+    emoji = models.CharField(max_length=10, default="")
     color = models.CharField(max_length=7, default="#a78bfa")  # hex color for UI
     is_default = models.BooleanField(default=False)  # True for system categories
     order = models.IntegerField(default=0)
@@ -16,7 +18,7 @@ class Category(models.Model):
         verbose_name_plural = "categories"
 
     def __str__(self):
-        return f"{self.emoji} {self.name}"
+        return self.name
 
 
 class Tag(models.Model):
@@ -33,6 +35,7 @@ class Tag(models.Model):
 
 class Collection(models.Model):
     """Named groups of related memories (e.g. 'Trip to Goa', '2026 Projects')."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="collections")
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -47,6 +50,8 @@ class Collection(models.Model):
 
 class Memory(models.Model):
     """The core model — anything worth remembering."""
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="memories")
 
     class Status(models.TextChoices):
         INBOX = "inbox", "Inbox"
