@@ -47,7 +47,10 @@
 
         <!-- Create New Category Card -->
         <div class="glass rounded-3xl p-6 mb-8">
-            <h2 class="text-sm font-semibold text-white/80 uppercase tracking-wider mb-4">+ Create Custom Category</h2>
+            <h2 class="text-sm font-semibold text-white/80 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                Create Custom Category
+            </h2>
             <form method="POST" action="{% url 'category_create' %}" class="space-y-4">
                 {% csrf_token %}
                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
