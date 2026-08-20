@@ -37,7 +37,7 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 
 ## 3. Architecture Decisions
 
-- **Visual Theme: Dark Aurora + Glassmorphism** — Absolute animated aurora background blobs (`filter: blur(120px)`), glass cards (`backdrop-filter: blur(16px)`), CSS gradient accents, and Space Grotesk font.
+- **Visual Theme: Dark Aurora + Glassmorphism + Crisp SVG Icons** — Absolute animated aurora background blobs (`filter: blur(120px)`), glass cards with category left-border accents (`border-l-4`), CSS gradient accents, Space Grotesk font, and vector SVG iconography replacing raw OS emojis for a high-end application aesthetic.
 - **Generic Memory Model** — Replaced legacy Quote model with `Memory` (supports content, title, category, tags, collections, URLs, author, priority, status, due dates).
 - **Type-Aware Card Rendering** — Cards render custom visual layouts per category slug:
   - `tasks`: Interactive checkbox with strike-through styling
