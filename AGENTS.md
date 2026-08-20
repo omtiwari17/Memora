@@ -38,6 +38,7 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 ## 3. Architecture Decisions
 
 - **Visual Theme: Dark Aurora + Glassmorphism + Crisp SVG Icons** — Absolute animated aurora background blobs (`filter: blur(120px)`), glass cards with category left-border accents (`border-l-4`), CSS gradient accents, Space Grotesk font, and vector SVG iconography replacing raw OS emojis for a high-end application aesthetic.
+- **Niche Authentication: Vault Handle + 6-Digit PIN** — Zero email or password friction. Users register and unlock their personal private memory vault using a unique **Vault Handle** (e.g. `@om`) and a secure **6-Digit PIN** (hashed via Django's PBKDF2). All memories, categories, and collections are strictly user-scoped (`user=request.user`).
 - **Generic Memory Model** — Replaced legacy Quote model with `Memory` (supports content, title, category, tags, collections, URLs, author, priority, status, due dates).
 - **Type-Aware Card Rendering** — Cards render custom visual layouts per category slug:
   - `tasks`: Interactive checkbox with strike-through styling
