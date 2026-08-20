@@ -134,7 +134,11 @@ def auto_title(content):
 def dashboard(request):
     """Main dashboard — shows recent memories, pinned items, upcoming."""
     categories = Category.objects.all().order_by("order", "name")
+    total_count = Memory.objects.filter(is_archived=False).count()
     inbox_count = Memory.objects.filter(status=Memory.Status.INBOX, is_archived=False).count()
+    tasks_done = Memory.objects.filter(status=Memory.Status.DONE, is_archived=False).count()
+    due_soon = Memory.objects.filter(is_archived=False, due_date__isnull=False, due_date__gte=timezone.now()).count()
+
     pinned = Memory.objects.filter(is_pinned=True, is_archived=False)[:6]
     recent = Memory.objects.filter(is_archived=False)[:12]
     
@@ -147,7 +151,14 @@ def dashboard(request):
 
     return render(request, "quotes/dashboard.html", {
         "categories": categories,
+        "total_count": total_count,
         "inbox_count": inbox_count,
+        "tasks_done": tasks_done,
+        "due_soon": due_soon,
+        "pinned": pinned,
+        "recent": recent,
+        "upcoming": upcoming,
+    })
         "pinned": pinned,
         "recent": recent,
         "upcoming": upcoming,
