@@ -8,6 +8,7 @@
     <meta name="description" content="Memora: {{ title }}">
 
     <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link rel="shortcut icon" href="{% static 'logo.jpg' %}" type="image/jpeg">
     <meta name="theme-color" content="#0f0e17">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -68,7 +69,7 @@
         <aside class="hidden lg:flex flex-col w-64 fixed inset-y-0 left-0 z-30 border-r border-white/[0.06] bg-[#0f0e17]/85 backdrop-blur-xl overflow-y-auto">
             <div class="px-5 py-6 flex items-center gap-3 border-b border-white/[0.04]">
                 <a href="{% url 'dashboard' %}" class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg font-bold shadow-lg shadow-purple-500/25">M</div>
+                    <img src="{% static 'logo.jpg' %}" alt="Memora Logo" class="w-9 h-9 rounded-xl shadow-lg shadow-purple-500/30 border border-purple-400/30 object-cover">
                     <div>
                         <h1 class="text-lg font-bold bg-gradient-to-r from-white via-purple-200 to-indigo-300 bg-clip-text text-transparent">Memora</h1>
                         <p class="text-[10px] text-white/30 tracking-wider uppercase">Your memory vault</p>
@@ -170,7 +171,7 @@
                 <!-- Mobile header -->
                 <div class="lg:hidden flex items-center justify-between mb-6">
                     <a href="{% url 'dashboard' %}" class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-500/25">M</div>
+                        <img src="{% static 'logo.jpg' %}" alt="Memora Logo" class="w-8 h-8 rounded-lg shadow-md shadow-purple-500/25 border border-purple-400/20 object-cover">
                         <span class="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-indigo-300 bg-clip-text text-transparent">Memora</span>
                     </a>
                 </div>

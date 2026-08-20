@@ -8,6 +8,7 @@
     <meta name="description" content="Unlock your personal Memora memory vault with your Vault Handle & 6-Digit PIN.">
 
     <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link rel="shortcut icon" href="{% static 'logo.jpg' %}" type="image/jpeg">
     <meta name="theme-color" content="#0f0e17">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -56,9 +57,7 @@
     <div class="w-full max-w-md">
         <!-- Logo & Branding -->
         <div class="text-center mb-8">
-            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-2xl font-bold shadow-xl shadow-purple-500/30 mx-auto mb-4 border border-purple-400/20">
-                M
-            </div>
+            <img src="{% static 'logo.jpg' %}" alt="Memora Logo" class="w-16 h-16 rounded-2xl shadow-xl shadow-purple-500/30 border border-purple-400/30 object-cover mx-auto mb-4">
             <h1 class="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-indigo-300 bg-clip-text text-transparent">
                 Memora Vault
             </h1>
