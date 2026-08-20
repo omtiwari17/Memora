@@ -50,16 +50,37 @@
                         {% endfor %}
                     </select>
 
-                    <input type="text" name="tags" placeholder="Tags (comma separated)" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors">
-                    <input type="url" name="source_url" placeholder="URL (optional)" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors">
+                    <div>
+                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Tags</label>
+                        <input type="text" name="tags" placeholder="comma, separated, tags" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl px-4 text-sm text-white placeholder-white/20 outline-none focus:border-purple-500/50 transition-colors">
+                    </div>
 
-                    <select name="priority" class="w-full bg-[#181726] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/50 transition-colors appearance-none cursor-pointer" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22rgba(255,255,255,0.6)%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center;">
-                        <option value="none" class="bg-[#181726] text-white py-2">⚪ No priority</option>
-                        <option value="low" class="bg-[#181726] text-white py-2">🟢 Low</option>
-                        <option value="medium" class="bg-[#181726] text-white py-2">🟡 Medium</option>
-                        <option value="high" class="bg-[#181726] text-white py-2">🟠 High</option>
-                        <option value="urgent" class="bg-[#181726] text-white py-2">🔴 Urgent</option>
-                    </select>
+                    <div>
+                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Author</label>
+                        <input type="text" name="author" placeholder="Author name (for quotes)" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl px-4 text-sm text-white placeholder-white/20 outline-none focus:border-purple-500/50 transition-colors">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Priority</label>
+                            <select name="priority" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl px-3 text-sm text-white outline-none focus:border-purple-500/50 transition-colors">
+                                <option value="none">None</option>
+                                <option value="low">🟢 Low</option>
+                                <option value="medium">🟡 Medium</option>
+                                <option value="high">🟠 High</option>
+                                <option value="urgent">🔴 Urgent</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Due Date</label>
+                            <input type="date" name="due_date" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl px-3 text-sm text-white outline-none focus:border-purple-500/50 transition-colors [color-scheme:dark]">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Source URL</label>
+                        <input type="url" name="source_url" placeholder="https://..." class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl px-4 text-sm text-white placeholder-white/20 outline-none focus:border-purple-500/50 transition-colors">
+                    </div>
                 </div>
 
                 <!-- Toggle optional fields -->
@@ -162,6 +183,7 @@ function toggleOptionalFields() {
 let suggestTimeout = null;
 function onContentChange(value) {
     generateLiveTitle(value);
+    suggestCategory(value);
     clearTimeout(suggestTimeout);
     if (value.trim().length < 5) {
         document.getElementById('category-suggestion').classList.add('hidden');
@@ -226,4 +248,33 @@ document.addEventListener('keydown', function(e) {
         closeCapture();
     }
 });
+
+function suggestCategory(text) {
+    const categorySelect = document.getElementById('capture-category');
+    if (!categorySelect || categorySelect.value) return; // Don't override if user already selected
+    
+    // Existing regex checks for code/quotes/links
+    if (text.match(/```[\s\S]*```/)) { categorySelect.value = 'code'; return; }
+    if (text.match(/https?:\/\/[^\s]+/)) { categorySelect.value = 'links'; return; }
+    if (text.match(/^"[\s\S]*"$/) || text.match(/[\n\r\s]+[-—–~]\s*[A-Z]/)) { categorySelect.value = 'quotes'; return; }
+
+    // Keyword-based suggestions
+    const keywords = {
+        'tasks': ['todo', 'task', 'need to', 'don\'t forget', 'remember to', 'must', 'should'],
+        'watch': ['watch', 'movie', 'film', 'series', 'episode', 'netflix', 'youtube'],
+        'read': ['read', 'book', 'article', 'paper', 'chapter', 'novel'],
+        'buy': ['buy', 'purchase', 'order', 'shopping', 'price', '₹', '$'],
+        'places': ['visit', 'travel', 'restaurant', 'cafe', 'hotel', 'airport', 'trip'],
+        'ideas': ['what if', 'idea', 'concept', 'maybe', 'brainstorm'],
+        'learn': ['learn', 'study', 'tutorial', 'course', 'how to', 'guide'],
+        'reminders': ['reminder', 'appointment', 'meeting', 'deadline', 'schedule'],
+    };
+    const lower = text.toLowerCase();
+    for (const [slug, words] of Object.entries(keywords)) {
+        if (words.some(w => lower.includes(w))) {
+            const opt = categorySelect.querySelector(`option[value="${slug}"]`);
+            if (opt) { categorySelect.value = slug; return; }
+        }
+    }
+}
 </script>

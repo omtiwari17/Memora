@@ -76,10 +76,17 @@ def suggest_category(text):
     if re.search(r'\b(https?://|www\.)\S+', text, re.IGNORECASE):
         return "links"
 
+    # 4. Keyword matching
+    text_lower = text.lower()
+    for slug, keywords in CATEGORY_KEYWORDS.items():
+        for keyword in keywords:
+            if re.search(r'\b' + re.escape(keyword) + r'\b', text_lower):
+                return slug
+
     return None
 
 
-def auto_title(content, category_slug=None):
+def auto_title(content):
     """Generate a clean, smart title from content."""
     if not content:
         return "Untitled Memory"
@@ -90,7 +97,7 @@ def auto_title(content, category_slug=None):
     author_match = re.search(r'[\n\r\s]+[-—–~]\s*([A-Z][a-zA-Z\s\.]+)', clean)
     if author_match and author_match.group(1).strip():
         author = author_match.group(1).strip()
-        quote_text = clean.split('\n')[0].replace('"', '').replace('“', '').replace('”', '').strip()
+        quote_text = clean.replace(author_match.group(0), '').split('\n')[0].replace('"', '').replace('“', '').replace('”', '').strip()
         words = quote_text.split()
         short_quote = " ".join(words[:5]) + "..." if len(words) > 5 else quote_text
         return f'"{short_quote}" — {author}'
@@ -187,7 +194,7 @@ def memory_list(request, filter_type=None, filter_value=None):
         memories = memories.filter(category__slug="tasks")
         title = "✅ Tasks"
     elif filter_type == "reminders":
-        memories = memories.filter(due_date__isnull=False).order_by("due_date")
+        memories = memories.filter(Q(due_date__isnull=False) | Q(reminder_at__isnull=False)).order_by('due_date')
         title = "📅 Reminders & Due Dates"
     elif filter_type == "priority":
         memories = memories.filter(priority=filter_value)
@@ -204,12 +211,13 @@ def memory_list(request, filter_type=None, filter_value=None):
 
     categories = Category.objects.all().order_by("order", "name")
     
-    # Check if this is an HTMX request for just the memory grid
     if request.headers.get("HX-Request"):
         return render(request, "quotes/partials/memory_grid.html", {
             "memories": memories,
             "title": title,
         })
+
+    inbox_count = Memory.objects.filter(status=Memory.Status.INBOX, is_archived=False).count()
 
     return render(request, "quotes/memory_list.html", {
         "memories": memories,
@@ -217,6 +225,7 @@ def memory_list(request, filter_type=None, filter_value=None):
         "categories": categories,
         "active_filter": active_filter,
         "filter_value": filter_value,
+        "inbox_count": inbox_count,
     })
 
 
@@ -283,6 +292,13 @@ def capture(request):
         tags_str = request.POST.get("tags", "").strip()
         source_url = request.POST.get("source_url", "").strip()
         priority = request.POST.get("priority", Memory.Priority.NONE)
+        author = request.POST.get("author", "").strip()
+
+        due_date = None
+        due_date_str = request.POST.get("due_date", "").strip()
+        if due_date_str:
+            from datetime import datetime
+            due_date = datetime.strptime(due_date_str, '%Y-%m-%d').date()
 
         category = None
         if category_slug:
@@ -297,8 +313,10 @@ def capture(request):
             content=content,
             category=category,
             source_url=source_url,
+            author=author,
             priority=priority,
             status=status,
+            due_date=due_date,
         )
 
         # Handle tags
@@ -390,6 +408,18 @@ def memory_edit(request, pk):
 
             memory.source_url = request.POST.get("source_url", "").strip()
             memory.priority = request.POST.get("priority", Memory.Priority.NONE)
+            memory.author = request.POST.get("author", "").strip()
+            
+            status = request.POST.get("status", "").strip()
+            if status:
+                memory.status = status
+
+            due_date_str = request.POST.get("due_date", "").strip()
+            if due_date_str:
+                from datetime import datetime
+                memory.due_date = datetime.strptime(due_date_str, '%Y-%m-%d').date()
+            else:
+                memory.due_date = None
             
             # Tags
             tags_str = request.POST.get("tags", "").strip()
@@ -541,7 +571,7 @@ def capture_api(request):
         author=(payload.get("author") or "").strip(),
         source_url=(payload.get("source_url") or payload.get("url") or "").strip(),
         source_title=(payload.get("source_title") or "").strip(),
-        status=Memory.Status.INBOX,
+        status=Memory.Status.ACTIVE if category else Memory.Status.INBOX,
     )
     return JsonResponse({"success": True, "id": memory.id})
 

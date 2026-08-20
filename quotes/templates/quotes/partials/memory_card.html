@@ -196,6 +196,9 @@
             <p class="text-sm font-medium text-white/85 mb-1.5">{{ memory.title }}</p>
             {% endif %}
             <p class="text-sm text-white/70 leading-relaxed">{{ memory.content|truncatewords:40 }}</p>
+            {% if memory.author and memory.category.slug != 'quotes' and memory.category.slug != 'thoughts' %}
+            <p class="text-[11px] text-white/30 mt-1">— {{ memory.author }}</p>
+            {% endif %}
             {% if memory.source_url %}
             <a href="{{ memory.source_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-[10px] text-indigo-300/50 hover:text-indigo-300 mt-2 transition-colors">
                 <svg class="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.06a4.5 4.5 0 00-1.242-7.244l-4.5-4.5a4.5 4.5 0 00-6.364 6.364l1.757 1.757"/></svg>
@@ -218,7 +221,14 @@
 
         {# Footer: timestamp #}
         <div class="mt-3 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[10px] text-white/20">
-            <span>{{ memory.created_at|timesince }} ago</span>
+            <div class="flex items-center gap-2">
+                {% if memory.due_date %}
+                <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-blue-500/15 text-blue-400 flex items-center gap-1">
+                    📅 {{ memory.due_date|date:'M d' }}
+                </span>
+                {% endif %}
+                <span>{{ memory.created_at|timesince }} ago</span>
+            </div>
             <div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
                 <button hx-get="{% url 'memory_edit' memory.id %}" hx-target="body" hx-swap="beforeend" class="text-purple-400/60 hover:text-purple-300 transition-colors">
                     ✏️ Edit

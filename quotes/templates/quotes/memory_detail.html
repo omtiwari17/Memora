@@ -70,6 +70,12 @@
                     {% endif %}
 
                     <span class="text-xs px-2 py-1 rounded-lg bg-white/5 text-white/30">{{ memory.get_status_display }}</span>
+                    {% if memory.due_date %}
+                    <div class="flex items-center gap-2">
+                        <span class="text-white/30 text-xs">📅 Due:</span>
+                        <span class="text-sm text-blue-400">{{ memory.due_date|date:'M d, Y' }}</span>
+                    </div>
+                    {% endif %}
                 </div>
 
                 {# Title #}
@@ -141,13 +147,16 @@
 
                 {# Actions #}
                 <div class="mt-6 pt-4 border-t border-white/[0.06] flex flex-wrap gap-2">
-                    <form hx-post="{% url 'memory_pin' memory.id %}" class="inline">
+                    <button hx-get="{% url 'memory_edit' memory.id %}" hx-target="body" hx-swap="beforeend" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-sm text-white/70 hover:text-white transition-all">
+                        ✏️ Edit
+                    </button>
+                    <form hx-post="{% url 'memory_pin' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML" class="inline">
                         {% csrf_token %}
                         <button type="submit" class="px-3 py-1.5 rounded-lg glass text-xs text-white/50 hover:text-white/80 hover:bg-white/[0.06] transition-all">
                             {% if memory.is_pinned %}💔 Unpin{% else %}❤️ Pin{% endif %}
                         </button>
                     </form>
-                    <form hx-post="{% url 'memory_archive' memory.id %}" class="inline">
+                    <form hx-post="{% url 'memory_archive' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML" class="inline">
                         {% csrf_token %}
                         <button type="submit" class="px-3 py-1.5 rounded-lg glass text-xs text-white/50 hover:text-white/80 hover:bg-white/[0.06] transition-all">
                             {% if memory.is_archived %}📤 Restore{% else %}🗄️ Archive{% endif %}

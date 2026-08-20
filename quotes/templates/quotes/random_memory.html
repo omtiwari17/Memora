@@ -44,7 +44,7 @@
             <p class="text-sm text-white/30">A glimpse into your past captures</p>
         </div>
 
-        <div id="random-content" hx-get="{% url 'random_memory' %}" hx-trigger="load" hx-swap="innerHTML">
+        <div id="random-content" hx-get="{% url 'random_memory' %}" hx-swap="innerHTML">
             {% include "quotes/partials/random_memory.html" %}
         </div>
 
