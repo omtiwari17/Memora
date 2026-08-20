@@ -50,14 +50,20 @@
                 <textarea name="content" rows="5" placeholder="Type anything worth remembering..." class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white/90 placeholder-white/25 outline-none focus:border-purple-400/40 resize-none transition-colors" required></textarea>
                 <input type="text" name="title" placeholder="Title (auto-generated if empty)" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors">
                 <select name="category" class="w-full bg-[#181726] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/50 transition-colors cursor-pointer">
-                    <option value="" class="bg-[#181726] text-white py-2">📥 No category (Inbox)</option>
+                    <option value="" class="bg-[#181726] text-white py-2">No category (Inbox)</option>
                     {% for cat in categories %}
-                    <option value="{{ cat.slug }}" class="bg-[#181726] text-white py-2">{{ cat.emoji }} {{ cat.name }}</option>
+                    <option value="{{ cat.slug }}" class="bg-[#181726] text-white py-2">{{ cat.name }}</option>
                     {% endfor %}
                 </select>
                 <input type="text" name="tags" placeholder="Tags (comma separated)" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors">
                 <input type="url" name="source_url" placeholder="URL (optional)" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors">
                 <select name="priority" class="w-full bg-[#181726] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/50 transition-colors cursor-pointer">
+                    <option value="none">No priority</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
+                </select>
                     <option value="none" class="bg-[#181726] text-white py-2">⚪ No priority</option>
                     <option value="low" class="bg-[#181726] text-white py-2">🟢 Low</option>
                     <option value="medium" class="bg-[#181726] text-white py-2">🟡 Medium</option>

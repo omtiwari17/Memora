@@ -704,23 +704,24 @@ def category_reorder(request, pk, direction):
 # ── Seed default categories ───────────────────────────────────────────
 def seed_categories():
     """Create default categories if they don't exist."""
+    Category.objects.all().update(emoji="")
     defaults = [
-        {"name": "Quotes", "slug": "quotes", "emoji": "💬", "color": "#f59e0b", "order": 1},
-        {"name": "Thoughts", "slug": "thoughts", "emoji": "🧠", "color": "#a78bfa", "order": 2},
-        {"name": "Ideas", "slug": "ideas", "emoji": "💡", "color": "#fbbf24", "order": 3},
-        {"name": "Learn", "slug": "learn", "emoji": "📚", "color": "#34d399", "order": 4},
-        {"name": "Save", "slug": "save", "emoji": "🔖", "color": "#60a5fa", "order": 5},
-        {"name": "Links", "slug": "links", "emoji": "🔗", "color": "#38bdf8", "order": 6},
-        {"name": "Watch", "slug": "watch", "emoji": "🎬", "color": "#f87171", "order": 7},
-        {"name": "Read", "slug": "read", "emoji": "📖", "color": "#fb923c", "order": 8},
-        {"name": "Buy", "slug": "buy", "emoji": "🛒", "color": "#4ade80", "order": 9},
-        {"name": "Tasks", "slug": "tasks", "emoji": "✅", "color": "#22d3ee", "order": 10},
-        {"name": "Reminders", "slug": "reminders", "emoji": "📅", "color": "#e879f9", "order": 11},
-        {"name": "Places", "slug": "places", "emoji": "✈️", "color": "#2dd4bf", "order": 12},
-        {"name": "Code", "slug": "code", "emoji": "💻", "color": "#a3e635", "order": 13},
-        {"name": "People", "slug": "people", "emoji": "👤", "color": "#f472b6", "order": 14},
-        {"name": "Projects", "slug": "projects", "emoji": "🚀", "color": "#818cf8", "order": 15},
-        {"name": "Important", "slug": "important", "emoji": "❤️", "color": "#ef4444", "order": 16},
+        {"name": "Quotes", "slug": "quotes", "emoji": "", "color": "#f59e0b", "order": 1},
+        {"name": "Thoughts", "slug": "thoughts", "emoji": "", "color": "#a78bfa", "order": 2},
+        {"name": "Ideas", "slug": "ideas", "emoji": "", "color": "#fbbf24", "order": 3},
+        {"name": "Learn", "slug": "learn", "emoji": "", "color": "#34d399", "order": 4},
+        {"name": "Save", "slug": "save", "emoji": "", "color": "#60a5fa", "order": 5},
+        {"name": "Links", "slug": "links", "emoji": "", "color": "#38bdf8", "order": 6},
+        {"name": "Watch", "slug": "watch", "emoji": "", "color": "#f87171", "order": 7},
+        {"name": "Read", "slug": "read", "emoji": "", "color": "#fb923c", "order": 8},
+        {"name": "Buy", "slug": "buy", "emoji": "", "color": "#4ade80", "order": 9},
+        {"name": "Tasks", "slug": "tasks", "emoji": "", "color": "#22d3ee", "order": 10},
+        {"name": "Reminders", "slug": "reminders", "emoji": "", "color": "#e879f9", "order": 11},
+        {"name": "Places", "slug": "places", "emoji": "", "color": "#2dd4bf", "order": 12},
+        {"name": "Code", "slug": "code", "emoji": "", "color": "#a3e635", "order": 13},
+        {"name": "People", "slug": "people", "emoji": "", "color": "#f472b6", "order": 14},
+        {"name": "Projects", "slug": "projects", "emoji": "", "color": "#818cf8", "order": 15},
+        {"name": "Important", "slug": "important", "emoji": "", "color": "#ef4444", "order": 16},
     ]
     for cat_data in defaults:
         Category.objects.get_or_create(
