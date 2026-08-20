@@ -1,10 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-    <rect width="32" height="32" rx="8" fill="url(#grad)" />
-    <path d="M7 23V9l9 7.8L25 9v14" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect width="32" height="32" rx="9" fill="url(#bg-grad)" stroke="rgba(192, 132, 252, 0.35)" stroke-width="1.2"/>
+    <!-- Interlocking Memory Infinity M -->
+    <path d="M7 23V11.5L16 19.5L25 11.5V23" stroke="url(#mem-grad-1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M11 10C11 7.79 13.24 6 16 6C18.76 6 21 7.79 21 10" stroke="url(#mem-grad-2)" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="16" cy="13.5" r="1.75" fill="#e879f9"/>
     <defs>
-        <linearGradient id="grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#a855f7"/>
-            <stop offset="1" stop-color="#4f46e5"/>
+        <linearGradient id="bg-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#1e1b4b"/>
+            <stop offset="1" stop-color="#311042"/>
+        </linearGradient>
+        <linearGradient id="mem-grad-1" x1="7" y1="11.5" x2="25" y2="23" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#c084fc"/>
+            <stop offset="0.5" stop-color="#818cf8"/>
+            <stop offset="1" stop-color="#38bdf8"/>
+        </linearGradient>
+        <linearGradient id="mem-grad-2" x1="11" y1="6" x2="21" y2="10" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#f472b6"/>
+            <stop offset="1" stop-color="#c084fc"/>
         </linearGradient>
     </defs>
 </svg>
