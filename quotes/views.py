@@ -32,8 +32,8 @@ CODE_PATTERNS = [
 ]
 
 CATEGORY_KEYWORDS = {
-    "cinema": ["movie", "film", "cinema", "show", "series", "tv show", "web series", "netflix", "imdb", "boxoffice", "season", "episode", "anime", "documentary"],
-    "watch": ["watch", "youtube", "video", "stream"],
+    "cinema": ["movie", "film", "cinema", "show", "series", "tv show", "web series", "netflix", "imdb", "boxoffice", "season", "episode", "anime"],
+    "watch": ["watch", "youtube", "video", "documentary", "stream"],
     "read": ["read", "book", "article", "paper", "blog", "novel", "manga", "ebook"],
     "buy": ["buy", "purchase", "order", "price", "cost", "shopping", "amazon", "flipkart", "deal"],
     "tasks": ["todo", "to-do", "task", "need to", "should", "must", "finish", "complete", "submit", "deadline"],
