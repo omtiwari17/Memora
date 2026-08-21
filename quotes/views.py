@@ -126,7 +126,7 @@ def get_user_categories(user):
 
 
 # ── Custom Error Handlers ─────────────────────────────────────────────
-def custom_404_view(request, exception=None):
+def custom_404_view(request, exception=None, *args, **kwargs):
     """Custom glassmorphic 404 Page Not Found error view."""
     return render(request, "404.html", status=404)
 
