@@ -165,9 +165,11 @@ Memora is configured for production hosting on Render backed by Neon PostgreSQL:
    - `ADMIN_HANDLE` = `admin`
    - `ADMIN_PIN` = `123456`
 
-### Step 3: Service Availability Orchestration
-1. Configure an automated keep-alive ping on **[cron-job.org](https://cron-job.org)** pointing to `https://your-app.onrender.com` at **10-minute intervals**.
-2. This ensures continuous service availability and eliminates cold starts.
+### Step 3: Uptime & Keep-Alive Monitoring (cron-job.org)
+To keep the application awake 24/7 without cold starts or redirect errors:
+1. Register a ping job on **[cron-job.org](https://cron-job.org)**.
+2. Set Target URL to **`https://your-app.onrender.com/healthz/`** *(Note: include `https://` and `/healthz/` to get direct `HTTP 200 OK` with 0 redirects)*.
+3. Schedule for **every 10 minutes**.
 
 ---
 

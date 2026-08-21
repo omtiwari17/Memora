@@ -312,7 +312,7 @@ Render's free tier puts web services to sleep after 15 minutes of inactivity. To
 1. Register at **[cron-job.org](https://cron-job.org)** (100% free).
 2. Click **+ CREATE CRONJOB**:
    - **Title**: `Memora Keep Alive`
-   - **URL**: `https://your-app.onrender.com`
+   - **URL**: `https://your-app.onrender.com/healthz/` *(Must include `https://` and `/healthz/` to return HTTP 200 OK directly with 0 redirects)*
    - **Schedule**: `Every 10 minutes`
 3. Save the job. Your app will now stay online 24/7 with **0-second cold starts** for $0/month!
 

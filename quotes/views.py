@@ -126,6 +126,11 @@ def get_user_categories(user):
 
 
 # ── Authentication (Vault Handle + 6-Digit PIN) ──────────────────────
+def health_check(request):
+    """Unauthenticated health check endpoint for uptime ping monitoring (returns 200 OK directly)."""
+    return JsonResponse({"status": "ok", "app": "Memora", "service": "awake"}, status=200)
+
+
 def vault_login(request):
     """Unlock or create a personal memory vault with Vault Handle + 6-Digit PIN."""
     if request.user.is_authenticated:

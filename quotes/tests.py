@@ -26,6 +26,22 @@ TEST_STORAGES = {
 # MODEL TESTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+class HealthCheckTest(TestCase):
+    """Test unauthenticated uptime health check endpoints."""
+
+    def test_healthz_returns_200_ok(self):
+        client = Client()
+        resp = client.get(reverse("health_check"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json()["status"], "ok")
+
+    def test_ping_returns_200_ok(self):
+        client = Client()
+        resp = client.get(reverse("ping"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json()["status"], "ok")
+
+
 class CategoryModelTest(TestCase):
     """Test the Category model."""
 
