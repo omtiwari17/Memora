@@ -38,7 +38,10 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 ## 3. Architecture Decisions
 
 - **Visual Theme: Dark Aurora + Glassmorphism + Crisp SVG Icons** — Absolute animated aurora background blobs (`filter: blur(120px)`), glass cards with category left-border accents (`border-l-4`), CSS gradient accents, Space Grotesk font, and vector SVG iconography replacing raw OS emojis for a high-end application aesthetic.
+- **Handcrafted Vector SVG Branding: Synapse Infinity M Logo & Favicon** — Pin-sharp, handcrafted vector SVG logo mark (`logo.svg`) featuring an interlocking gradient memory ribbon ('M'), an infinity retention arch, and a central synapse pulse node (`#e879f9`). Served directly for all favicons (`/favicon.ico`), browser tabs, desktop/mobile headers, and login screens with 0ms load time.
 - **Niche Authentication: Vault Handle + 6-Digit PIN** — Zero email or password friction. Users register and unlock their personal private memory vault using a unique **Vault Handle** (e.g. `@om`) and a secure **6-Digit PIN** (hashed via Django's PBKDF2). All memories, categories, and collections are strictly user-scoped (`user=request.user`).
+- **Sidebar & Header Layout Rules** — Persistent **`+ New Category`** button in the left sidebar on all pages (`dashboard.html`, `memory_list.html`). The primary **`+ Capture New Memory`** header button is exclusively displayed on the "All Memories" dashboard page (`dashboard.html`).
+- **Full-Width Aligned Layout** — Search bar containers span 100% full-width (`w-full`) across dashboard and filtered list views, aligning flush with header statistics cards and memory grid cards.
 - **Generic Memory Model** — Replaced legacy Quote model with `Memory` (supports content, title, category, tags, collections, URLs, author, priority, status, due dates).
 - **Type-Aware Card Rendering** — Cards render custom visual layouts per category slug:
   - `tasks`: Interactive checkbox with strike-through styling
@@ -151,6 +154,9 @@ Memora/
 
 | Path | Name | Purpose |
 |---|---|---|
+| `/login/` | `login` | Vault Handle + 6-Digit PIN unlock and registration screen |
+| `/logout/` | `logout` | Lock memory vault session |
+| `/favicon.ico` | `favicon` | Vector SVG favicon endpoint serving `logo.svg` directly |
 | `/` | `dashboard` | Main dashboard with recent memories, pinned items & sidebar |
 | `/search/` | `search_memories` | HTMX real-time universal search endpoint |
 | `/capture/` | `capture` | Quick capture form handler |
@@ -187,10 +193,15 @@ Memora/
 ## 8. Completed Work (Phase 1 — Phase 5 Complete)
 
 - [x] Memory, Category, Tag, Collection models implemented
-- [x] 16 default categories seeded with custom colors and emojis
-- [x] Full Category Management suite (Create, Edit, Delete with Inbox fallback, 20-color preset palette, 32-emoji quick picker, Up/Down reordering)
+- [x] 16 default categories seeded with custom colors
+- [x] Niche Vault Handle + 6-Digit PIN authentication system (`login.html`, `vault_login`, `vault_logout`, user-scoped data filtering)
+- [x] Handcrafted Synapse Infinity M vector SVG branding & favicon system (`logo.svg`, `/favicon.ico` endpoint)
+- [x] 100% Emoji Purge across entire database & templates replaced with crisp Heroicons SVG icons
+- [x] Full Category Management suite (Create, Edit, Delete with Inbox fallback, 20-color preset palette, Up/Down reordering)
 - [x] Dashboard with sidebar navigation & category chips
-- [x] Persistent top-right **`+ Capture New Memory`** header button (`Ctrl+K` shortcut indicator)
+- [x] Persistent sidebar **`+ New Category`** button across all views
+- [x] Header **`+ Capture New Memory`** button scoped exclusively to the "All Memories" dashboard page
+- [x] 100% full-width aligned search bar (`w-full`) flush with statistics cards and memory cards
 - [x] Real-time 200ms high-confidence auto-categorization engine
 - [x] Real-time live auto-title preview on client & smart quote author titling on server
 - [x] Type-aware memory cards (Tasks, Code, Links, Watch/Read/Buy, Golden Serif Quotes, Places)
