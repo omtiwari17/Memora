@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     # Auth, Landing, Health Ping & Favicon
+    path("", views.home_root, name="home_root"),
     path("welcome/", views.landing_page, name="landing"),
     path("landing/", views.landing_page, name="landing_page"),
     path("about/", views.landing_page, name="about"),
@@ -18,8 +19,9 @@ urlpatterns = [
     path("ctrl/", views.custom_admin_panel, name="custom_admin_panel"),
     path("ctrl/user/<int:user_id>/toggle-staff/", views.admin_toggle_staff, name="admin_toggle_staff"),
 
-    # Dashboard
-    path("", views.dashboard, name="dashboard"),
+    # Vault Dashboard
+    path("app/", views.dashboard, name="dashboard"),
+    path("vault/", views.dashboard, name="vault_dashboard"),
     
     # Search
     path("search/", views.search_memories, name="search_memories"),
