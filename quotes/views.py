@@ -466,6 +466,9 @@ def capture(request):
 
         return redirect("dashboard")
 
+    categories = get_user_categories(request.user)
+    return render(request, "quotes/capture_form.html", {"categories": categories})
+
 
 @login_required(login_url="login")
 @require_http_methods(["POST"])
@@ -485,9 +488,6 @@ def memory_watch_status(request, pk):
 
     memory.save()
     return render(request, "quotes/partials/memory_card.html", {"memory": memory})
-
-    categories = get_user_categories(request.user)
-    return render(request, "quotes/capture_form.html", {"categories": categories})
 
 
 # ── Universal Capture API (for extension/bookmarklet) ──────────────────
