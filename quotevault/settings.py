@@ -4,9 +4,22 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "dev-insecure-key-change-me")
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY",
+    "django-secure-memora-vault-key-prod-dev-fallback-2026-a1b2c3d4e5f6g7h8i9j0"
+)
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 INTERNAL_IPS = ["127.0.0.1", "::1"]
+
+# Production Security & Reverse Proxy Settings
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "*").split(",") if h.strip()]
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
