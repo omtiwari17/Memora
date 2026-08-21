@@ -659,11 +659,42 @@ def recently_viewed(request):
 
 
 # ── Category Management ───────────────────────────────────────────────
+PRESET_PALETTE = [
+    ("#a78bfa", "Purple"),
+    ("#818cf8", "Indigo"),
+    ("#38bdf8", "Sky Blue"),
+    ("#34d399", "Emerald"),
+    ("#fbbf24", "Amber"),
+    ("#f87171", "Rose Red"),
+    ("#f472b6", "Pink"),
+    ("#e879f9", "Fuchsia"),
+    ("#2dd4bf", "Teal"),
+    ("#60a5fa", "Blue"),
+    ("#a3e635", "Lime"),
+    ("#fb923c", "Orange"),
+    ("#c084fc", "Violet"),
+    ("#4ade80", "Green"),
+    ("#f43f5e", "Crimson"),
+    ("#06b6d4", "Cyan"),
+    ("#ec4899", "Hot Pink"),
+    ("#8b5cf6", "Deep Purple"),
+    ("#14b8a6", "Mint Teal"),
+    ("#f59e0b", "Gold"),
+]
+
+
 @login_required(login_url="login")
 def category_manage(request):
     """Category manager view."""
     categories = get_user_categories(request.user)
-    return render(request, "quotes/category_manage.html", {"categories": categories})
+    color_map = {c.color.lower(): c.name for c in categories if c.color}
+    used_colors = list(color_map.keys())
+    return render(request, "quotes/category_manage.html", {
+        "categories": categories,
+        "used_colors": used_colors,
+        "color_map": color_map,
+        "preset_palette": PRESET_PALETTE,
+    })
 
 
 @login_required(login_url="login")
