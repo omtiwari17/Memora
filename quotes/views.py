@@ -774,11 +774,53 @@ def favicon_view(request):
 
 
 # ── Custom Glassmorphic Admin Console ──────────────────────────────────
-@login_required(login_url="login")
+def admin_vault_login(request):
+    """Dedicated login portal for Admin Control Console (/ctrl/)."""
+    if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser):
+        return redirect("custom_admin_panel")
+
+    error = None
+    handle = ""
+
+    if request.method == "POST":
+        raw_handle = request.POST.get("handle", "").strip().lower().replace("@", "")
+        pin = request.POST.get("pin", "").strip()
+
+        handle = re.sub(r'[^a-z0-9_]', '', raw_handle)
+
+        if not handle or len(handle) < 2:
+            error = "Admin Handle must be at least 2 characters long."
+        elif not pin:
+            error = "Admin Key / PIN is required."
+        else:
+            user = User.objects.filter(username=handle).first()
+            if user:
+                if not (user.is_staff or user.is_superuser):
+                    error = f"Access Denied: @{handle} does not have Admin Control privileges."
+                else:
+                    authenticated_user = authenticate(request, username=handle, password=pin)
+                    if authenticated_user:
+                        login(request, authenticated_user)
+                        return redirect("custom_admin_panel")
+                    else:
+                        error = f"Incorrect Admin Key / PIN for @{handle}."
+            else:
+                error = f"Admin Handle @{handle} does not exist."
+
+    return render(request, "quotes/admin_login.html", {"error": error, "handle": handle})
+
+
+def admin_vault_logout(request):
+    """Logout from Admin Control Console."""
+    logout(request)
+    return redirect("admin_vault_login")
+
+
+@login_required(login_url="admin_vault_login")
 def custom_admin_panel(request):
     """Custom glassmorphic admin dashboard for system administration with user filtering."""
     if not (request.user.is_staff or request.user.is_superuser):
-        return render(request, "quotes/admin_denied.html", status=403)
+        return redirect("admin_vault_login")
 
     selected_user_id = request.GET.get("user_id", "").strip()
     selected_user = None

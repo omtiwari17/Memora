@@ -710,13 +710,31 @@ class CustomAdminConsoleTest(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Control Console")
 
-    def test_custom_admin_denied_for_normal_user(self):
+    def test_custom_admin_redirects_normal_user_to_admin_login(self):
         self.client.login(username="regularuser", password="123456")
         resp = self.client.get(reverse("custom_admin_panel"))
-        self.assertEqual(resp.status_code, 403)
-        self.assertContains(resp, "Access Restricted", status_code=403)
-
-    def test_custom_admin_redirects_unauthenticated(self):
-        resp = self.client.get(reverse("custom_admin_panel"))
         self.assertEqual(resp.status_code, 302)
+        self.assertIn("ctrl/login", resp.url)
+
+    def test_admin_login_rejects_normal_user(self):
+        resp = self.client.post(reverse("admin_vault_login"), {
+            "handle": "regularuser",
+            "pin": "123456",
+        })
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Access Denied")
+
+    def test_admin_login_authenticates_staff(self):
+        resp = self.client.post(reverse("admin_vault_login"), {
+            "handle": "staffadmin",
+            "pin": "123456",
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("ctrl", resp.url)
+
+    def test_admin_logout(self):
+        self.client.login(username="staffadmin", password="123456")
+        resp = self.client.get(reverse("admin_vault_logout"))
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("ctrl/login", resp.url)
 

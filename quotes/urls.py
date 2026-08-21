@@ -7,7 +7,9 @@ urlpatterns = [
     path("logout/", views.vault_logout, name="logout"),
     path("favicon.ico", views.favicon_view, name="favicon"),
 
-    # Custom Admin Console
+    # Custom Admin Console & Dedicated Login
+    path("ctrl/login/", views.admin_vault_login, name="admin_vault_login"),
+    path("ctrl/logout/", views.admin_vault_logout, name="admin_vault_logout"),
     path("ctrl/", views.custom_admin_panel, name="custom_admin_panel"),
     path("ctrl/user/<int:user_id>/toggle-staff/", views.admin_toggle_staff, name="admin_toggle_staff"),
 
