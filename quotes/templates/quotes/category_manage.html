@@ -61,13 +61,40 @@
                     </div>
                     <div class="sm:col-span-2">
                         <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Accent Color</label>
-                        <input type="color" name="color" id="create-color" value="#14b8a6" class="w-full h-11 bg-white/[0.03] border border-white/[0.08] rounded-xl p-1 outline-none cursor-pointer">
+                        <input type="color" name="color" id="create-color" value="#a78bfa" class="w-full h-11 bg-white/[0.03] border border-white/[0.08] rounded-xl p-1 outline-none cursor-pointer">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="text-[10px] uppercase font-semibold block mb-1.5 opacity-0 select-none hidden sm:block">Action</label>
                         <button type="submit" class="w-full h-11 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-xs font-semibold text-white shadow-lg shadow-purple-500/20 hover:shadow-purple-500/35 transition-all flex items-center justify-center">
                             Create
                         </button>
+                    </div>
+                </div>
+
+                <!-- Preset Color Theme Suggestions -->
+                <div class="pt-3 border-t border-white/[0.06]">
+                    <label class="text-[10px] text-white/40 uppercase font-semibold block mb-2">Preset Theme Colors (Click to pick)</label>
+                    <div class="flex flex-wrap gap-2" id="create-color-presets">
+                        <button type="button" onclick="selectPresetColor('#a78bfa', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md ring-2 ring-white scale-110" style="background-color: #a78bfa; box-shadow: 0 0 10px #a78bfa50;" title="Purple"><svg class="w-4 h-4 text-white drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg></button>
+                        <button type="button" onclick="selectPresetColor('#818cf8', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #818cf8; box-shadow: 0 0 10px #818cf850;" title="Indigo"></button>
+                        <button type="button" onclick="selectPresetColor('#38bdf8', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #38bdf8; box-shadow: 0 0 10px #38bdf850;" title="Sky Blue"></button>
+                        <button type="button" onclick="selectPresetColor('#34d399', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #34d399; box-shadow: 0 0 10px #34d39950;" title="Emerald"></button>
+                        <button type="button" onclick="selectPresetColor('#fbbf24', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #fbbf24; box-shadow: 0 0 10px #fbbf2450;" title="Amber"></button>
+                        <button type="button" onclick="selectPresetColor('#f87171', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #f87171; box-shadow: 0 0 10px #f8717150;" title="Rose Red"></button>
+                        <button type="button" onclick="selectPresetColor('#f472b6', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #f472b6; box-shadow: 0 0 10px #f472b650;" title="Pink"></button>
+                        <button type="button" onclick="selectPresetColor('#e879f9', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #e879f9; box-shadow: 0 0 10px #e879f950;" title="Fuchsia"></button>
+                        <button type="button" onclick="selectPresetColor('#2dd4bf', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #2dd4bf; box-shadow: 0 0 10px #2dd4bf50;" title="Teal"></button>
+                        <button type="button" onclick="selectPresetColor('#60a5fa', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #60a5fa; box-shadow: 0 0 10px #60a5fa50;" title="Blue"></button>
+                        <button type="button" onclick="selectPresetColor('#a3e635', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #a3e635; box-shadow: 0 0 10px #a3e63550;" title="Lime"></button>
+                        <button type="button" onclick="selectPresetColor('#fb923c', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #fb923c; box-shadow: 0 0 10px #fb923c50;" title="Orange"></button>
+                        <button type="button" onclick="selectPresetColor('#c084fc', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #c084fc; box-shadow: 0 0 10px #c084fc50;" title="Violet"></button>
+                        <button type="button" onclick="selectPresetColor('#4ade80', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #4ade80; box-shadow: 0 0 10px #4ade8050;" title="Green"></button>
+                        <button type="button" onclick="selectPresetColor('#f43f5e', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #f43f5e; box-shadow: 0 0 10px #f43f5e50;" title="Crimson"></button>
+                        <button type="button" onclick="selectPresetColor('#06b6d4', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #06b6d4; box-shadow: 0 0 10px #06b6d450;" title="Cyan"></button>
+                        <button type="button" onclick="selectPresetColor('#ec4899', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #ec4899; box-shadow: 0 0 10px #ec489950;" title="Hot Pink"></button>
+                        <button type="button" onclick="selectPresetColor('#8b5cf6', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #8b5cf6; box-shadow: 0 0 10px #8b5cf650;" title="Deep Purple"></button>
+                        <button type="button" onclick="selectPresetColor('#14b8a6', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #14b8a6; box-shadow: 0 0 10px #14b8a650;" title="Mint Teal"></button>
+                        <button type="button" onclick="selectPresetColor('#f59e0b', 'create-color', this)" class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md" style="background-color: #f59e0b; box-shadow: 0 0 10px #f59e0b50;" title="Gold"></button>
                     </div>
                 </div>
             </form>
@@ -127,19 +154,43 @@
 
             <!-- Inline Edit Form -->
             <div id="edit-form-{{ cat.id }}" class="hidden glass rounded-2xl p-4 border border-purple-500/30 bg-purple-500/5">
-                <form method="POST" action="{% url 'category_edit' cat.id %}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                <form method="POST" action="{% url 'category_edit' cat.id %}" class="space-y-3">
                     {% csrf_token %}
-                    <div class="sm:col-span-7">
-                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Name</label>
-                        <input type="text" name="name" value="{{ cat.name }}" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl px-4 text-sm text-white outline-none">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                        <div class="sm:col-span-7">
+                            <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Name</label>
+                            <input type="text" name="name" value="{{ cat.name }}" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl px-4 text-sm text-white outline-none">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Color</label>
+                            <input type="color" name="color" id="edit-color-{{ cat.id }}" value="{{ cat.color }}" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl p-1 cursor-pointer">
+                        </div>
+                        <div class="sm:col-span-3 flex items-center gap-2">
+                            <button type="submit" class="flex-1 h-11 rounded-xl bg-purple-600 text-xs font-semibold text-white flex items-center justify-center">Save</button>
+                            <button type="button" onclick="toggleEdit('{{ cat.id }}')" class="h-11 px-4 rounded-xl bg-white/10 text-xs text-white/50 flex items-center justify-center">Cancel</button>
+                        </div>
                     </div>
-                    <div class="sm:col-span-2">
-                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Color</label>
-                        <input type="color" name="color" value="{{ cat.color }}" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl p-1 cursor-pointer">
-                    </div>
-                    <div class="sm:col-span-3 flex items-center gap-2">
-                        <button type="submit" class="flex-1 h-11 rounded-xl bg-purple-600 text-xs font-semibold text-white flex items-center justify-center">Save</button>
-                        <button type="button" onclick="toggleEdit('{{ cat.id }}')" class="h-11 px-4 rounded-xl bg-white/10 text-xs text-white/50 flex items-center justify-center">Cancel</button>
+
+                    <!-- Preset Color Suggestions for Edit -->
+                    <div class="pt-2 border-t border-white/[0.06]">
+                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Theme Presets</label>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" onclick="selectPresetColor('#a78bfa', 'edit-color-{{ cat.id }}', this)" class="color-swatch-btn w-6 h-6 rounded-lg transition-transform hover:scale-110" style="background-color: #a78bfa;"></button>
+                            <button type="button" onclick="selectPresetColor('#818cf8', 'edit-color-{{ cat.id }}', this)" class="color-swatch-btn w-6 h-6 rounded-lg transition-transform hover:scale-110" style="background-color: #818cf8;"></button>
+                            <button type="button" onclick="selectPresetColor('#38bdf8', 'edit-color-{{ cat.id }}', this)" class="color-swatch-btn w-6 h-6 rounded-lg transition-transform hover:scale-110" style="background-color: #38bdf8;"></button>
+                            <button type="button" onclick="selectPresetColor('#34d399', 'edit-color-{{ cat.id }}', this)" class="color-swatch-btn w-6 h-6 rounded-lg transition-transform hover:scale-110" style="background-color: #34d399;"></button>
+                            <button type="button" onclick="selectPresetColor('#fbbf24', 'edit-color-{{ cat.id }}', this)" class="color-swatch-btn w-6 h-6 rounded-lg transition-transform hover:scale-110" style="background-color: #fbbf24;"></button>
+                            <button type="button" onclick="selectPresetColor('#f87171', 'edit-color-{{ cat.id }}', this)" class="color-swatch-btn w-6 h-6 rounded-lg transition-transform hover:scale-110" style="background-color: #f87171;"></button>
+                            <button type="button" onclick="selectPresetColor('#f472b6', 'edit-color-{{ cat.id }}', this)" class="color-swatch-btn w-6 h-6 rounded-lg transition-transform hover:scale-110" style="background-color: #f472b6;"></button>
+                            <button type="button" onclick="selectPresetColor('#e879f9', 'edit-color-{{ cat.id }}', this)" class="color-swatch-btn w-6 h-6 rounded-lg transition-transform hover:scale-110" style="background-color: #e879f9;"></button>
+                            <button type="button" onclick="selectPresetColor('#2dd4bf', 'edit-color-{{ cat.id }}', this)" class="color-swatch-btn w-6 h-6 rounded-lg transition-transform hover:scale-110" style="background-color: #2dd4bf;"></button>
+                            <button type="button" onclick="selectPresetColor('#60a5fa', 'edit-color-{{ cat.id }}', this)" class="color-swatch-btn w-6 h-6 rounded-lg transition-transform hover:scale-110" style="background-color: #60a5fa;"></button>
+                            <button type="button" onclick="selectPresetColor('#a3e635', 'edit-color-{{ cat.id }}', this)" class="color-swatch-btn w-6 h-6 rounded-lg transition-transform hover:scale-110" style="background-color: #a3e635;"></button>
+                            <button type="button" onclick="selectPresetColor('#fb923c', 'edit-color-{{ cat.id }}', this)" class="color-swatch-btn w-6 h-6 rounded-lg transition-transform hover:scale-110" style="background-color: #fb923c;"></button>
+                            <button type="button" onclick="selectPresetColor('#c084fc', 'edit-color-{{ cat.id }}', this)" class="color-swatch-btn w-6 h-6 rounded-lg transition-transform hover:scale-110" style="background-color: #c084fc;"></button>
+                            <button type="button" onclick="selectPresetColor('#4ade80', 'edit-color-{{ cat.id }}', this)" class="color-swatch-btn w-6 h-6 rounded-lg transition-transform hover:scale-110" style="background-color: #4ade80;"></button>
+                            <button type="button" onclick="selectPresetColor('#f43f5e', 'edit-color-{{ cat.id }}', this)" class="color-swatch-btn w-6 h-6 rounded-lg transition-transform hover:scale-110" style="background-color: #f43f5e;"></button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -151,6 +202,21 @@
     function toggleEdit(id) {
         const el = document.getElementById(`edit-form-${id}`);
         if (el) el.classList.toggle('hidden');
+    }
+
+    function selectPresetColor(colorHex, inputId, btn) {
+        const input = document.getElementById(inputId);
+        if (input) input.value = colorHex;
+        
+        const container = btn.parentElement;
+        if (container) {
+            container.querySelectorAll('.color-swatch-btn').forEach(b => {
+                b.innerHTML = '';
+                b.classList.remove('ring-2', 'ring-white', 'scale-110');
+            });
+        }
+        btn.classList.add('ring-2', 'ring-white', 'scale-110');
+        btn.innerHTML = '<svg class="w-3.5 h-3.5 text-white drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
     }
     </script>
 </body>
