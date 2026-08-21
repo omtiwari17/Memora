@@ -271,7 +271,7 @@ Memora is configured to run **100% free forever** without paying for database or
    - **Environment**: `Python 3`
    - **Build Command**:
      ```bash
-     pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py seed_categories
+     pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py seed_categories && python manage.py create_admin
      ```
    - **Start Command**:
      ```bash
@@ -282,6 +282,8 @@ Memora is configured to run **100% free forever** without paying for database or
    - `SECRET_KEY` = *(Random secret string)*
    - `DEBUG` = `False`
    - `ALLOWED_HOSTS` = `*`
+   - `ADMIN_HANDLE` = `admin` *(Optional: your preferred admin handle, default: admin)*
+   - `ADMIN_PIN` = `123456` *(Optional: your 6-digit admin PIN, default: 000000)*
 
 ### Step 3: Prevent Render Sleep (cron-job.org — Free 24/7 Keep-Alive)
 Render's free tier puts web services to sleep after 15 minutes of inactivity. To keep your app **awake 24/7 with zero loading delays**:

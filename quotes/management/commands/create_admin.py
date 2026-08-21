@@ -4,27 +4,27 @@ from django.contrib.auth.models import User
 
 
 class Command(BaseCommand):
-    help = "Create an admin superuser from environment variables (ADMIN_HANDLE, ADMIN_PIN)"
+    help = "Create or promote an admin user (options: --handle, --pin)"
+
+    def add_arguments(self, parser):
+        parser.add_argument("--handle", type=str, help="Vault handle for admin account")
+        parser.add_argument("--pin", type=str, help="6-digit PIN for admin account")
 
     def handle(self, *args, **options):
-        handle = os.environ.get("ADMIN_HANDLE", "admin")
-        pin = os.environ.get("ADMIN_PIN", "000000")
+        handle = (options.get("handle") or os.environ.get("ADMIN_HANDLE") or "admin").strip().lstrip("@").lower()
+        pin = (options.get("pin") or os.environ.get("ADMIN_PIN") or "000000").strip()
 
         if User.objects.filter(username=handle).exists():
             user = User.objects.get(username=handle)
-            if not user.is_superuser:
-                user.is_staff = True
-                user.is_superuser = True
-                user.save()
-                self.stdout.write(self.style.SUCCESS(
-                    f"Existing user @{handle} promoted to admin."
-                ))
-            else:
-                self.stdout.write(self.style.WARNING(
-                    f"Admin @{handle} already exists."
-                ))
+            user.is_staff = True
+            user.is_superuser = True
+            user.set_password(pin)
+            user.save()
+            self.stdout.write(self.style.SUCCESS(
+                f"Existing user @{handle} successfully promoted to admin with updated PIN."
+            ))
         else:
             User.objects.create_superuser(username=handle, password=pin)
             self.stdout.write(self.style.SUCCESS(
-                f"Admin @{handle} created successfully."
+                f"Admin @{handle} created successfully with PIN {pin}."
             ))
