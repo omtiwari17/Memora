@@ -30,6 +30,8 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 | **Database** | **SQLite** (local dev) / **Neon PostgreSQL** (production) | 100% Free forever PostgreSQL via `dj-database-url` |
 | **Hosting** | **Render** (Free Web Service) + **cron-job.org** (Keep-Alive Ping) | 100% Free production hosting, stays awake 24/7 without cold starts |
 | **Static Files** | WhiteNoise | Compressed static assets served directly by Django WSGI |
+| **CI/CD** | GitHub Actions | 4-stage pipeline: Lint → Django Checks → 106 Tests → Deploy Readiness |
+| **Testing** | Django TestCase (106 tests) | Models, auth, views, URLs, CRUD, APIs, data isolation |
 
 **Explicitly Excluded:** React, Node.js, npm build pipelines, heavy SPA frameworks. Tailwind and DaisyUI are loaded directly via CDN.
 
@@ -39,7 +41,9 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 
 - **Visual Theme: Dark Aurora + Glassmorphism + Crisp SVG Icons** — Absolute animated aurora background blobs (`filter: blur(120px)`), glass cards with category left-border accents (`border-l-4`), CSS gradient accents, Space Grotesk font, and vector SVG iconography replacing raw OS emojis for a high-end application aesthetic.
 - **Handcrafted Vector SVG Branding: Synapse Infinity M Logo & Favicon** — Pin-sharp, handcrafted vector SVG logo mark (`logo.svg`) featuring an interlocking gradient memory ribbon ('M'), an infinity retention arch, and a central synapse pulse node (`#e879f9`). Served directly for all favicons (`/favicon.ico`), browser tabs, desktop/mobile headers, and login screens with 0ms load time.
-- **Niche Authentication: Vault Handle + 6-Digit PIN** — Zero email or password friction. Users register and unlock their personal private memory vault using a unique **Vault Handle** (e.g. `@om`) and a secure **6-Digit PIN** (hashed via Django's PBKDF2). All memories, categories, and collections are strictly user-scoped (`user=request.user`).
+- **Niche Authentication: Vault Handle + 6-Digit PIN** — Zero email or password friction. Users register and unlock their personal private memory vault using a unique **Vault Handle** (e.g. `@om`) and a secure **6-Digit PIN** (hashed via Django's PBKDF2). All memories, categories, and collections are strictly user-scoped (`user=request.user`). Login page features a clear **Unlock Vault / Create New Vault** toggle so new users immediately see the registration option.
+- **Production Security Hardening** — When `DEBUG=False`, Django enforces: `SECURE_SSL_REDIRECT`, `SECURE_HSTS_SECONDS=31536000` (1 year with preload), `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`, and `SECURE_PROXY_SSL_HEADER` for Render's reverse proxy. All 6 Django `--deploy` security warnings resolved to zero.
+- **CI/CD Safety Net (GitHub Actions)** — 4-stage pipeline runs on every push/PR to `main`: (1) Lint & syntax compile, (2) Django system check + migration integrity, (3) 106-test suite covering models, auth, views, URLs, CRUD, APIs, favicon, and user data isolation, (4) Production deploy readiness with Gunicorn startup verification.
 - **Sidebar & Header Layout Rules** — Persistent **`+ New Category`** button in the left sidebar on all pages (`dashboard.html`, `memory_list.html`). The primary **`+ Capture New Memory`** header button is exclusively displayed on the "All Memories" dashboard page (`dashboard.html`).
 - **Full-Width Aligned Layout** — Search bar containers span 100% full-width (`w-full`) across dashboard and filtered list views, aligning flush with header statistics cards and memory grid cards.
 - **Generic Memory Model** — Replaced legacy Quote model with `Memory` (supports content, title, category, tags, collections, URLs, author, priority, status, due dates).
@@ -79,9 +83,12 @@ Memora/
 ├── requirements.txt
 ├── .gitignore
 ├── AGENTS.md
+├── .github/
+│   └── workflows/
+│       └── ci.yml           # GitHub Actions CI/CD pipeline (4-stage, 106 tests)
 ├── quotevault/              # Django project package (quotevault internally)
 │   ├── __init__.py
-│   ├── settings.py
+│   ├── settings.py          # Production security: HSTS, SSL redirect, secure cookies
 │   ├── urls.py
 │   └── wsgi.py
 ├── quotes/                  # Main memory app (quotes internally)
@@ -89,6 +96,7 @@ Memora/
 │   ├── admin.py
 │   ├── models.py            # Memory, Category, Tag, Collection
 │   ├── views.py             # Dashboard, search, capture, API, category CRUD, reorder
+│   ├── tests.py             # 106 automated tests (models, auth, views, URLs, CRUD, APIs)
 │   ├── urls.py
 │   ├── management/
 │   │   └── commands/
@@ -96,6 +104,7 @@ Memora/
 │   └── templates/
 │       └── quotes/
 │           ├── dashboard.html       # Main dashboard with sidebar + header capture button
+│           ├── login.html           # Vault login with Unlock/Create toggle
 │           ├── memory_list.html     # Filtered list view (inbox, category, tag, tasks, etc.)
 │           ├── memory_detail.html   # Single memory detail page with related suggestions
 │           ├── category_manage.html # Category manager with CRUD, palette, emoji suggest, reorder
@@ -111,6 +120,7 @@ Memora/
 ├── static/
 │   ├── manifest.json        # PWA Web Share Target manifest
 │   ├── bookmarklet.js       # Desktop browser bookmarklet script
+│   ├── logo.svg             # Handcrafted Synapse Infinity M vector SVG logo
 │   ├── icon-192.png
 │   └── icon-512.png
 └── venv/                    # Virtual environment (gitignored)
@@ -195,6 +205,7 @@ Memora/
 - [x] Memory, Category, Tag, Collection models implemented
 - [x] 16 default categories seeded with custom colors
 - [x] Niche Vault Handle + 6-Digit PIN authentication system (`login.html`, `vault_login`, `vault_logout`, user-scoped data filtering)
+- [x] Login page **Unlock Vault / Create New Vault** toggle UX (clear registration path for new users)
 - [x] Handcrafted Synapse Infinity M vector SVG branding & favicon system (`logo.svg`, `/favicon.ico` endpoint)
 - [x] 100% Emoji Purge across entire database & templates replaced with crisp Heroicons SVG icons
 - [x] Full Category Management suite (Create, Edit, Delete with Inbox fallback, 20-color preset palette, Up/Down reordering)
@@ -213,8 +224,11 @@ Memora/
 - [x] Smart Related Memory suggestions on memory detail page
 - [x] Desktop bookmarklet script & PWA Web Share Target with auto-categorization
 - [x] Environment-aware sidebar version badge (Dev milestone vs Production branding)
+- [x] GitHub Actions CI/CD pipeline (4-stage, 106 tests, deploy readiness gatekeeper)
+- [x] Production security hardening (HSTS, SSL redirect, secure cookies, CSRF — 0 deploy warnings)
+- [x] Full secret audit — zero sensitive data in Git history or tracked files
 - [x] GitHub repository setup and initial commit pushes (`omtiwari17/Memora`)
-- [x] Production deployment configuration for **100% Free Forever Hosting** (Neon Postgres + Render + cron-job.org keep-alive)
+- [x] Production deployment on **100% Free Forever Hosting** (Neon Postgres + Render + cron-job.org keep-alive)
 
 ---
 
@@ -315,3 +329,40 @@ Render's free tier puts web services to sleep after 15 minutes of inactivity. To
 - [x] Recently viewed
 - [x] "On this day"
 - [x] Smart suggestions
+
+### Phase 6 — Production & CI/CD
+- [x] GitHub Actions CI/CD pipeline (106 tests)
+- [x] Production security hardening (0 deploy warnings)
+- [x] Secret audit (0 leaks in Git history)
+- [x] Live deployment (Neon + Render + cron-job.org)
+- [x] Login UX toggle (Unlock / Create New Vault)
+
+---
+
+## 12. Git Branching & Deployment Workflow
+
+**CRITICAL RULE:** All new code changes MUST be committed to the `dev` branch first. NEVER push directly to `main`.
+
+```
+dev branch  ──→  User tests locally  ──→  User says "merge"  ──→  main branch  ──→  Render auto-deploys
+```
+
+### Rules:
+1. **All new features, fixes, and changes** → commit to `dev` branch
+2. **User tests locally** on `dev` branch (`python manage.py runserver`)
+3. **Only merge `dev` → `main`** when the user explicitly says to merge/deploy
+4. **Render auto-deploys** from `main` — merging to `main` = going live
+5. **GitHub Actions CI** runs on both `push` to `main` and `pull_request` to `main`
+6. **Update AGENTS.md** only when the user explicitly requests it
+
+### Commands:
+```bash
+# Switch to dev for development
+git checkout dev
+
+# After user approves, merge to main
+git checkout main
+git merge dev
+git push origin main
+git checkout dev
+```
