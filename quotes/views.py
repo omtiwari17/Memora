@@ -680,6 +680,22 @@ PRESET_PALETTE = [
     ("#8b5cf6", "Deep Purple"),
     ("#14b8a6", "Mint Teal"),
     ("#f59e0b", "Gold"),
+    ("#ff6b6b", "Coral Red"),
+    ("#48dbfb", "Bright Cyan"),
+    ("#1dd1a1", "Jade Green"),
+    ("#fabca1", "Peach"),
+    ("#ff9ff3", "Soft Lavender"),
+    ("#54a0ff", "Cerulean Blue"),
+    ("#5f27cd", "Electric Violet"),
+    ("#c8d6e5", "Cool Silver"),
+    ("#576574", "Slate Gray"),
+    ("#ee5253", "Sunset Red"),
+    ("#00d2d3", "Aquamarine"),
+    ("#ff9f43", "Tangerine"),
+    ("#10b981", "Emerald Green"),
+    ("#6366f1", "Indigo Blue"),
+    ("#d946ef", "Magenta"),
+    ("#f97316", "Vibrant Orange"),
 ]
 
 
@@ -689,11 +705,13 @@ def category_manage(request):
     categories = get_user_categories(request.user)
     color_map = {c.color.lower(): c.name for c in categories if c.color}
     used_colors = list(color_map.keys())
+    suggested_colors = [p for p in PRESET_PALETTE if p[0].lower() not in used_colors]
     return render(request, "quotes/category_manage.html", {
         "categories": categories,
         "used_colors": used_colors,
         "color_map": color_map,
         "preset_palette": PRESET_PALETTE,
+        "suggested_colors": suggested_colors,
     })
 
 

@@ -73,12 +73,18 @@
 
                 <!-- Preset Color Theme Suggestions -->
                 <div class="pt-3 border-t border-white/[0.06]">
-                    <div class="flex items-center justify-between mb-2">
-                        <label class="text-[10px] text-white/40 uppercase font-semibold block">Preset Theme Colors (Click to pick)</label>
-                        <span class="text-[10px] text-white/40 flex items-center gap-1 font-medium">
-                            <span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-white/20 text-white font-bold text-[9px]">✓</span>
-                            <span>= Already in use</span>
-                        </span>
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <label class="text-[10px] text-white/40 uppercase font-semibold block">36 Theme Presets (Click to pick)</label>
+                        <div class="flex items-center gap-3">
+                            <button type="button" onclick="suggestUnusedColor('create-color', this)" class="px-2.5 py-1 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 text-xs font-semibold border border-purple-500/30 flex items-center gap-1.5 transition-all shadow-md hover:scale-105">
+                                <svg class="w-3.5 h-3.5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12c0 1.232-.046 2.453-.138 3.662a4.006 4.006 0 00-3.7 3.7 48.656 48.656 0 01-7.324 0 4.006 4.006 0 00-3.7-3.7c-.017-.22-.032-.441-.046-.662M19.5 12l3-3m-3 3l-3-3m-10.5 3l-3 3m3-3l3 3"/></svg>
+                                <span>Suggest Unused Color</span>
+                            </button>
+                            <span class="text-[10px] text-white/40 flex items-center gap-1 font-medium">
+                                <span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-white/20 text-white font-bold text-[9px]">✓</span>
+                                <span>= In use</span>
+                            </span>
+                        </div>
                     </div>
                     <div class="flex flex-wrap gap-2" id="create-color-presets">
                         {% for hex_code, color_title in preset_palette %}
@@ -171,7 +177,12 @@
                     <div class="pt-2 border-t border-white/[0.06]">
                         <div class="flex items-center justify-between mb-1.5">
                             <label class="text-[10px] text-white/40 uppercase font-semibold block">Theme Presets</label>
-                            <span class="text-[9px] text-white/30">✓ = Already in use</span>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="suggestUnusedColor('edit-color-{{ cat.id }}', this)" class="px-2 py-0.5 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 text-[10px] font-medium border border-purple-500/30 transition-all">
+                                    <span>Suggest Unused</span>
+                                </button>
+                                <span class="text-[9px] text-white/30">✓ = In use</span>
+                            </div>
                         </div>
                         <div class="flex flex-wrap gap-1.5">
                             {% for hex_code, color_title in preset_palette %}
@@ -193,6 +204,9 @@
     </div>
 
     <script>
+    const usedColorsSet = new Set([{% for c in used_colors %}"{{ c }}"{% if not forloop.last %},{% endif %}{% endfor %}]);
+    const presetPalette = [{% for hex, name in preset_palette %}["{{ hex }}", "{{ name }}"]{% if not forloop.last %},{% endif %}{% endfor %}];
+
     function toggleEdit(id) {
         const el = document.getElementById(`edit-form-${id}`);
         if (el) el.classList.toggle('hidden');
@@ -211,6 +225,48 @@
         }
         btn.classList.add('ring-2', 'ring-white', 'scale-110');
         btn.innerHTML = '<svg class="w-3.5 h-3.5 text-white drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
+    }
+
+    function suggestUnusedColor(inputId, btn) {
+        const unused = presetPalette.filter(p => !usedColorsSet.has(p[0].toLowerCase()));
+        let targetColor = "";
+        
+        if (unused.length > 0) {
+            const picked = unused[Math.floor(Math.random() * unused.length)];
+            targetColor = picked[0];
+        } else {
+            // Generate a vibrant HSL color if all 36 presets are used
+            const hue = Math.floor(Math.random() * 360);
+            targetColor = hslToHex(hue, 80, 60);
+        }
+
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.value = targetColor;
+        }
+
+        // Try selecting matching swatch button
+        const swatches = document.querySelectorAll(`button[onclick*="'${targetColor}'"]`);
+        if (swatches.length > 0) {
+            swatches[0].click();
+        } else {
+            if (btn) {
+                btn.classList.add('scale-105', 'bg-purple-500/40');
+                setTimeout(() => btn.classList.remove('scale-105', 'bg-purple-500/40'), 400);
+            }
+        }
+    }
+
+    function hslToHex(h, s, l) {
+        s /= 100;
+        l /= 100;
+        const a = s * Math.min(l, 1 - l);
+        const f = n => {
+            const k = (n + h / 30) % 12;
+            const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+            return Math.round(255 * color).toString(16).padStart(2, '0');
+        };
+        return `#${f(0)}${f(8)}${f(4)}`;
     }
     </script>
 </body>
