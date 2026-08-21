@@ -2,7 +2,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # Auth, Health Ping & Favicon
+    # Auth, Landing, Health Ping & Favicon
+    path("welcome/", views.landing_page, name="landing"),
+    path("landing/", views.landing_page, name="landing_page"),
+    path("about/", views.landing_page, name="about"),
     path("healthz/", views.health_check, name="health_check"),
     path("ping/", views.health_check, name="ping"),
     path("login/", views.vault_login, name="login"),

@@ -26,6 +26,17 @@ TEST_STORAGES = {
 # MODEL TESTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+class LandingPageTest(TestCase):
+    """Test the product landing page view."""
+
+    def test_landing_page_renders_successfully(self):
+        client = Client()
+        for route_name in ["landing", "landing_page", "about"]:
+            resp = client.get(reverse(route_name))
+            self.assertEqual(resp.status_code, 200)
+            self.assertTemplateUsed(resp, "quotes/landing.html")
+
+
 class HealthCheckTest(TestCase):
     """Test unauthenticated uptime health check endpoints."""
 
