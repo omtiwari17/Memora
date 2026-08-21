@@ -30,8 +30,8 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 | **Database** | **SQLite** (local dev) / **Neon PostgreSQL** (production) | 100% Free forever PostgreSQL via `dj-database-url` |
 | **Hosting** | **Render** (Free Web Service) + **cron-job.org** (Keep-Alive Ping) | 100% Free production hosting, stays awake 24/7 without cold starts |
 | **Static Files** | WhiteNoise | Compressed static assets served directly by Django WSGI |
-| **CI/CD** | GitHub Actions | 4-stage pipeline: Lint → Django Checks → 106 Tests → Deploy Readiness |
-| **Testing** | Django TestCase (106 tests) | Models, auth, views, URLs, CRUD, APIs, data isolation |
+| **CI/CD** | GitHub Actions | 4-stage pipeline: Lint → Django Checks → 115 Tests → Deploy Readiness |
+| **Testing** | Django TestCase (115 tests) | Models, auth, views, URLs, CRUD, APIs, custom admin, movie watch ratings, data isolation |
 
 **Explicitly Excluded:** React, Node.js, npm build pipelines, heavy SPA frameworks. Tailwind and DaisyUI are loaded directly via CDN.
 
@@ -42,30 +42,35 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 - **Visual Theme: Dark Aurora + Glassmorphism + Crisp SVG Icons** — Absolute animated aurora background blobs (`filter: blur(120px)`), glass cards with category left-border accents (`border-l-4`), CSS gradient accents, Space Grotesk font, and vector SVG iconography replacing raw OS emojis for a high-end application aesthetic.
 - **Handcrafted Vector SVG Branding: Synapse Infinity M Logo & Favicon** — Pin-sharp, handcrafted vector SVG logo mark (`logo.svg`) featuring an interlocking gradient memory ribbon ('M'), an infinity retention arch, and a central synapse pulse node (`#e879f9`). Served directly for all favicons (`/favicon.ico`), browser tabs, desktop/mobile headers, and login screens with 0ms load time.
 - **Niche Authentication: Vault Handle + 6-Digit PIN** — Zero email or password friction. Users register and unlock their personal private memory vault using a unique **Vault Handle** (e.g. `@om`) and a secure **6-Digit PIN** (hashed via Django's PBKDF2). All memories, categories, and collections are strictly user-scoped (`user=request.user`). Login page features a clear **Unlock Vault / Create New Vault** toggle so new users immediately see the registration option.
+- **Custom Admin Console (`/ctrl/`)** — Dedicated glassmorphic Admin Command Console at route `/ctrl/` with dedicated login portal (`/ctrl/login/`), session isolation (`request.session["admin_unlocked"] = True`), Amber Gold Command Console visual theme, dynamic HTMX handle filtering, rich empty state card, and management command `create_admin --handle <handle> --pin <pin>`.
+- **Interactive Movie / Cinema Watch Status & 5-Star Rating System** — `Memory.watch_status` (`want_to_watch`, `watching`, `watched`) and `Memory.rating` (1-5 stars) with SVG icon watch status pills (`Want to Watch`, `Watching`, `Watched`) and interactive CSS hover fill with glowing spring scale animation (`drop-shadow(0 0 8px rgba(251,191,36,0.9))`) directly on memory cards.
+- **Unified Cinema Category & Tag-Based Media** — Consolidated media categories under **Cinema** 🎬 (`slug: cinema`), organizing movies vs TV series via tags (`#movie`, `#series`, `#anime`, `#documentary`).
+- **Developer Profile Links Footer** — Glassmorphic **Created by Om Tiwari** developer badge in left navigation sidebar (`dashboard.html`, `memory_list.html`) and login screen (`login.html`) linking to Portfolio (`https://omtiwari.tech/`), GitHub (`https://github.com/omtiwari17`), and LinkedIn (`https://www.linkedin.com/in/tiwariom/`).
 - **Production Security Hardening** — When `DEBUG=False`, Django enforces: `SECURE_SSL_REDIRECT`, `SECURE_HSTS_SECONDS=31536000` (1 year with preload), `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`, and `SECURE_PROXY_SSL_HEADER` for Render's reverse proxy. All 6 Django `--deploy` security warnings resolved to zero.
-- **CI/CD Safety Net (GitHub Actions)** — 4-stage pipeline runs on every push/PR to `main`: (1) Lint & syntax compile, (2) Django system check + migration integrity, (3) 106-test suite covering models, auth, views, URLs, CRUD, APIs, favicon, and user data isolation, (4) Production deploy readiness with Gunicorn startup verification.
-- **Sidebar & Header Layout Rules** — Persistent **`+ New Category`** button in the left sidebar on all pages (`dashboard.html`, `memory_list.html`). The primary **`+ Capture New Memory`** header button is exclusively displayed on the "All Memories" dashboard page (`dashboard.html`).
+- **CI/CD Safety Net (GitHub Actions)** — 4-stage pipeline runs on every push/PR to `main`: (1) Lint & syntax compile, (2) Django system check + migration integrity, (3) 115-test suite covering models, auth, views, URLs, CRUD, APIs, favicon, admin console, and user data isolation, (4) Production deploy readiness with Gunicorn startup verification.
+- **Sidebar & Header Layout Rules** — Persistent **`+ New Category`** button in the left sidebar on all pages (`dashboard.html`, `memory_list.html`). The primary **`+ Capture New Memory`** header button is exclusively displayed on the "All Memories" dashboard page (`dashboard.html`). Filtered out `reminders` and `tasks` from the categories loop in the sidebar so Reminders appears exactly once under Productivity.
 - **Full-Width Aligned Layout** — Search bar containers span 100% full-width (`w-full`) across dashboard and filtered list views, aligning flush with header statistics cards and memory grid cards.
-- **Generic Memory Model** — Replaced legacy Quote model with `Memory` (supports content, title, category, tags, collections, URLs, author, priority, status, due dates).
+- **Generic Memory Model** — Replaced legacy Quote model with `Memory` (supports content, title, category, tags, collections, URLs, author, priority, status, due dates, watch_status, rating).
 - **Type-Aware Card Rendering** — Cards render custom visual layouts per category slug:
   - `tasks`: Interactive checkbox with strike-through styling
   - `code`: Monospace syntax block
   - `links`: Clickable URL preview
-  - `watch` / `read` / `buy`: Status badges & purchase/watched indicators
+  - `cinema` / `watch`: SVG Watch Status Pills (`Want to Watch`, `Watching`, `Watched`) & 5-Star Rating selector with glowing hover fill animation
+  - `read` / `buy`: Status badges & purchase/read indicators
   - `quotes` / `thoughts`: Warm golden serif quotation typography with author attribution & decorative quotation mark
   - `places`: Map marker styling
 - **High-Confidence Auto-Categorization** — Real-time 200ms auto-categorization algorithm in `quotes/views.py` using strict regex pattern matching AND keyword-based dictionary matching:
   - `Code`: HTML tags (`<div`, `<meta`), JS/Python/SQL keywords, CLI commands (regex)
   - `Quotes`: Explicit author attributions on new lines (e.g. `- Benjamin Franklin`) or quoted text with named author (regex)
   - `Links`: HTTP/HTTPS URL detection (regex)
-  - `Tasks`, `Watch`, `Read`, `Buy`, `Places`, `Ideas`, `Learn`, `Reminders`, `People`, `Projects`, `Thoughts`, `Important`: Keyword dictionary matching via `CATEGORY_KEYWORDS`
+  - `Cinema`, `Watch`, `Read`, `Buy`, `Places`, `Ideas`, `Learn`, `Reminders`, `People`, `Projects`, `Thoughts`, `Important`: Keyword dictionary matching via `CATEGORY_KEYWORDS`
   - `Inbox`: Plain text notes default to Inbox cleanly when no patterns match
 - **Smart Auto-Titling** — Automatically formats titles on client & server:
   - Quotes: `"`Short phrase..." — Author Name`
   - HTML Snippets: `<title>` tag content extraction
   - URLs: Domain and path extraction
-- **Full Capture Form** — Capture modal includes: content, title, category (auto-suggested), tags, author, priority, due date, and source URL.
-- **Full Edit Modal** — Edit modal includes: content, title, category, tags, author, priority, due date, status, and source URL with HTMX live DOM swap.
+- **Full Capture Form** — Clean quick capture modal (content, title, category, tags, author, priority, due date, source URL) kept lightning fast for all categories.
+- **Full Edit Modal** — Edit modal includes: content, title, category, tags, author, priority, due date, status, watch_status, rating, and source URL with HTMX live DOM swap.
 - **Instant HTMX Actions** — Returning `HttpResponse("")` for delete and archive requests with `hx-swap="outerHTML"` causes HTMX to remove cards instantly (0ms delay) without page reloads.
 - **Form Edit Lifecycle Safety** — Uses `hx-on::after-request="closeEditModal('...')"` to ensure HTMX completes the POST submission and DOM swap before removing modal elements.
 - **Category Reordering System** — Custom ordering endpoint (`/categories/<id>/reorder/<direction>/`) swaps integer sequence values between adjacent categories with live sidebar & dropdown updates.
@@ -85,7 +90,7 @@ Memora/
 ├── AGENTS.md
 ├── .github/
 │   └── workflows/
-│       └── ci.yml           # GitHub Actions CI/CD pipeline (4-stage, 106 tests)
+│       └── ci.yml           # GitHub Actions CI/CD pipeline (4-stage, 115 tests)
 ├── quotevault/              # Django project package (quotevault internally)
 │   ├── __init__.py
 │   ├── settings.py          # Production security: HSTS, SSL redirect, secure cookies
@@ -95,27 +100,32 @@ Memora/
 │   ├── __init__.py
 │   ├── admin.py
 │   ├── models.py            # Memory, Category, Tag, Collection
-│   ├── views.py             # Dashboard, search, capture, API, category CRUD, reorder
-│   ├── tests.py             # 106 automated tests (models, auth, views, URLs, CRUD, APIs)
+│   ├── views.py             # Dashboard, search, capture, API, category CRUD, custom admin
+│   ├── tests.py             # 115 automated tests (models, auth, views, URLs, CRUD, APIs, admin)
 │   ├── urls.py
 │   ├── management/
 │   │   └── commands/
-│   │       └── seed_categories.py
+│   │       ├── seed_categories.py
+│   │       └── create_admin.py  # Management command to create/promote admin accounts (--handle, --pin)
 │   └── templates/
 │       └── quotes/
 │           ├── dashboard.html       # Main dashboard with sidebar + header capture button
-│           ├── login.html           # Vault login with Unlock/Create toggle
+│           ├── login.html           # Vault login with Unlock/Create toggle + Developer footer
 │           ├── memory_list.html     # Filtered list view (inbox, category, tag, tasks, etc.)
 │           ├── memory_detail.html   # Single memory detail page with related suggestions
 │           ├── category_manage.html # Category manager with CRUD, palette, emoji suggest, reorder
+│           ├── admin_dashboard.html # Custom Admin Console with Amber Gold theme & handle filter
+│           ├── admin_login.html     # Dedicated Admin Login Portal
+│           ├── admin_denied.html    # Custom Admin Access Denied screen
 │           ├── capture_form.html    # Full-page capture form
 │           ├── random_memory.html   # Random memory page
 │           └── partials/
-│               ├── memory_card.html      # Type-aware memory card partial
+│               ├── memory_card.html      # Type-aware memory card partial (with Watch & Ratings)
 │               ├── memory_grid.html      # Shared grid of memory cards with empty state
 │               ├── memory_edit_modal.html# Pre-filled edit modal partial with HTMX swap
 │               ├── capture_modal.html   # Quick capture modal with live title & auto-category
 │               ├── capture_feedback.html # Capture success/error feedback partial
+│               ├── admin_memory_feed.html# HTMX admin feed partial with filter & empty state
 │               └── random_memory.html    # Random memory card partial
 ├── static/
 │   ├── manifest.json        # PWA Web Share Target manifest
@@ -140,11 +150,13 @@ Memora/
 - `created_at`, `updated_at`, `due_date`, `reminder_at`
 - `status` (`inbox`, `active`, `done`, `archived`)
 - `priority` (`none`, `low`, `medium`, `high`, `urgent`)
+- `watch_status` (`want_to_watch`, `watching`, `watched`)
+- `rating` (IntegerField 1 to 5 stars, optional)
 - `is_pinned`, `is_archived`
 
 ### Category
 - `name`, `slug`, `emoji`, `color`, `is_default`, `order`
-- 16 default system categories seeded via `python manage.py seed_categories`
+- 17 default system categories seeded via `python manage.py seed_categories`
 
 ### Tag
 - `name`, `slug`
@@ -156,7 +168,7 @@ Memora/
 
 ## 6. Default Categories
 
-💬 **Quotes** • 🧠 **Thoughts** • 💡 **Ideas** • 📚 **Learn** • 🔖 **Save** • 🔗 **Links** • 🎬 **Watch** • 📖 **Read** • 🛒 **Buy** • ✅ **Tasks** • 📅 **Reminders** • ✈️ **Places** • 💻 **Code** • 👤 **People** • 🚀 **Projects** • ❤️ **Important**
+💬 **Quotes** • 🧠 **Thoughts** • 💡 **Ideas** • 📚 **Learn** • 🔖 **Save** • 🔗 **Links** • 🎬 **Watch** • 🎬 **Cinema** • 📖 **Read** • 🛒 **Buy** • ✅ **Tasks** • 📅 **Reminders** • ✈️ **Places** • 💻 **Code** • 👤 **People** • 🚀 **Projects** • ❤️ **Important**
 
 ---
 
@@ -167,6 +179,10 @@ Memora/
 | `/login/` | `login` | Vault Handle + 6-Digit PIN unlock and registration screen |
 | `/logout/` | `logout` | Lock memory vault session |
 | `/favicon.ico` | `favicon` | Vector SVG favicon endpoint serving `logo.svg` directly |
+| `/ctrl/` | `custom_admin_panel` | Custom Admin Command Console with handle filtering |
+| `/ctrl/login/` | `admin_vault_login` | Dedicated Admin Vault Login Portal |
+| `/ctrl/logout/` | `admin_vault_logout` | Admin Logout & session lock |
+| `/ctrl/user/<id>/toggle-staff/` | `admin_toggle_staff` | Admin toggle staff status endpoint |
 | `/` | `dashboard` | Main dashboard with recent memories, pinned items & sidebar |
 | `/search/` | `search_memories` | HTMX real-time universal search endpoint |
 | `/capture/` | `capture` | Quick capture form handler |
@@ -177,6 +193,7 @@ Memora/
 | `/memory/<id>/pin/` | `memory_pin` | HTMX toggle pin |
 | `/memory/<id>/archive/` | `memory_archive` | HTMX toggle archive (0ms DOM swap) |
 | `/memory/<id>/status/` | `memory_status` | HTMX update memory status (e.g. mark done) |
+| `/memory/<id>/watch-status/` | `memory_watch_status` | HTMX update movie watch status and star rating |
 | `/memory/<id>/delete/` | `memory_delete` | HTMX delete memory (0ms DOM swap) |
 | `/inbox/` | `inbox` | Unclassified Inbox view |
 | `/important/` | `important` | Pinned / Important memories |
@@ -200,13 +217,17 @@ Memora/
 
 ---
 
-## 8. Completed Work (Phase 1 — Phase 5 Complete)
+## 8. Completed Work (Phase 1 — Phase 6 Complete)
 
 - [x] Memory, Category, Tag, Collection models implemented
-- [x] 16 default categories seeded with custom colors
+- [x] 17 default categories seeded with custom colors
 - [x] Niche Vault Handle + 6-Digit PIN authentication system (`login.html`, `vault_login`, `vault_logout`, user-scoped data filtering)
 - [x] Login page **Unlock Vault / Create New Vault** toggle UX (clear registration path for new users)
 - [x] Handcrafted Synapse Infinity M vector SVG branding & favicon system (`logo.svg`, `/favicon.ico` endpoint)
+- [x] Custom Admin Console at `/ctrl/` with dedicated login portal `/ctrl/login/`, Amber Gold theme, handle filter & empty state
+- [x] Management command `python manage.py create_admin --handle <handle> --pin <pin>`
+- [x] Interactive Movie / Cinema Watch Status pills (`Want to Watch`, `Watching`, `Watched`) & 5-Star Rating selector with glowing CSS hover fill animation
+- [x] Developer Profile Links Footer ("Created by Om Tiwari" linking to Portfolio `https://omtiwari.tech/`, GitHub `https://github.com/omtiwari17`, LinkedIn `https://www.linkedin.com/in/tiwariom/`)
 - [x] 100% Emoji Purge across entire database & templates replaced with crisp Heroicons SVG icons
 - [x] Full Category Management suite (Create, Edit, Delete with Inbox fallback, 20-color preset palette, Up/Down reordering)
 - [x] Dashboard with sidebar navigation & category chips
@@ -215,7 +236,7 @@ Memora/
 - [x] 100% full-width aligned search bar (`w-full`) flush with statistics cards and memory cards
 - [x] Real-time 200ms high-confidence auto-categorization engine
 - [x] Real-time live auto-title preview on client & smart quote author titling on server
-- [x] Type-aware memory cards (Tasks, Code, Links, Watch/Read/Buy, Golden Serif Quotes, Places)
+- [x] Type-aware memory cards (Tasks, Code, Links, Cinema/Watch, Golden Serif Quotes, Places)
 - [x] Full Memory Editing system (`memory_edit_modal.html` with HTMX live DOM swap)
 - [x] Instant 0ms DOM removal for Delete and Archive actions
 - [x] Dedicated Productivity workspaces (`/tasks/`, `/reminders/`, `/priority/`)
@@ -224,7 +245,7 @@ Memora/
 - [x] Smart Related Memory suggestions on memory detail page
 - [x] Desktop bookmarklet script & PWA Web Share Target with auto-categorization
 - [x] Environment-aware sidebar version badge (Dev milestone vs Production branding)
-- [x] GitHub Actions CI/CD pipeline (4-stage, 106 tests, deploy readiness gatekeeper)
+- [x] GitHub Actions CI/CD pipeline (4-stage, 115 tests, deploy readiness gatekeeper)
 - [x] Production security hardening (HSTS, SSL redirect, secure cookies, CSRF — 0 deploy warnings)
 - [x] Full secret audit — zero sensitive data in Git history or tracked files
 - [x] GitHub repository setup and initial commit pushes (`omtiwari17/Memora`)
@@ -249,6 +270,7 @@ pip install -r requirements.txt
 # 4. Run database migrations & seed default categories
 python manage.py migrate
 python manage.py seed_categories
+python manage.py create_admin --handle om --pin 123456
 
 # 5. Start dev server (sets DEBUG=True)
 $env:DEBUG="True"             # PowerShell
@@ -271,7 +293,7 @@ Memora is configured to run **100% free forever** without paying for database or
    - **Environment**: `Python 3`
    - **Build Command**:
      ```bash
-     pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py seed_categories
+     pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py seed_categories && python manage.py create_admin
      ```
    - **Start Command**:
      ```bash
@@ -282,13 +304,15 @@ Memora is configured to run **100% free forever** without paying for database or
    - `SECRET_KEY` = *(Random secret string)*
    - `DEBUG` = `False`
    - `ALLOWED_HOSTS` = `*`
+   - `ADMIN_HANDLE` = `admin` *(Optional: your preferred admin handle, default: admin)*
+   - `ADMIN_PIN` = `123456` *(Optional: your 6-digit admin PIN, default: 000000)*
 
 ### Step 3: Prevent Render Sleep (cron-job.org — Free 24/7 Keep-Alive)
 Render's free tier puts web services to sleep after 15 minutes of inactivity. To keep your app **awake 24/7 with zero loading delays**:
 1. Register at **[cron-job.org](https://cron-job.org)** (100% free).
 2. Click **+ CREATE CRONJOB**:
    - **Title**: `Memora Keep Alive`
-   - **URL**: `https://your-app.onrender.com`
+   - **URL**: `https://your-app.onrender.com/healthz/` *(Must include `https://` and `/healthz/` to return HTTP 200 OK directly with 0 redirects)*
    - **Schedule**: `Every 10 minutes`
 3. Save the job. Your app will now stay online 24/7 with **0-second cold starts** for $0/month!
 
@@ -331,7 +355,10 @@ Render's free tier puts web services to sleep after 15 minutes of inactivity. To
 - [x] Smart suggestions
 
 ### Phase 6 — Production & CI/CD
-- [x] GitHub Actions CI/CD pipeline (106 tests)
+- [x] Custom Admin Console at `/ctrl/`
+- [x] Interactive Movie Watch Status & 5-Star Rating System
+- [x] Developer Profile Links Footer
+- [x] GitHub Actions CI/CD pipeline (115 tests)
 - [x] Production security hardening (0 deploy warnings)
 - [x] Secret audit (0 leaks in Git history)
 - [x] Live deployment (Neon + Render + cron-job.org)

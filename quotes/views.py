@@ -126,6 +126,11 @@ def get_user_categories(user):
 
 
 # ── Authentication (Vault Handle + 6-Digit PIN) ──────────────────────
+def health_check(request):
+    """Unauthenticated health check endpoint for uptime ping monitoring (returns 200 OK directly)."""
+    return JsonResponse({"status": "ok", "app": "Memora", "service": "awake"}, status=200)
+
+
 def vault_login(request):
     """Unlock or create a personal memory vault with Vault Handle + 6-Digit PIN."""
     if request.user.is_authenticated:
@@ -192,8 +197,11 @@ def dashboard(request):
         due_date__gte=timezone.now()
     ).order_by("due_date")[:5]
 
+    all_tags = Tag.objects.filter(memories__user=request.user).distinct().order_by("name")
+
     return render(request, "quotes/dashboard.html", {
         "categories": categories,
+        "all_tags": all_tags,
         "total_count": total_count,
         "inbox_count": inbox_count,
         "tasks_done": tasks_done,
@@ -262,11 +270,13 @@ def memory_list(request, filter_type=None, filter_value=None):
 
     categories = get_user_categories(request.user)
     inbox_count = Memory.objects.filter(user=request.user, status=Memory.Status.INBOX, is_archived=False).count()
+    all_tags = Tag.objects.filter(memories__user=request.user).distinct().order_by("name")
 
     return render(request, "quotes/memory_list.html", {
         "memories": memories,
         "title": title,
         "categories": categories,
+        "all_tags": all_tags,
         "inbox_count": inbox_count,
         "active_filter": active_filter,
         "filter_value": filter_value,
@@ -390,11 +400,13 @@ def memory_edit(request, pk):
 
     categories = get_user_categories(request.user)
     tags_str = ", ".join(t.name for t in memory.tags.all())
+    all_tags = Tag.objects.filter(memories__user=request.user).distinct().order_by("name")
 
     return render(request, "quotes/partials/memory_edit_modal.html", {
         "memory": memory,
         "categories": categories,
         "tags_str": tags_str,
+        "all_tags": all_tags,
     })
 
 
@@ -652,11 +664,60 @@ def recently_viewed(request):
 
 
 # ── Category Management ───────────────────────────────────────────────
+PRESET_PALETTE = [
+    ("#a78bfa", "Purple"),
+    ("#818cf8", "Indigo"),
+    ("#38bdf8", "Sky Blue"),
+    ("#34d399", "Emerald"),
+    ("#fbbf24", "Amber"),
+    ("#f87171", "Rose Red"),
+    ("#f472b6", "Pink"),
+    ("#e879f9", "Fuchsia"),
+    ("#2dd4bf", "Teal"),
+    ("#60a5fa", "Blue"),
+    ("#a3e635", "Lime"),
+    ("#fb923c", "Orange"),
+    ("#c084fc", "Violet"),
+    ("#4ade80", "Green"),
+    ("#f43f5e", "Crimson"),
+    ("#06b6d4", "Cyan"),
+    ("#ec4899", "Hot Pink"),
+    ("#8b5cf6", "Deep Purple"),
+    ("#14b8a6", "Mint Teal"),
+    ("#f59e0b", "Gold"),
+    ("#ff6b6b", "Coral Red"),
+    ("#48dbfb", "Bright Cyan"),
+    ("#1dd1a1", "Jade Green"),
+    ("#fabca1", "Peach"),
+    ("#ff9ff3", "Soft Lavender"),
+    ("#54a0ff", "Cerulean Blue"),
+    ("#5f27cd", "Electric Violet"),
+    ("#c8d6e5", "Cool Silver"),
+    ("#576574", "Slate Gray"),
+    ("#ee5253", "Sunset Red"),
+    ("#00d2d3", "Aquamarine"),
+    ("#ff9f43", "Tangerine"),
+    ("#10b981", "Emerald Green"),
+    ("#6366f1", "Indigo Blue"),
+    ("#d946ef", "Magenta"),
+    ("#f97316", "Vibrant Orange"),
+]
+
+
 @login_required(login_url="login")
 def category_manage(request):
     """Category manager view."""
     categories = get_user_categories(request.user)
-    return render(request, "quotes/category_manage.html", {"categories": categories})
+    color_map = {c.color.lower(): c.name for c in categories if c.color}
+    used_colors = list(color_map.keys())
+    suggested_colors = [p for p in PRESET_PALETTE if p[0].lower() not in used_colors]
+    return render(request, "quotes/category_manage.html", {
+        "categories": categories,
+        "used_colors": used_colors,
+        "color_map": color_map,
+        "preset_palette": PRESET_PALETTE,
+        "suggested_colors": suggested_colors,
+    })
 
 
 @login_required(login_url="login")

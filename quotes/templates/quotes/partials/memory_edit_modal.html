@@ -53,8 +53,31 @@
 
                 <!-- Tags -->
                 <div>
-                    <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1">Tags (comma separated)</label>
-                    <input type="text" name="tags" value="{{ tags_str }}" placeholder="e.g. django, python, bugfix" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors">
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-[10px] text-white/40 uppercase font-semibold block">Tags (comma separated)</label>
+                        {% if all_tags %}
+                        <span class="text-[10px] text-purple-300/60 font-medium">Type or select existing tags</span>
+                        {% endif %}
+                    </div>
+                    <input type="text" name="tags" id="edit-tags-input" value="{{ tags_str }}" list="edit-existing-tags" placeholder="e.g. movie, code, priority" 
+                        class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors"
+                        oninput="onTagInput(this.value, 'edit-tag-suggestions')" autocomplete="off">
+                    <datalist id="edit-existing-tags">
+                        {% for tag in all_tags %}
+                        <option value="{{ tag.name }}"></option>
+                        {% endfor %}
+                    </datalist>
+                    {% if all_tags %}
+                    <div id="edit-tag-suggestions" class="flex flex-wrap gap-1.5 mt-2 max-h-24 overflow-y-auto">
+                        {% for tag in all_tags %}
+                        <button type="button" onclick="addTagToInput('edit-tags-input', '{{ tag.name }}', 'edit-tag-suggestions')" 
+                            data-tag="{{ tag.name|lower }}"
+                            class="tag-chip-btn px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/25 border border-purple-500/20 text-purple-300 text-xs transition-all flex items-center gap-1">
+                            <span>#{{ tag.name }}</span>
+                        </button>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                 </div>
 
                 <!-- URL -->
