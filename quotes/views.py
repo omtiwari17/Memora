@@ -127,8 +127,14 @@ def get_user_categories(user):
 
 # ── Authentication (Vault Handle + 6-Digit PIN) ──────────────────────
 def health_check(request):
-    """Unauthenticated health check endpoint for uptime ping monitoring (returns 200 OK directly)."""
-    return JsonResponse({"status": "ok", "app": "Memora", "service": "awake"}, status=200)
+    """Health check endpoint — returns JSON for API/cron pings or a glassmorphic UI for browser visits."""
+    if "application/json" in request.headers.get("Accept", ""):
+        return JsonResponse({"status": "ok", "app": "Memora", "service": "awake"}, status=200)
+    
+    return render(request, "quotes/health_check.html", {
+        "status": "operational",
+        "app_name": "Memora",
+    }, status=200)
 
 
 def vault_login(request):
