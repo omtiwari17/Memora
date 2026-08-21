@@ -34,15 +34,15 @@
         @keyframes purple-blue-pulse {
             0%, 100% {
                 transform: scale(1) translate(0px, 0px);
-                opacity: 0.14;
+                opacity: 0.35;
             }
             50% {
-                transform: scale(1.08) translate(25px, -15px);
-                opacity: 0.22;
+                transform: scale(1.12) translate(35px, -20px);
+                opacity: 0.50;
             }
         }
         .purple-blue-patch {
-            animation: purple-blue-pulse 14s ease-in-out infinite alternate;
+            animation: purple-blue-pulse 10s ease-in-out infinite alternate;
         }
         @keyframes float-slow {
             0%, 100% { transform: translateY(0px) scale(1); }
@@ -58,9 +58,9 @@
 </head>
 <body class="min-h-screen bg-[#0a0914] text-white selection:bg-purple-500/30 overflow-x-hidden relative">
 
-    <!-- Minimal Ultra-Soft Dark Purple-Blue Ambient Aura Patch -->
+    <!-- Balanced Minimal Dark Purple-Blue Ambient Glow Patch -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none z-0 flex items-center justify-center">
-        <div class="purple-blue-patch w-[600px] h-[400px] rounded-full bg-gradient-to-tr from-purple-600/20 via-indigo-600/15 to-blue-600/10 filter blur-[130px]"></div>
+        <div class="purple-blue-patch w-[620px] h-[420px] rounded-full bg-gradient-to-tr from-purple-600/35 via-indigo-600/30 to-blue-600/25 filter blur-[100px]"></div>
     </div>
 
     <!-- Top Navigation Header -->
