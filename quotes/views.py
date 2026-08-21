@@ -2,7 +2,9 @@ import json
 import re
 from datetime import timedelta
 
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseBadRequest, FileResponse
+from django.conf import settings
+import os
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -763,3 +765,10 @@ def seed_categories():
             slug=cat_data["slug"],
             defaults={**cat_data, "is_default": True}
         )
+
+
+def favicon_view(request):
+    """Serve logo.svg directly for /favicon.ico requests."""
+    logo_path = os.path.join(settings.BASE_DIR, "static", "logo.svg")
+    return FileResponse(open(logo_path, "rb"), content_type="image/svg+xml")
+
