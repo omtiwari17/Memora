@@ -172,22 +172,38 @@
             <div class="pt-2 flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-white/5">
                 <span class="text-[11px] text-white/50 font-medium">Rating:</span>
                 <div class="flex items-center gap-1">
-                    {% for star in "12345" %}
-                    <form hx-post="{% url 'memory_watch_status' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML" class="inline">
-                        {% csrf_token %}
-                        <input type="hidden" name="watch_status" value="watched">
-                        <input type="hidden" name="rating" value="{{ star }}">
-                        <button type="submit" title="Rate {{ star }}/5" class="text-sm transition-transform hover:scale-125 focus:outline-none">
-                            {% if memory.rating and forloop.counter <= memory.rating %}
-                            <span class="text-amber-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.6)]">★</span>
-                            {% else %}
-                            <span class="text-white/20 hover:text-amber-400">☆</span>
-                            {% endif %}
-                        </button>
-                    </form>
-                    {% endfor %}
+                    <style>
+                        .star-rating-group:hover .star-icon {
+                            color: rgba(255, 255, 255, 0.2) !important;
+                            filter: none !important;
+                        }
+                        .star-rating-group .star-btn:hover .star-icon,
+                        .star-rating-group .star-btn:hover ~ .star-btn .star-icon {
+                            color: #fbbf24 !important;
+                            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.9)) !important;
+                        }
+                        .star-rating-group .star-btn:hover {
+                            transform: scale(1.3);
+                        }
+                    </style>
+                    <div class="star-rating-group flex flex-row-reverse items-center">
+                        {% for star in "54321" %}
+                        <form hx-post="{% url 'memory_watch_status' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML" class="inline star-btn transition-transform duration-150">
+                            {% csrf_token %}
+                            <input type="hidden" name="watch_status" value="watched">
+                            <input type="hidden" name="rating" value="{{ star }}">
+                            <button type="submit" title="Rate {{ star }}/5" class="text-sm px-0.5 focus:outline-none transition-colors duration-150">
+                                {% if memory.rating and forloop.revcounter <= memory.rating %}
+                                <span class="star-icon text-amber-400 drop-shadow-[0_0_5px_rgba(251,191,36,0.7)] transition-colors">★</span>
+                                {% else %}
+                                <span class="star-icon text-white/20 transition-colors">★</span>
+                                {% endif %}
+                            </button>
+                        </form>
+                        {% endfor %}
+                    </div>
                     {% if memory.rating %}
-                    <span class="text-xs font-bold text-amber-300 ml-1 font-mono">{{ memory.rating }}/5</span>
+                    <span class="text-xs font-bold text-amber-300 ml-1.5 font-mono">{{ memory.rating }}/5</span>
                     {% endif %}
                 </div>
             </div>
