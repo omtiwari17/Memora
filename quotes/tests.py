@@ -119,20 +119,20 @@ class MemoryModelTest(TestCase):
 class SeedCategoriesTest(TestCase):
     """Test that default categories are seeded correctly."""
 
-    def test_seed_creates_18_categories(self):
+    def test_seed_creates_17_categories(self):
         seed_categories()
-        self.assertEqual(Category.objects.filter(is_default=True).count(), 18)
+        self.assertEqual(Category.objects.filter(is_default=True).count(), 17)
 
     def test_seed_is_idempotent(self):
         seed_categories()
         seed_categories()  # Run twice
-        self.assertEqual(Category.objects.filter(is_default=True).count(), 18)
+        self.assertEqual(Category.objects.filter(is_default=True).count(), 17)
 
     def test_seeded_categories_have_correct_slugs(self):
         seed_categories()
         expected_slugs = [
             "quotes", "thoughts", "ideas", "learn", "save", "links",
-            "watch", "cinema", "shows", "read", "buy", "tasks", "reminders", "places",
+            "watch", "cinema", "read", "buy", "tasks", "reminders", "places",
             "code", "people", "projects", "important",
         ]
         for slug in expected_slugs:
@@ -173,8 +173,8 @@ class AutoCategorizationTest(TestCase):
     def test_detects_cinema(self):
         self.assertEqual(suggest_category("watch Inception movie tonight"), "cinema")
 
-    def test_detects_shows(self):
-        self.assertEqual(suggest_category("watch Stranger Things tv show series"), "shows")
+    def test_detects_shows_as_cinema(self):
+        self.assertEqual(suggest_category("watch Stranger Things tv show series"), "cinema")
 
     def test_detects_buy(self):
         self.assertEqual(suggest_category("need to buy milk and eggs"), "buy")

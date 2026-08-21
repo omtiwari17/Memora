@@ -137,29 +137,32 @@
             </a>
             {% endif %}
 
-            <!-- Movie Watch Status Pills -->
+            <!-- Movie Watch Status Pills (Clean SVG Iconography) -->
             <div class="pt-1 flex items-center gap-1.5 flex-wrap">
                 <form hx-post="{% url 'memory_watch_status' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML">
                     {% csrf_token %}
                     <input type="hidden" name="watch_status" value="want_to_watch">
-                    <button type="submit" class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all {% if memory.watch_status == 'want_to_watch' %}bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm{% else %}bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5{% endif %}">
-                        🎬 Want to Watch
+                    <button type="submit" class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all inline-flex items-center gap-1.5 {% if memory.watch_status == 'want_to_watch' %}bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm{% else %}bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5{% endif %}">
+                        <svg class="w-3 h-3 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"/></svg>
+                        Want to Watch
                     </button>
                 </form>
 
                 <form hx-post="{% url 'memory_watch_status' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML">
                     {% csrf_token %}
                     <input type="hidden" name="watch_status" value="watching">
-                    <button type="submit" class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all {% if memory.watch_status == 'watching' %}bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm{% else %}bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5{% endif %}">
-                        🍿 Watching
+                    <button type="submit" class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all inline-flex items-center gap-1.5 {% if memory.watch_status == 'watching' %}bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm{% else %}bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5{% endif %}">
+                        <svg class="w-3 h-3 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z"/></svg>
+                        Watching
                     </button>
                 </form>
 
                 <form hx-post="{% url 'memory_watch_status' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML">
                     {% csrf_token %}
                     <input type="hidden" name="watch_status" value="watched">
-                    <button type="submit" class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all {% if memory.watch_status == 'watched' %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm{% else %}bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5{% endif %}">
-                        ✅ Watched
+                    <button type="submit" class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all inline-flex items-center gap-1.5 {% if memory.watch_status == 'watched' %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm{% else %}bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5{% endif %}">
+                        <svg class="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Watched
                     </button>
                 </form>
             </div>

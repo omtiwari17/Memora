@@ -32,9 +32,8 @@ CODE_PATTERNS = [
 ]
 
 CATEGORY_KEYWORDS = {
-    "cinema": ["movie", "film", "cinema", "blockbuster", "imdb", "boxoffice", "theater"],
-    "shows": ["series", "show", "tv show", "web series", "netflix", "season", "episode", "anime", "drama"],
-    "watch": ["watch", "youtube", "video", "documentary", "stream"],
+    "cinema": ["movie", "film", "cinema", "show", "series", "tv show", "web series", "netflix", "imdb", "boxoffice", "season", "episode", "anime", "documentary"],
+    "watch": ["watch", "youtube", "video", "stream"],
     "read": ["read", "book", "article", "paper", "blog", "novel", "manga", "ebook"],
     "buy": ["buy", "purchase", "order", "price", "cost", "shopping", "amazon", "flipkart", "deal"],
     "tasks": ["todo", "to-do", "task", "need to", "should", "must", "finish", "complete", "submit", "deadline"],
@@ -776,6 +775,14 @@ def share_target(request):
 def seed_categories():
     """Create default categories if they don't exist."""
     Category.objects.all().update(emoji="")
+
+    shows_cat = Category.objects.filter(slug="shows", is_default=True).first()
+    cinema_cat = Category.objects.filter(slug="cinema", is_default=True).first()
+    if shows_cat:
+        if cinema_cat:
+            Memory.objects.filter(category=shows_cat).update(category=cinema_cat)
+        shows_cat.delete()
+
     defaults = [
         {"name": "Quotes", "slug": "quotes", "emoji": "", "color": "#f59e0b", "order": 1},
         {"name": "Thoughts", "slug": "thoughts", "emoji": "", "color": "#a78bfa", "order": 2},
@@ -785,16 +792,15 @@ def seed_categories():
         {"name": "Links", "slug": "links", "emoji": "", "color": "#38bdf8", "order": 6},
         {"name": "Watch", "slug": "watch", "emoji": "", "color": "#f87171", "order": 7},
         {"name": "Cinema", "slug": "cinema", "emoji": "", "color": "#e11d48", "order": 8},
-        {"name": "Shows", "slug": "shows", "emoji": "", "color": "#f43f5e", "order": 9},
-        {"name": "Read", "slug": "read", "emoji": "", "color": "#fb923c", "order": 10},
-        {"name": "Buy", "slug": "buy", "emoji": "", "color": "#4ade80", "order": 11},
-        {"name": "Tasks", "slug": "tasks", "emoji": "", "color": "#22d3ee", "order": 12},
-        {"name": "Reminders", "slug": "reminders", "emoji": "", "color": "#e879f9", "order": 13},
-        {"name": "Places", "slug": "places", "emoji": "", "color": "#2dd4bf", "order": 14},
-        {"name": "Code", "slug": "code", "emoji": "", "color": "#a3e635", "order": 15},
-        {"name": "People", "slug": "people", "emoji": "", "color": "#f472b6", "order": 16},
-        {"name": "Projects", "slug": "projects", "emoji": "", "color": "#818cf8", "order": 17},
-        {"name": "Important", "slug": "important", "emoji": "", "color": "#ef4444", "order": 18},
+        {"name": "Read", "slug": "read", "emoji": "", "color": "#fb923c", "order": 9},
+        {"name": "Buy", "slug": "buy", "emoji": "", "color": "#4ade80", "order": 10},
+        {"name": "Tasks", "slug": "tasks", "emoji": "", "color": "#22d3ee", "order": 11},
+        {"name": "Reminders", "slug": "reminders", "emoji": "", "color": "#e879f9", "order": 12},
+        {"name": "Places", "slug": "places", "emoji": "", "color": "#2dd4bf", "order": 13},
+        {"name": "Code", "slug": "code", "emoji": "", "color": "#a3e635", "order": 14},
+        {"name": "People", "slug": "people", "emoji": "", "color": "#f472b6", "order": 15},
+        {"name": "Projects", "slug": "projects", "emoji": "", "color": "#818cf8", "order": 16},
+        {"name": "Important", "slug": "important", "emoji": "", "color": "#ef4444", "order": 17},
     ]
     for cat_data in defaults:
         Category.objects.get_or_create(
