@@ -168,7 +168,7 @@
     </section>
 
     <!-- LIVE MEMORY SHOWCASE DEMO -->
-    <section id="showcase" class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <section id="showcase" class="scroll-mt-24 py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div class="text-center mb-12">
             <h2 class="text-xs uppercase font-bold tracking-widest text-purple-400 mb-3">Type-Aware Design Engine</h2>
             <h3 class="text-2xl sm:text-4xl font-bold text-white">Every Memory Has Its Own Visual Form</h3>
@@ -233,13 +233,13 @@
     </section>
 
     <!-- CORE FEATURES GRID -->
-    <section id="features" class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div class="text-center mb-16">
+    <section id="features" class="scroll-mt-24 py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
+        <div class="text-center mb-12">
             <h2 class="text-xs uppercase font-bold tracking-widest text-indigo-400 mb-3">Architectural Pillars</h2>
             <h3 class="text-3xl sm:text-5xl font-bold text-white">Built For Speed, Privacy & Discovery</h3>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             <!-- Feature 1 -->
             <div class="glass-card rounded-3xl p-8 space-y-4">
@@ -268,38 +268,112 @@
                 <p class="text-sm text-white/60 leading-relaxed">Sub-200ms HTMX live DOM search across memory contents, titles, user-scoped tags, author attributions, and URLs.</p>
             </div>
 
-            <!-- Feature 4 -->
-            <div class="glass-card rounded-3xl p-8 space-y-4" id="cinema">
-                <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-300">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-8.625 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125h17.25c.621 0 1.125.504 1.125 1.125v1.5m0 0a1.125 1.125 0 01-1.125 1.125M21 5.625v12.75"/></svg>
+        </div>
+    </section>
+
+    <!-- CINEMA & WATCH TRACKER SHOWCASE -->
+    <section id="cinema" class="scroll-mt-24 py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
+        <div class="text-center mb-12">
+            <h2 class="text-xs uppercase font-bold tracking-widest text-amber-400 mb-3">Entertainment & Media</h2>
+            <h3 class="text-3xl sm:text-5xl font-bold text-white">Cinema & Watch Tracker</h3>
+            <p class="text-sm text-white/50 max-w-xl mx-auto mt-2">Organize movies, TV series, anime, and documentaries with SVG watch status pills and glowing 5-star ratings.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Cinema Card 1: Watched -->
+            <div class="glass-card rounded-3xl p-6 border-l-4 border-l-purple-400 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="px-2.5 py-1 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/30 text-[11px] font-semibold">Cinema</span>
+                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">Watched</span>
                 </div>
-                <h4 class="text-xl font-bold text-white">Cinema & Watch Tracker</h4>
-                <p class="text-sm text-white/60 leading-relaxed">Organize movies and TV series with SVG watch status pills (Want to Watch, Watching, Watched) and 5-star glowing ratings.</p>
+                <h4 class="text-lg font-bold text-white">Oppenheimer (2023)</h4>
+                <div class="flex items-center gap-1 text-amber-400">
+                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                </div>
+                <p class="text-xs text-white/60">Phenomenal cinematography and Ludwig Göransson soundtrack.</p>
+                <div class="flex items-center gap-2 pt-2 text-[10px] text-white/40 font-mono">
+                    <span class="px-2 py-0.5 rounded bg-white/5">#movie</span>
+                    <span class="px-2 py-0.5 rounded bg-white/5">#biography</span>
+                </div>
             </div>
 
-            <!-- Feature 5 -->
-            <div class="glass-card rounded-3xl p-8 space-y-4" id="security">
-                <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-300">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 00-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+            <!-- Cinema Card 2: Watching -->
+            <div class="glass-card rounded-3xl p-6 border-l-4 border-l-purple-400 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="px-2.5 py-1 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/30 text-[11px] font-semibold">Cinema</span>
+                    <span class="px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30 text-[10px] font-bold">Watching</span>
                 </div>
-                <h4 class="text-xl font-bold text-white">Vault Handle Security</h4>
-                <p class="text-sm text-white/60 leading-relaxed">No email or password friction. Access your personal vault with a unique Handle and secure 6-Digit PIN backed by PBKDF2 hashing.</p>
+                <h4 class="text-lg font-bold text-white">Severance (Season 2)</h4>
+                <div class="flex items-center gap-1 text-amber-400">
+                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <svg class="w-4 h-4 fill-current text-white/20" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                </div>
+                <p class="text-xs text-white/60">Mind-bending corporate sci-fi thriller series on Apple TV+.</p>
+                <div class="flex items-center gap-2 pt-2 text-[10px] text-white/40 font-mono">
+                    <span class="px-2 py-0.5 rounded bg-white/5">#series</span>
+                    <span class="px-2 py-0.5 rounded bg-white/5">#scifi</span>
+                </div>
             </div>
 
-            <!-- Feature 6 -->
-            <div class="glass-card rounded-3xl p-8 space-y-4">
-                <div class="w-12 h-12 rounded-2xl bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-300">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402M6.75 21A3.75 3.75 0 013 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 003.75-3.75V8.197"/></svg>
+            <!-- Cinema Card 3: Want to Watch -->
+            <div class="glass-card rounded-3xl p-6 border-l-4 border-l-purple-400 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="px-2.5 py-1 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/30 text-[11px] font-semibold">Cinema</span>
+                    <span class="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-bold">Want to Watch</span>
                 </div>
-                <h4 class="text-xl font-bold text-white">36 Preset Color Palette</h4>
-                <p class="text-sm text-white/60 leading-relaxed">Manage categories with 36 curated theme swatches, in-use checkmark indicators, and 1-click unused color generation.</p>
+                <h4 class="text-lg font-bold text-white">Dune: Part Two (2024)</h4>
+                <div class="flex items-center gap-1 text-amber-400">
+                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                </div>
+                <p class="text-xs text-white/60">Epic sci-fi spectacle directed by Denis Villeneuve.</p>
+                <div class="flex items-center gap-2 pt-2 text-[10px] text-white/40 font-mono">
+                    <span class="px-2 py-0.5 rounded bg-white/5">#movie</span>
+                    <span class="px-2 py-0.5 rounded bg-white/5">#sci-fi</span>
+                </div>
             </div>
+        </div>
+    </section>
 
+    <!-- VAULT SECURITY & PRIVACY SHOWCASE -->
+    <section id="security" class="scroll-mt-24 py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
+        <div class="text-center mb-12">
+            <h2 class="text-xs uppercase font-bold tracking-widest text-emerald-400 mb-3">Privacy First Architecture</h2>
+            <h3 class="text-3xl sm:text-5xl font-bold text-white">Vault Handle & 6-Digit PIN Security</h3>
+            <p class="text-sm text-white/50 max-w-xl mx-auto mt-2">Zero email registration friction. Access your private personal vault securely using a unique Vault Handle and 6-digit PIN backed by Django PBKDF2.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="glass-card rounded-3xl p-8 space-y-3">
+                <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold">@</div>
+                <h4 class="text-lg font-bold text-white">Niche Vault Handle</h4>
+                <p class="text-xs text-white/60 leading-relaxed">Choose a memorable Vault Handle (e.g. <span class="font-mono text-purple-300">@om</span>). No email verification delays or password reset traps.</p>
+            </div>
+            <div class="glass-card rounded-3xl p-8 space-y-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-300 font-mono font-bold">***</div>
+                <h4 class="text-lg font-bold text-white">6-Digit Vault Key PIN</h4>
+                <p class="text-xs text-white/60 leading-relaxed">Unlock your vault in under 2 seconds using a 6-digit numeric PIN, securely salted and hashed via Django PBKDF2 algorithm.</p>
+            </div>
+            <div class="glass-card rounded-3xl p-8 space-y-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-300 font-bold">🔒</div>
+                <h4 class="text-lg font-bold text-white">100% User Data Isolation</h4>
+                <p class="text-xs text-white/60 leading-relaxed">All memories, custom categories, collections, and tag suggestions are strictly scoped to your private user account.</p>
+            </div>
         </div>
     </section>
 
     <!-- TECH STACK & ARCHITECTURE -->
-    <section id="tech-stack" class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
+    <section id="tech-stack" class="scroll-mt-24 py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
         <div class="text-center mb-16">
             <h2 class="text-xs uppercase font-bold tracking-widest text-emerald-400 mb-3">Modern Engineering Stack</h2>
             <h3 class="text-3xl sm:text-5xl font-bold text-white">High Performance, Zero Over-Engineering</h3>
