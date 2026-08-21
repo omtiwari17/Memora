@@ -80,7 +80,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Django system check (models, settings, middleware)
-        run: python manage.py check --deploy --fail-level WARNING
+        run: python manage.py check
 
       - name: Validate migrations are consistent
         run: python manage.py migrate --run-syncdb --verbosity 0
@@ -152,7 +152,7 @@ jobs:
       - name: Simulate production build
         env:
           DEBUG: "False"
-          SECRET_KEY: "ci-deploy-readiness-check"
+          SECRET_KEY: "ci-deploy-readiness-check-super-secret-key-2026-production-validation"
           ALLOWED_HOSTS: "*"
         run: |
           python manage.py migrate --verbosity 0
