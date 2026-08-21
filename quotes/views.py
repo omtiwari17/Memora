@@ -776,9 +776,12 @@ def favicon_view(request):
 # ── Custom Glassmorphic Admin Console ──────────────────────────────────
 @login_required(login_url="login")
 def custom_admin_panel(request):
-    """Custom glassmorphic admin dashboard for system administration."""
+    """Custom glassmorphic admin dashboard for system administration with user filtering."""
     if not (request.user.is_staff or request.user.is_superuser):
         return render(request, "quotes/admin_denied.html", status=403)
+
+    selected_user_id = request.GET.get("user_id", "").strip()
+    selected_user = None
 
     users = User.objects.all().order_by("-date_joined")
     user_data = []
@@ -789,7 +792,22 @@ def custom_admin_panel(request):
             "memory_count": mem_count,
         })
 
-    recent_memories = Memory.objects.select_related("user", "category").all().order_by("-created_at")[:30]
+    recent_memories = Memory.objects.select_related("user", "category").all()
+
+    if selected_user_id.isdigit():
+        selected_user = User.objects.filter(pk=int(selected_user_id)).first()
+        if selected_user:
+            recent_memories = recent_memories.filter(user=selected_user)
+
+    recent_memories = recent_memories.order_by("-created_at")[:50]
+
+    # HTMX Partial swap for live feed filtering
+    if request.headers.get("HX-Request") and "user_id" in request.GET:
+        return render(request, "quotes/partials/admin_memory_feed.html", {
+            "recent_memories": recent_memories,
+            "selected_user": selected_user,
+        })
+
     total_memories = Memory.objects.count()
     total_users = User.objects.count()
     total_categories = Category.objects.count()
@@ -804,6 +822,7 @@ def custom_admin_panel(request):
     return render(request, "quotes/admin_dashboard.html", {
         "user_data": user_data,
         "recent_memories": recent_memories,
+        "selected_user": selected_user,
         "total_memories": total_memories,
         "total_users": total_users,
         "total_categories": total_categories,
