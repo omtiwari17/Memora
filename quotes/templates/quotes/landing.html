@@ -33,11 +33,28 @@
         }
         .aurora-blob {
             position: absolute;
-            filter: blur(120px);
             border-radius: 50%;
             pointer-events: none;
-            opacity: 0.45;
+            will-change: transform, opacity;
         }
+        @keyframes float-aurora-1 {
+            0% { transform: translate(0px, 0px) scale(1); opacity: 0.22; }
+            50% { transform: translate(45px, -35px) scale(1.08); opacity: 0.28; }
+            100% { transform: translate(-25px, 25px) scale(0.95); opacity: 0.18; }
+        }
+        @keyframes float-aurora-2 {
+            0% { transform: translate(0px, 0px) scale(1); opacity: 0.18; }
+            50% { transform: translate(-55px, 45px) scale(1.12); opacity: 0.26; }
+            100% { transform: translate(35px, -25px) scale(0.98); opacity: 0.15; }
+        }
+        @keyframes float-aurora-3 {
+            0% { transform: translate(0px, 0px) scale(1); opacity: 0.15; }
+            50% { transform: translate(35px, 35px) scale(1.06); opacity: 0.22; }
+            100% { transform: translate(-35px, -45px) scale(0.92); opacity: 0.13; }
+        }
+        .aurora-animate-1 { animation: float-aurora-1 18s ease-in-out infinite alternate; }
+        .aurora-animate-2 { animation: float-aurora-2 22s ease-in-out infinite alternate; }
+        .aurora-animate-3 { animation: float-aurora-3 20s ease-in-out infinite alternate; }
         @keyframes float-slow {
             0%, 100% { transform: translateY(0px) scale(1); }
             50% { transform: translateY(-15px) scale(1.03); }
@@ -52,12 +69,12 @@
 </head>
 <body class="min-h-screen bg-[#0a0914] text-white selection:bg-purple-500/30 overflow-x-hidden relative">
 
-    <!-- Dark Aurora Background Blobs -->
+    <!-- Minimal Animated Dark Aurora Background -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div class="aurora-blob absolute -top-40 -left-32 w-[600px] h-[600px] bg-purple-600/30"></div>
-        <div class="aurora-blob absolute top-1/3 -right-40 w-[650px] h-[650px] bg-indigo-600/25"></div>
-        <div class="aurora-blob absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-fuchsia-600/20"></div>
-        <div class="aurora-blob absolute top-2/3 right-1/4 w-[450px] h-[450px] bg-emerald-600/15"></div>
+        <div class="aurora-blob aurora-animate-1 absolute -top-40 -left-32 w-[650px] h-[650px] bg-purple-600/22 filter blur-[140px]"></div>
+        <div class="aurora-blob aurora-animate-2 absolute top-1/3 -right-40 w-[700px] h-[700px] bg-indigo-600/20 filter blur-[150px]"></div>
+        <div class="aurora-blob aurora-animate-3 absolute bottom-10 left-1/4 w-[600px] h-[600px] bg-fuchsia-600/18 filter blur-[140px]"></div>
+        <div class="aurora-blob aurora-animate-1 absolute top-2/3 right-1/4 w-[500px] h-[500px] bg-emerald-600/14 filter blur-[130px]"></div>
     </div>
 
     <!-- Top Navigation Header -->
