@@ -32,7 +32,8 @@ CODE_PATTERNS = [
 ]
 
 CATEGORY_KEYWORDS = {
-    "watch": ["watch", "movie", "film", "show", "series", "episode", "netflix", "youtube", "video", "documentary", "anime"],
+    "cinema": ["movie", "film", "cinema", "show", "series", "tv show", "web series", "netflix", "imdb", "boxoffice", "season", "episode", "anime"],
+    "watch": ["watch", "youtube", "video", "documentary", "stream"],
     "read": ["read", "book", "article", "paper", "blog", "novel", "manga", "ebook"],
     "buy": ["buy", "purchase", "order", "price", "cost", "shopping", "amazon", "flipkart", "deal"],
     "tasks": ["todo", "to-do", "task", "need to", "should", "must", "finish", "complete", "submit", "deadline"],
@@ -348,11 +349,18 @@ def memory_edit(request, pk):
         due_date_str = request.POST.get("due_date", "").strip()
 
         memory.content = content
+        watch_status = request.POST.get("watch_status", "want_to_watch").strip()
+        rating_val = request.POST.get("rating", "").strip()
+        rating = int(rating_val) if rating_val.isdigit() and 1 <= int(rating_val) <= 5 else None
+
         memory.title = title or extract_title(content)
         memory.source_url = source_url
         memory.author = author
         memory.priority = priority
         memory.status = status
+        if watch_status in Memory.WatchStatus.values:
+            memory.watch_status = watch_status
+        memory.rating = rating
 
         if category_slug:
             category = Category.objects.filter(slug=category_slug).first()
@@ -409,6 +417,9 @@ def capture(request):
         author = request.POST.get("author", "").strip()
         priority = request.POST.get("priority", "none").strip()
         due_date_str = request.POST.get("due_date", "").strip()
+        watch_status = request.POST.get("watch_status", "want_to_watch").strip()
+        rating_val = request.POST.get("rating", "").strip()
+        rating = int(rating_val) if rating_val.isdigit() and 1 <= int(rating_val) <= 5 else None
 
         if not category_slug:
             category_slug = suggest_category(content) or "inbox"
@@ -436,6 +447,8 @@ def capture(request):
             author=author,
             priority=priority,
             due_date=due_date,
+            watch_status=watch_status if watch_status in Memory.WatchStatus.values else Memory.WatchStatus.WANT_TO_WATCH,
+            rating=rating,
             status=Memory.Status.INBOX if not category or category.slug == "inbox" else Memory.Status.ACTIVE
         )
 
@@ -456,6 +469,26 @@ def capture(request):
 
     categories = get_user_categories(request.user)
     return render(request, "quotes/capture_form.html", {"categories": categories})
+
+
+@login_required(login_url="login")
+@require_http_methods(["POST"])
+def memory_watch_status(request, pk):
+    """HTMX endpoint to update movie watch_status and rating."""
+    memory = get_object_or_404(Memory, pk=pk, user=request.user)
+
+    new_watch_status = request.POST.get("watch_status", "").strip()
+    if new_watch_status in Memory.WatchStatus.values:
+        memory.watch_status = new_watch_status
+
+    rating_str = request.POST.get("rating", "").strip()
+    if rating_str.isdigit():
+        r = int(rating_str)
+        if 1 <= r <= 5:
+            memory.rating = r
+
+    memory.save()
+    return render(request, "quotes/partials/memory_card.html", {"memory": memory})
 
 
 # ── Universal Capture API (for extension/bookmarklet) ──────────────────
@@ -742,6 +775,14 @@ def share_target(request):
 def seed_categories():
     """Create default categories if they don't exist."""
     Category.objects.all().update(emoji="")
+
+    shows_cat = Category.objects.filter(slug="shows", is_default=True).first()
+    cinema_cat = Category.objects.filter(slug="cinema", is_default=True).first()
+    if shows_cat:
+        if cinema_cat:
+            Memory.objects.filter(category=shows_cat).update(category=cinema_cat)
+        shows_cat.delete()
+
     defaults = [
         {"name": "Quotes", "slug": "quotes", "emoji": "", "color": "#f59e0b", "order": 1},
         {"name": "Thoughts", "slug": "thoughts", "emoji": "", "color": "#a78bfa", "order": 2},
@@ -750,15 +791,16 @@ def seed_categories():
         {"name": "Save", "slug": "save", "emoji": "", "color": "#60a5fa", "order": 5},
         {"name": "Links", "slug": "links", "emoji": "", "color": "#38bdf8", "order": 6},
         {"name": "Watch", "slug": "watch", "emoji": "", "color": "#f87171", "order": 7},
-        {"name": "Read", "slug": "read", "emoji": "", "color": "#fb923c", "order": 8},
-        {"name": "Buy", "slug": "buy", "emoji": "", "color": "#4ade80", "order": 9},
-        {"name": "Tasks", "slug": "tasks", "emoji": "", "color": "#22d3ee", "order": 10},
-        {"name": "Reminders", "slug": "reminders", "emoji": "", "color": "#e879f9", "order": 11},
-        {"name": "Places", "slug": "places", "emoji": "", "color": "#2dd4bf", "order": 12},
-        {"name": "Code", "slug": "code", "emoji": "", "color": "#a3e635", "order": 13},
-        {"name": "People", "slug": "people", "emoji": "", "color": "#f472b6", "order": 14},
-        {"name": "Projects", "slug": "projects", "emoji": "", "color": "#818cf8", "order": 15},
-        {"name": "Important", "slug": "important", "emoji": "", "color": "#ef4444", "order": 16},
+        {"name": "Cinema", "slug": "cinema", "emoji": "", "color": "#e11d48", "order": 8},
+        {"name": "Read", "slug": "read", "emoji": "", "color": "#fb923c", "order": 9},
+        {"name": "Buy", "slug": "buy", "emoji": "", "color": "#4ade80", "order": 10},
+        {"name": "Tasks", "slug": "tasks", "emoji": "", "color": "#22d3ee", "order": 11},
+        {"name": "Reminders", "slug": "reminders", "emoji": "", "color": "#e879f9", "order": 12},
+        {"name": "Places", "slug": "places", "emoji": "", "color": "#2dd4bf", "order": 13},
+        {"name": "Code", "slug": "code", "emoji": "", "color": "#a3e635", "order": 14},
+        {"name": "People", "slug": "people", "emoji": "", "color": "#f472b6", "order": 15},
+        {"name": "Projects", "slug": "projects", "emoji": "", "color": "#818cf8", "order": 16},
+        {"name": "Important", "slug": "important", "emoji": "", "color": "#ef4444", "order": 17},
     ]
     for cat_data in defaults:
         Category.objects.get_or_create(
@@ -771,4 +813,122 @@ def favicon_view(request):
     """Serve logo.svg directly for /favicon.ico requests."""
     logo_path = os.path.join(settings.BASE_DIR, "static", "logo.svg")
     return FileResponse(open(logo_path, "rb"), content_type="image/svg+xml")
+
+
+# ── Custom Glassmorphic Admin Console ──────────────────────────────────
+def admin_vault_login(request):
+    """Dedicated login portal for Admin Control Console (/ctrl/)."""
+    if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser) and request.session.get("admin_unlocked") == True:
+        return redirect("custom_admin_panel")
+
+    error = None
+    handle = ""
+
+    if request.method == "POST":
+        raw_handle = request.POST.get("handle", "").strip().lower().replace("@", "")
+        pin = request.POST.get("pin", "").strip()
+
+        handle = re.sub(r'[^a-z0-9_]', '', raw_handle)
+
+        if not handle or len(handle) < 2:
+            error = "Admin Handle must be at least 2 characters long."
+        elif not pin:
+            error = "Admin Key / PIN is required."
+        else:
+            user = User.objects.filter(username=handle).first()
+            if user:
+                if not (user.is_staff or user.is_superuser):
+                    error = f"Access Denied: @{handle} does not have Admin Control privileges."
+                else:
+                    authenticated_user = authenticate(request, username=handle, password=pin)
+                    if authenticated_user:
+                        login(request, authenticated_user)
+                        request.session["admin_unlocked"] = True
+                        return redirect("custom_admin_panel")
+                    else:
+                        error = f"Incorrect Admin Key / PIN for @{handle}."
+            else:
+                error = f"Admin Handle @{handle} does not exist."
+
+    return render(request, "quotes/admin_login.html", {"error": error, "handle": handle})
+
+
+def admin_vault_logout(request):
+    """Logout from Admin Control Console."""
+    request.session["admin_unlocked"] = False
+    logout(request)
+    return redirect("admin_vault_login")
+
+
+def custom_admin_panel(request):
+    """Custom glassmorphic admin dashboard for system administration with user filtering."""
+    if not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser) and request.session.get("admin_unlocked") == True):
+        return redirect("admin_vault_login")
+
+    selected_user_id = request.GET.get("user_id", "").strip()
+    selected_user = None
+
+    users = User.objects.all().order_by("-date_joined")
+    user_data = []
+    for u in users:
+        mem_count = Memory.objects.filter(user=u).count()
+        user_data.append({
+            "user": u,
+            "memory_count": mem_count,
+        })
+
+    recent_memories = Memory.objects.select_related("user", "category").all()
+
+    if selected_user_id.isdigit():
+        selected_user = User.objects.filter(pk=int(selected_user_id)).first()
+        if selected_user:
+            recent_memories = recent_memories.filter(user=selected_user)
+
+    recent_memories = recent_memories.order_by("-created_at")[:50]
+
+    # HTMX Partial swap for live feed filtering
+    if request.headers.get("HX-Request") and "user_id" in request.GET:
+        return render(request, "quotes/partials/admin_memory_feed.html", {
+            "recent_memories": recent_memories,
+            "selected_user": selected_user,
+        })
+
+    total_memories = Memory.objects.count()
+    total_users = User.objects.count()
+    total_categories = Category.objects.count()
+    total_tags = Tag.objects.count()
+
+    db_url = os.environ.get("DATABASE_URL", "")
+    if "postgres" in db_url or "neon" in db_url:
+        db_name = "Neon PostgreSQL (Production)"
+    else:
+        db_name = "SQLite (Local Dev)"
+
+    return render(request, "quotes/admin_dashboard.html", {
+        "user_data": user_data,
+        "recent_memories": recent_memories,
+        "selected_user": selected_user,
+        "total_memories": total_memories,
+        "total_users": total_users,
+        "total_categories": total_categories,
+        "total_tags": total_tags,
+        "db_name": db_name,
+        "debug_mode": settings.DEBUG,
+    })
+
+
+@login_required(login_url="login")
+@require_http_methods(["POST"])
+def admin_toggle_staff(request, user_id):
+    """Toggle staff permission for a user (admin only)."""
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseBadRequest("Unauthorized")
+
+    target_user = get_object_or_404(User, pk=user_id)
+    if target_user != request.user:
+        target_user.is_staff = not target_user.is_staff
+        target_user.save()
+
+    return redirect("custom_admin_panel")
+
 

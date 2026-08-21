@@ -1,0 +1,230 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dracula">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Console — Memora Admin</title>
+    <link rel="icon" type="image/svg+xml" href="{% static 'logo.svg' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Space Grotesk', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; }
+        .aurora-blob { filter: blur(120px); opacity: 0.5; }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(20px, -25px) scale(1.04); }
+            66% { transform: translate(-15px, 15px) scale(0.97); }
+        }
+        .float-1 { animation: float 16s ease-in-out infinite; }
+        .float-2 { animation: float 22s ease-in-out infinite reverse; }
+
+        .glass {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(245, 158, 11, 0.15);
+        }
+        .glass-card {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(245, 158, 11, 0.12);
+        }
+    </style>
+</head>
+<body class="bg-[#0f0e17] text-white min-h-screen relative overflow-x-hidden p-4 sm:p-6 md:p-8">
+
+    <!-- Golden Amber Aurora Background -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div class="aurora-blob float-1 absolute -top-40 -left-32 w-[550px] h-[550px] rounded-full bg-amber-600/20"></div>
+        <div class="aurora-blob float-2 absolute top-1/3 -right-40 w-[600px] h-[600px] rounded-full bg-purple-600/25"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        <!-- Top Header Navigation -->
+        <header class="glass rounded-3xl p-5 flex flex-wrap items-center justify-between gap-4 shadow-2xl">
+            <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-950/80 to-purple-950/80 border border-amber-400/30 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                    <svg class="w-7 h-7" viewBox="0 0 32 32" fill="none">
+                        <path d="M7 23V11.5L16 19.5L25 11.5V23" stroke="url(#log-mem-1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M11 10C11 7.79 13.24 6 16 6C18.76 6 21 7.79 21 10" stroke="url(#log-mem-2)" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="16" cy="13.5" r="1.75" fill="#f59e0b"/>
+                        <defs>
+                            <linearGradient id="log-mem-1" x1="7" y1="11.5" x2="25" y2="23" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#fbbf24"/>
+                                <stop offset="0.5" stop-color="#c084fc"/>
+                                <stop offset="1" stop-color="#818cf8"/>
+                            </linearGradient>
+                            <linearGradient id="log-mem-2" x1="11" y1="6" x2="21" y2="10" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#f59e0b"/>
+                                <stop offset="1" stop-color="#fbbf24"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-white via-amber-200 to-purple-300 bg-clip-text text-transparent">
+                            Memora Control Console
+                        </h1>
+                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                            <svg class="w-3 h-3 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                            Admin
+                        </span>
+                    </div>
+                    <p class="text-xs text-white/40">System Overview & Vault Management</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a href="{% url 'dashboard' %}" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-white/80 flex items-center gap-2 transition-all">
+                    <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+                    User Dashboard
+                </a>
+                <a href="{% url 'admin_vault_logout' %}" class="px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-xs font-semibold text-red-300 flex items-center gap-2 transition-all">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                    Lock Admin Console
+                </a>
+            </div>
+        </header>
+
+        <!-- System Stats Grid (Amber Gold Theme) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="glass-card rounded-2xl p-4 sm:p-5 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+                </div>
+                <div>
+                    <div class="text-2xl font-extrabold text-white">{{ total_users }}</div>
+                    <div class="text-xs text-amber-200/60 font-medium">Vault Handles</div>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 sm:p-5 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 2.625a3.375 3.375 0 00-3.75-3.375m-3.75 3.375a3.375 3.375 0 013.75-3.375m9 3.75a9 9 0 01-18 0m18 0a9 9 0 00-18 0"/></svg>
+                </div>
+                <div>
+                    <div class="text-2xl font-extrabold text-white">{{ total_memories }}</div>
+                    <div class="text-xs text-purple-200/60 font-medium">Total Memories</div>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 sm:p-5 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/></svg>
+                </div>
+                <div>
+                    <div class="text-2xl font-extrabold text-white">{{ total_categories }}</div>
+                    <div class="text-xs text-amber-200/60 font-medium">Categories</div>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 sm:p-5 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 5.625c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg>
+                </div>
+                <div class="truncate">
+                    <div class="text-xs font-bold text-emerald-300 truncate">{{ db_name }}</div>
+                    <div class="text-[10px] text-white/40">Active Database</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area: Users & Recent Memories -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Registered Vault Handles -->
+            <div class="glass rounded-3xl p-6 lg:col-span-1 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                        Vault Handles
+                    </h2>
+                    <button
+                        hx-get="{% url 'custom_admin_panel' %}?user_id="
+                        hx-target="#admin-memory-feed-container"
+                        hx-swap="innerHTML"
+                        class="text-[10px] font-bold text-amber-300/70 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 px-2 py-0.5 rounded-lg border border-amber-500/20 transition-all"
+                    >
+                        Show All ({{ total_users }})
+                    </button>
+                </div>
+
+                <p class="text-[10px] text-white/40">Click any handle below to filter memory feed</p>
+
+                <div class="space-y-2.5 max-h-[500px] overflow-y-auto pr-1">
+                    {% for item in user_data %}
+                    <div
+                        hx-get="{% url 'custom_admin_panel' %}?user_id={{ item.user.id }}"
+                        hx-target="#admin-memory-feed-container"
+                        hx-swap="innerHTML"
+                        class="p-3.5 rounded-2xl bg-white/[0.03] hover:bg-amber-500/10 hover:border-amber-500/30 border border-white/5 flex items-center justify-between transition-all cursor-pointer group"
+                    >
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 font-bold text-xs flex items-center justify-center border border-amber-500/30 group-hover:scale-105 transition-all">
+                                @{{ item.user.username|slice:":2"|upper }}
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold text-white flex items-center gap-1.5 group-hover:text-amber-200 transition-all">
+                                    @{{ item.user.username }}
+                                    {% if item.user.is_staff or item.user.is_superuser %}
+                                    <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/30 text-amber-200 border border-amber-400/40 font-extrabold">Staff</span>
+                                    {% endif %}
+                                </div>
+                                <div class="text-[10px] text-white/40">Joined {{ item.user.date_joined|date:"M d, Y" }}</div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3" onclick="event.stopPropagation()">
+                            <span class="text-xs font-semibold text-amber-200/80 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
+                                {{ item.memory_count }} items
+                            </span>
+
+                            {% if request.user.is_superuser and item.user != request.user %}
+                            <form method="POST" action="{% url 'admin_toggle_staff' item.user.id %}">
+                                {% csrf_token %}
+                                <button type="submit" title="Toggle Staff/Admin Privileges" class="text-[10px] font-bold px-2 py-1 rounded-lg border transition-all {% if item.user.is_staff %}bg-amber-500/20 text-amber-300 border-amber-500/30 hover:bg-amber-500/30{% else %}bg-white/5 text-white/50 border-white/10 hover:bg-white/10{% endif %}">
+                                    {% if item.user.is_staff %}Revoke Staff{% else %}Make Staff{% endif %}
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Global Memories Feed (Dynamic Container) -->
+            <div class="glass rounded-3xl p-6 lg:col-span-2">
+                <div id="admin-memory-feed-container" class="space-y-4">
+                    {% include "quotes/partials/admin_memory_feed.html" %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center py-4 text-[10px] text-white/20">
+            Memora v5.0 — Amber Command Console
+        </footer>
+    </div>
+
+</body>
+</html>

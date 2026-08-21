@@ -66,6 +66,11 @@ class Memory(models.Model):
         HIGH = "high", "High"
         URGENT = "urgent", "Urgent"
 
+    class WatchStatus(models.TextChoices):
+        WANT_TO_WATCH = "want_to_watch", "Want to Watch"
+        WATCHING = "watching", "Watching"
+        WATCHED = "watched", "Watched"
+
     # Core content
     title = models.CharField(max_length=500, blank=True)
     content = models.TextField()
@@ -76,6 +81,12 @@ class Memory(models.Model):
     )
     tags = models.ManyToManyField(Tag, blank=True, related_name="memories")
     collections = models.ManyToManyField(Collection, blank=True, related_name="memories")
+
+    # Movie / Watch specific
+    watch_status = models.CharField(
+        max_length=20, choices=WatchStatus.choices, default=WatchStatus.WANT_TO_WATCH, blank=True
+    )
+    rating = models.IntegerField(null=True, blank=True)  # 1 to 5 stars
 
     # Source / provenance
     source_url = models.URLField(max_length=2000, blank=True)

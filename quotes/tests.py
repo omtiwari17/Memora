@@ -119,20 +119,20 @@ class MemoryModelTest(TestCase):
 class SeedCategoriesTest(TestCase):
     """Test that default categories are seeded correctly."""
 
-    def test_seed_creates_16_categories(self):
+    def test_seed_creates_17_categories(self):
         seed_categories()
-        self.assertEqual(Category.objects.filter(is_default=True).count(), 16)
+        self.assertEqual(Category.objects.filter(is_default=True).count(), 17)
 
     def test_seed_is_idempotent(self):
         seed_categories()
         seed_categories()  # Run twice
-        self.assertEqual(Category.objects.filter(is_default=True).count(), 16)
+        self.assertEqual(Category.objects.filter(is_default=True).count(), 17)
 
     def test_seeded_categories_have_correct_slugs(self):
         seed_categories()
         expected_slugs = [
             "quotes", "thoughts", "ideas", "learn", "save", "links",
-            "watch", "read", "buy", "tasks", "reminders", "places",
+            "watch", "cinema", "read", "buy", "tasks", "reminders", "places",
             "code", "people", "projects", "important",
         ]
         for slug in expected_slugs:
@@ -168,11 +168,15 @@ class AutoCategorizationTest(TestCase):
         self.assertEqual(suggest_category("todo: finish CI pipeline"), "tasks")
 
     def test_detects_watch(self):
-        self.assertEqual(suggest_category("watch Inception movie tonight"), "watch")
+        self.assertEqual(suggest_category("watch youtube video documentary"), "watch")
+
+    def test_detects_cinema(self):
+        self.assertEqual(suggest_category("watch Inception movie tonight"), "cinema")
+
+    def test_detects_shows_as_cinema(self):
+        self.assertEqual(suggest_category("watch Stranger Things tv show series"), "cinema")
 
     def test_detects_buy(self):
-        # Avoid words that match code patterns (e.g. "amazon" doesn't,
-        # but "buy groceries" is clean for keyword matching)
         self.assertEqual(suggest_category("need to buy milk and eggs"), "buy")
 
     def test_detects_places(self):
@@ -688,3 +692,100 @@ class DataIsolationTest(TestCase):
         self.assertEqual(resp.status_code, 200)
         content = resp.content.decode()
         self.assertNotIn("Alice secret", content)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CUSTOM ADMIN CONSOLE TESTS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@override_settings(STORAGES=TEST_STORAGES)
+class CustomAdminConsoleTest(TestCase):
+    """Test custom glassmorphic admin dashboard and access control."""
+
+    def setUp(self):
+        self.client = Client()
+        self.staff_user = User.objects.create_user(username="staffadmin", password="123456", is_staff=True)
+        self.normal_user = User.objects.create_user(username="regularuser", password="123456")
+        seed_categories()
+
+    def test_custom_admin_accessible_by_staff(self):
+        self.client.post(reverse("admin_vault_login"), {"handle": "staffadmin", "pin": "123456"})
+        resp = self.client.get(reverse("custom_admin_panel"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Control Console")
+
+    def test_custom_admin_redirects_normal_user_to_admin_login(self):
+        self.client.login(username="regularuser", password="123456")
+        resp = self.client.get(reverse("custom_admin_panel"))
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("ctrl/login", resp.url)
+
+    def test_admin_login_rejects_normal_user(self):
+        resp = self.client.post(reverse("admin_vault_login"), {
+            "handle": "regularuser",
+            "pin": "123456",
+        })
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Access Denied")
+
+    def test_admin_login_authenticates_staff(self):
+        resp = self.client.post(reverse("admin_vault_login"), {
+            "handle": "staffadmin",
+            "pin": "123456",
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("ctrl", resp.url)
+
+    def test_admin_logout(self):
+        self.client.login(username="staffadmin", password="123456")
+        resp = self.client.get(reverse("admin_vault_logout"))
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("ctrl/login", resp.url)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MOVIE & WATCH STATUS TESTS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@override_settings(STORAGES=TEST_STORAGES)
+class MovieWatchStatusTest(TestCase):
+    """Test movie watch status options and star rating functionality."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username="moviebuff", password="123456")
+        self.client.login(username="moviebuff", password="123456")
+        seed_categories()
+        self.watch_cat = Category.objects.get(slug="watch")
+
+    def test_create_movie_with_watch_status_and_rating(self):
+        memory = Memory.objects.create(
+            user=self.user,
+            title="Inception",
+            content="Great sci-fi thriller",
+            category=self.watch_cat,
+            watch_status=Memory.WatchStatus.WATCHED,
+            rating=5
+        )
+        self.assertEqual(memory.watch_status, "watched")
+        self.assertEqual(memory.rating, 5)
+
+    def test_update_watch_status_via_htmx(self):
+        memory = Memory.objects.create(
+            user=self.user,
+            title="Interstellar",
+            content="Space exploration movie",
+            category=self.watch_cat,
+            watch_status=Memory.WatchStatus.WANT_TO_WATCH,
+        )
+        resp = self.client.post(
+            reverse("memory_watch_status", kwargs={"pk": memory.pk}),
+            {"watch_status": "watched", "rating": "5"},
+        )
+        self.assertEqual(resp.status_code, 200)
+        memory.refresh_from_db()
+        self.assertEqual(memory.watch_status, "watched")
+        self.assertEqual(memory.rating, 5)
+        self.assertContains(resp, "Watched")
+
+

@@ -7,6 +7,12 @@ urlpatterns = [
     path("logout/", views.vault_logout, name="logout"),
     path("favicon.ico", views.favicon_view, name="favicon"),
 
+    # Custom Admin Console & Dedicated Login
+    path("ctrl/login/", views.admin_vault_login, name="admin_vault_login"),
+    path("ctrl/logout/", views.admin_vault_logout, name="admin_vault_logout"),
+    path("ctrl/", views.custom_admin_panel, name="custom_admin_panel"),
+    path("ctrl/user/<int:user_id>/toggle-staff/", views.admin_toggle_staff, name="admin_toggle_staff"),
+
     # Dashboard
     path("", views.dashboard, name="dashboard"),
     
@@ -24,6 +30,7 @@ urlpatterns = [
     path("memory/<int:pk>/pin/", views.memory_pin, name="memory_pin"),
     path("memory/<int:pk>/archive/", views.memory_archive, name="memory_archive"),
     path("memory/<int:pk>/status/", views.memory_status, name="memory_status"),
+    path("memory/<int:pk>/watch-status/", views.memory_watch_status, name="memory_watch_status"),
     path("memory/<int:pk>/delete/", views.memory_delete, name="memory_delete"),
     
     # Filtered views
