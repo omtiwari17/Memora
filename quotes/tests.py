@@ -714,7 +714,7 @@ class CustomAdminConsoleTest(TestCase):
         self.client.login(username="regularuser", password="123456")
         resp = self.client.get(reverse("custom_admin_panel"))
         self.assertEqual(resp.status_code, 403)
-        self.assertContains(resp, "Access Restricted")
+        self.assertContains(resp, "Access Restricted", status_code=403)
 
     def test_custom_admin_redirects_unauthenticated(self):
         resp = self.client.get(reverse("custom_admin_panel"))
