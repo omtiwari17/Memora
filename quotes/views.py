@@ -776,7 +776,7 @@ def favicon_view(request):
 # ── Custom Glassmorphic Admin Console ──────────────────────────────────
 def admin_vault_login(request):
     """Dedicated login portal for Admin Control Console (/ctrl/)."""
-    if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser):
+    if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser) and request.session.get("admin_unlocked") == True:
         return redirect("custom_admin_panel")
 
     error = None
@@ -801,6 +801,7 @@ def admin_vault_login(request):
                     authenticated_user = authenticate(request, username=handle, password=pin)
                     if authenticated_user:
                         login(request, authenticated_user)
+                        request.session["admin_unlocked"] = True
                         return redirect("custom_admin_panel")
                     else:
                         error = f"Incorrect Admin Key / PIN for @{handle}."
@@ -812,14 +813,14 @@ def admin_vault_login(request):
 
 def admin_vault_logout(request):
     """Logout from Admin Control Console."""
+    request.session["admin_unlocked"] = False
     logout(request)
     return redirect("admin_vault_login")
 
 
-@login_required(login_url="admin_vault_login")
 def custom_admin_panel(request):
     """Custom glassmorphic admin dashboard for system administration with user filtering."""
-    if not (request.user.is_staff or request.user.is_superuser):
+    if not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser) and request.session.get("admin_unlocked") == True):
         return redirect("admin_vault_login")
 
     selected_user_id = request.GET.get("user_id", "").strip()

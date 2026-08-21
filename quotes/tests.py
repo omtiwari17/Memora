@@ -705,7 +705,7 @@ class CustomAdminConsoleTest(TestCase):
         seed_categories()
 
     def test_custom_admin_accessible_by_staff(self):
-        self.client.login(username="staffadmin", password="123456")
+        self.client.post(reverse("admin_vault_login"), {"handle": "staffadmin", "pin": "123456"})
         resp = self.client.get(reverse("custom_admin_panel"))
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Control Console")
