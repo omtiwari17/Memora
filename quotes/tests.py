@@ -43,6 +43,26 @@ class LandingPageTest(TestCase):
             self.assertTemplateUsed(resp, "quotes/landing.html")
 
 
+class CustomErrorPagesTest(TestCase):
+    """Test custom glassmorphic error handlers (404, 500, 403, 400)."""
+
+    def test_custom_404_view_renders(self):
+        client = Client()
+        resp = client.get("/non-existent-random-route-12345/")
+        self.assertEqual(resp.status_code, 404)
+        self.assertTemplateUsed(resp, "404.html")
+
+    def test_custom_error_views_direct_render(self):
+        from quotes.views import custom_404_view, custom_500_view, custom_403_view, custom_400_view
+        client = Client()
+        req = client.get("/").wsgi_request
+
+        self.assertEqual(custom_404_view(req).status_code, 404)
+        self.assertEqual(custom_500_view(req).status_code, 500)
+        self.assertEqual(custom_403_view(req).status_code, 403)
+        self.assertEqual(custom_400_view(req).status_code, 400)
+
+
 class HealthCheckTest(TestCase):
     """Test unauthenticated uptime health check endpoints."""
 

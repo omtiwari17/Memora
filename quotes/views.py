@@ -125,6 +125,27 @@ def get_user_categories(user):
     return Category.objects.filter(Q(is_default=True) | Q(user=user)).order_by("order", "name")
 
 
+# ── Custom Error Handlers ─────────────────────────────────────────────
+def custom_404_view(request, exception=None):
+    """Custom glassmorphic 404 Page Not Found error view."""
+    return render(request, "404.html", status=404)
+
+
+def custom_500_view(request):
+    """Custom glassmorphic 500 Internal Server Error view."""
+    return render(request, "500.html", status=500)
+
+
+def custom_403_view(request, exception=None):
+    """Custom glassmorphic 403 Permission Denied error view."""
+    return render(request, "403.html", status=403)
+
+
+def custom_400_view(request, exception=None):
+    """Custom glassmorphic 400 Bad Request error view."""
+    return render(request, "400.html", status=400)
+
+
 # ── Authentication (Vault Handle + 6-Digit PIN) ──────────────────────
 def home_root(request):
     """Home Root / handler — Serves the Product Landing Page for unauthenticated visitors, or redirects authenticated users to their Vault Dashboard."""
