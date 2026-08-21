@@ -48,9 +48,10 @@ class CustomErrorPagesTest(TestCase):
 
     def test_custom_404_view_renders(self):
         client = Client()
-        resp = client.get("/non-existent-random-route-12345/")
-        self.assertEqual(resp.status_code, 404)
-        self.assertTemplateUsed(resp, "404.html")
+        for invalid_path in ["/sc", "/ct", "/non-existent-random-route-12345/"]:
+            resp = client.get(invalid_path)
+            self.assertEqual(resp.status_code, 404)
+            self.assertTemplateUsed(resp, "404.html")
 
     def test_custom_error_views_direct_render(self):
         from quotes.views import custom_404_view, custom_500_view, custom_403_view, custom_400_view

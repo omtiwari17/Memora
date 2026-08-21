@@ -72,4 +72,7 @@ urlpatterns = [
     
     # PWA
     path("share/", views.share_target, name="share_target"),
+
+    # Catch-all unmatched route (renders custom glassmorphic 404 error page in dev & prod)
+    path("<path:unmatched>", views.custom_404_view, name="catch_all_404"),
 ]
