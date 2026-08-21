@@ -31,12 +31,18 @@
             transform: translateY(-4px);
             box-shadow: 0 20px 40px -15px rgba(168, 85, 247, 0.15);
         }
-        .aurora-blob {
-            position: absolute;
-            filter: blur(120px);
-            border-radius: 50%;
-            pointer-events: none;
-            opacity: 0.45;
+        @keyframes purple-blue-pulse {
+            0%, 100% {
+                transform: scale(1) translate(0px, 0px);
+                opacity: 0.35;
+            }
+            50% {
+                transform: scale(1.12) translate(35px, -20px);
+                opacity: 0.50;
+            }
+        }
+        .purple-blue-patch {
+            animation: purple-blue-pulse 10s ease-in-out infinite alternate;
         }
         @keyframes float-slow {
             0%, 100% { transform: translateY(0px) scale(1); }
@@ -52,12 +58,9 @@
 </head>
 <body class="min-h-screen bg-[#0a0914] text-white selection:bg-purple-500/30 overflow-x-hidden relative">
 
-    <!-- Dark Aurora Background Blobs -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div class="aurora-blob absolute -top-40 -left-32 w-[600px] h-[600px] bg-purple-600/30"></div>
-        <div class="aurora-blob absolute top-1/3 -right-40 w-[650px] h-[650px] bg-indigo-600/25"></div>
-        <div class="aurora-blob absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-fuchsia-600/20"></div>
-        <div class="aurora-blob absolute top-2/3 right-1/4 w-[450px] h-[450px] bg-emerald-600/15"></div>
+    <!-- Balanced Minimal Dark Purple-Blue Ambient Glow Patch -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0 flex items-center justify-center">
+        <div class="purple-blue-patch w-[620px] h-[420px] rounded-full bg-gradient-to-tr from-purple-600/35 via-indigo-600/30 to-blue-600/25 filter blur-[100px]"></div>
     </div>
 
     <!-- Top Navigation Header -->
