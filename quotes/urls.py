@@ -30,6 +30,7 @@ urlpatterns = [
     path("memory/<int:pk>/pin/", views.memory_pin, name="memory_pin"),
     path("memory/<int:pk>/archive/", views.memory_archive, name="memory_archive"),
     path("memory/<int:pk>/status/", views.memory_status, name="memory_status"),
+    path("memory/<int:pk>/watch-status/", views.memory_watch_status, name="memory_watch_status"),
     path("memory/<int:pk>/delete/", views.memory_delete, name="memory_delete"),
     
     # Filtered views

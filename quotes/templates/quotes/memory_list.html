@@ -154,10 +154,12 @@
                     </a>
                 </div>
                 {% for cat in categories %}
+                {% if cat.slug != 'reminders' and cat.slug != 'tasks' %}
                 <a href="{% url 'category_filter' cat.slug %}" class="sidebar-link {% if active_filter == 'category' and filter_value == cat.slug %}active{% endif %} flex items-center gap-3 text-sm text-white/60 hover:text-white/90">
                     <span class="w-2 h-2 rounded-full shrink-0" style="background: {{ cat.color }}; box-shadow: 0 0 6px {{ cat.color }};"></span>
                     {{ cat.name }}
                 </a>
+                {% endif %}
                 {% endfor %}
                 <p class="px-3 pt-5 pb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white/25">Organize</p>
                 <a href="{% url 'archive' %}" class="sidebar-link {% if active_filter == 'archive' %}active{% endif %} flex items-center gap-3 text-sm text-white/60 hover:text-white/90">

@@ -118,8 +118,81 @@
             {% endif %}
         </div>
 
-        {# ─── WATCH / READ CARD ─── #}
-        {% elif memory.category.slug == 'watch' or memory.category.slug == 'read' %}
+        {# ─── MOVIE / WATCH CARD ─── #}
+        {% elif memory.category.slug == 'watch' %}
+        <div class="space-y-3">
+            <p class="text-sm font-bold text-white flex items-center gap-2">
+                <svg class="w-4 h-4 text-purple-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-8.625 1.125l.892-14.276A1.125 1.125 0 015.637 4.15h12.726a1.125 1.125 0 011.12 1.074l.892 14.276m-16.5 0h16.5m-16.5 0V6a2.25 2.25 0 012.25-2.25h12A2.25 2.25 0 0121 6v13.5m-18 0h18"/></svg>
+                <span>{{ memory.title|default:memory.content|truncatewords:12 }}</span>
+            </p>
+
+            {% if memory.content and memory.content != memory.title %}
+            <p class="text-xs text-white/60 leading-relaxed">{{ memory.content|truncatewords:25 }}</p>
+            {% endif %}
+
+            {% if memory.source_url %}
+            <a href="{{ memory.source_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs text-purple-300/80 hover:text-purple-200 transition-colors">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.06a4.5 4.5 0 00-1.242-7.244l-4.5-4.5a4.5 4.5 0 00-6.364 6.364l1.757 1.757"/></svg>
+                {{ memory.source_url|truncatechars:35 }}
+            </a>
+            {% endif %}
+
+            <!-- Movie Watch Status Pills -->
+            <div class="pt-1 flex items-center gap-1.5 flex-wrap">
+                <form hx-post="{% url 'memory_watch_status' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML">
+                    {% csrf_token %}
+                    <input type="hidden" name="watch_status" value="want_to_watch">
+                    <button type="submit" class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all {% if memory.watch_status == 'want_to_watch' %}bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm{% else %}bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5{% endif %}">
+                        🎬 Want to Watch
+                    </button>
+                </form>
+
+                <form hx-post="{% url 'memory_watch_status' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML">
+                    {% csrf_token %}
+                    <input type="hidden" name="watch_status" value="watching">
+                    <button type="submit" class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all {% if memory.watch_status == 'watching' %}bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm{% else %}bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5{% endif %}">
+                        🍿 Watching
+                    </button>
+                </form>
+
+                <form hx-post="{% url 'memory_watch_status' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML">
+                    {% csrf_token %}
+                    <input type="hidden" name="watch_status" value="watched">
+                    <button type="submit" class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all {% if memory.watch_status == 'watched' %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm{% else %}bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5{% endif %}">
+                        ✅ Watched
+                    </button>
+                </form>
+            </div>
+
+            <!-- Star Rating (Shown when status is Watched) -->
+            {% if memory.watch_status == 'watched' %}
+            <div class="pt-2 flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-white/5">
+                <span class="text-[11px] text-white/50 font-medium">Rating:</span>
+                <div class="flex items-center gap-1">
+                    {% for star in "12345" %}
+                    <form hx-post="{% url 'memory_watch_status' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="watch_status" value="watched">
+                        <input type="hidden" name="rating" value="{{ star }}">
+                        <button type="submit" title="Rate {{ star }}/5" class="text-sm transition-transform hover:scale-125 focus:outline-none">
+                            {% if memory.rating and forloop.counter <= memory.rating %}
+                            <span class="text-amber-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.6)]">★</span>
+                            {% else %}
+                            <span class="text-white/20 hover:text-amber-400">☆</span>
+                            {% endif %}
+                        </button>
+                    </form>
+                    {% endfor %}
+                    {% if memory.rating %}
+                    <span class="text-xs font-bold text-amber-300 ml-1 font-mono">{{ memory.rating }}/5</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {# ─── READ CARD ─── #}
+        {% elif memory.category.slug == 'read' %}
         <div>
             <p class="text-sm font-semibold text-white/90 mb-1">{{ memory.title|default:memory.content|truncatewords:15 }}</p>
             {% if memory.source_url %}
@@ -134,7 +207,7 @@
             {% if memory.status == 'done' %}
             <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400 mt-2.5">
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                {% if memory.category.slug == 'watch' %}Watched{% else %}Read{% endif %}
+                Read
             </span>
             {% endif %}
         </div>

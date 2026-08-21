@@ -96,6 +96,27 @@
                             <option value="archived" {% if memory.status == 'archived' %}selected{% endif %}>Archived</option>
                         </select>
                     </div>
+                <!-- Movie / Watch Options -->
+                <div class="grid grid-cols-2 gap-3 pt-1">
+                    <div>
+                        <label class="text-[10px] text-amber-300/80 uppercase font-semibold block mb-1.5">Watch Status</label>
+                        <select name="watch_status" class="w-full h-11 bg-[#181726] border border-amber-500/20 rounded-xl px-3 text-sm text-white outline-none focus:border-amber-400/50 transition-colors">
+                            <option value="want_to_watch" {% if memory.watch_status == 'want_to_watch' %}selected{% endif %}>🎬 Want to Watch</option>
+                            <option value="watching" {% if memory.watch_status == 'watching' %}selected{% endif %}>🍿 Watching Now</option>
+                            <option value="watched" {% if memory.watch_status == 'watched' %}selected{% endif %}>✅ Watched</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-amber-300/80 uppercase font-semibold block mb-1.5">Rating (1-5 Stars)</label>
+                        <select name="rating" class="w-full h-11 bg-[#181726] border border-amber-500/20 rounded-xl px-3 text-sm text-white outline-none focus:border-amber-400/50 transition-colors">
+                            <option value="" {% if not memory.rating %}selected{% endif %}>No Rating</option>
+                            <option value="5" {% if memory.rating == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ (5/5)</option>
+                            <option value="4" {% if memory.rating == 4 %}selected{% endif %}>⭐⭐⭐⭐ (4/5)</option>
+                            <option value="3" {% if memory.rating == 3 %}selected{% endif %}>⭐⭐⭐ (3/5)</option>
+                            <option value="2" {% if memory.rating == 2 %}selected{% endif %}>⭐⭐ (2/5)</option>
+                            <option value="1" {% if memory.rating == 1 %}selected{% endif %}>⭐ (1/5)</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 

@@ -348,11 +348,18 @@ def memory_edit(request, pk):
         due_date_str = request.POST.get("due_date", "").strip()
 
         memory.content = content
+        watch_status = request.POST.get("watch_status", "want_to_watch").strip()
+        rating_val = request.POST.get("rating", "").strip()
+        rating = int(rating_val) if rating_val.isdigit() and 1 <= int(rating_val) <= 5 else None
+
         memory.title = title or extract_title(content)
         memory.source_url = source_url
         memory.author = author
         memory.priority = priority
         memory.status = status
+        if watch_status in Memory.WatchStatus.values:
+            memory.watch_status = watch_status
+        memory.rating = rating
 
         if category_slug:
             category = Category.objects.filter(slug=category_slug).first()
@@ -409,6 +416,9 @@ def capture(request):
         author = request.POST.get("author", "").strip()
         priority = request.POST.get("priority", "none").strip()
         due_date_str = request.POST.get("due_date", "").strip()
+        watch_status = request.POST.get("watch_status", "want_to_watch").strip()
+        rating_val = request.POST.get("rating", "").strip()
+        rating = int(rating_val) if rating_val.isdigit() and 1 <= int(rating_val) <= 5 else None
 
         if not category_slug:
             category_slug = suggest_category(content) or "inbox"
@@ -436,6 +446,8 @@ def capture(request):
             author=author,
             priority=priority,
             due_date=due_date,
+            watch_status=watch_status if watch_status in Memory.WatchStatus.values else Memory.WatchStatus.WANT_TO_WATCH,
+            rating=rating,
             status=Memory.Status.INBOX if not category or category.slug == "inbox" else Memory.Status.ACTIVE
         )
 
@@ -453,6 +465,26 @@ def capture(request):
             })
 
         return redirect("dashboard")
+
+
+@login_required(login_url="login")
+@require_http_methods(["POST"])
+def memory_watch_status(request, pk):
+    """HTMX endpoint to update movie watch_status and rating."""
+    memory = get_object_or_404(Memory, pk=pk, user=request.user)
+
+    new_watch_status = request.POST.get("watch_status", "").strip()
+    if new_watch_status in Memory.WatchStatus.values:
+        memory.watch_status = new_watch_status
+
+    rating_str = request.POST.get("rating", "").strip()
+    if rating_str.isdigit():
+        r = int(rating_str)
+        if 1 <= r <= 5:
+            memory.rating = r
+
+    memory.save()
+    return render(request, "quotes/partials/memory_card.html", {"memory": memory})
 
     categories = get_user_categories(request.user)
     return render(request, "quotes/capture_form.html", {"categories": categories})

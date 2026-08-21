@@ -738,3 +738,50 @@ class CustomAdminConsoleTest(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertIn("ctrl/login", resp.url)
 
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MOVIE & WATCH STATUS TESTS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@override_settings(STORAGES=TEST_STORAGES)
+class MovieWatchStatusTest(TestCase):
+    """Test movie watch status options and star rating functionality."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username="moviebuff", password="123456")
+        self.client.login(username="moviebuff", password="123456")
+        seed_categories()
+        self.watch_cat = Category.objects.get(slug="watch")
+
+    def test_create_movie_with_watch_status_and_rating(self):
+        memory = Memory.objects.create(
+            user=self.user,
+            title="Inception",
+            content="Great sci-fi thriller",
+            category=self.watch_cat,
+            watch_status=Memory.WatchStatus.WATCHED,
+            rating=5
+        )
+        self.assertEqual(memory.watch_status, "watched")
+        self.assertEqual(memory.rating, 5)
+
+    def test_update_watch_status_via_htmx(self):
+        memory = Memory.objects.create(
+            user=self.user,
+            title="Interstellar",
+            content="Space exploration movie",
+            category=self.watch_cat,
+            watch_status=Memory.WatchStatus.WANT_TO_WATCH,
+        )
+        resp = self.client.post(
+            reverse("memory_watch_status", kwargs={"pk": memory.pk}),
+            {"watch_status": "watched", "rating": "5"},
+        )
+        self.assertEqual(resp.status_code, 200)
+        memory.refresh_from_db()
+        self.assertEqual(memory.watch_status, "watched")
+        self.assertEqual(memory.rating, 5)
+        self.assertContains(resp, "Watched")
+
+
