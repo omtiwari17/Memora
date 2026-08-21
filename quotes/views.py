@@ -192,7 +192,7 @@ def dashboard(request):
         due_date__gte=timezone.now()
     ).order_by("due_date")[:5]
 
-    all_tags = Tag.objects.all().order_by("name")
+    all_tags = Tag.objects.filter(memory__user=request.user).distinct().order_by("name")
 
     return render(request, "quotes/dashboard.html", {
         "categories": categories,
@@ -265,7 +265,7 @@ def memory_list(request, filter_type=None, filter_value=None):
 
     categories = get_user_categories(request.user)
     inbox_count = Memory.objects.filter(user=request.user, status=Memory.Status.INBOX, is_archived=False).count()
-    all_tags = Tag.objects.all().order_by("name")
+    all_tags = Tag.objects.filter(memory__user=request.user).distinct().order_by("name")
 
     return render(request, "quotes/memory_list.html", {
         "memories": memories,
@@ -395,7 +395,7 @@ def memory_edit(request, pk):
 
     categories = get_user_categories(request.user)
     tags_str = ", ".join(t.name for t in memory.tags.all())
-    all_tags = Tag.objects.all().order_by("name")
+    all_tags = Tag.objects.filter(memory__user=request.user).distinct().order_by("name")
 
     return render(request, "quotes/partials/memory_edit_modal.html", {
         "memory": memory,
