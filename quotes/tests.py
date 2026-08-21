@@ -688,3 +688,35 @@ class DataIsolationTest(TestCase):
         self.assertEqual(resp.status_code, 200)
         content = resp.content.decode()
         self.assertNotIn("Alice secret", content)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CUSTOM ADMIN CONSOLE TESTS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@override_settings(STORAGES=TEST_STORAGES)
+class CustomAdminConsoleTest(TestCase):
+    """Test custom glassmorphic admin dashboard and access control."""
+
+    def setUp(self):
+        self.client = Client()
+        self.staff_user = User.objects.create_user(username="staffadmin", password="123456", is_staff=True)
+        self.normal_user = User.objects.create_user(username="regularuser", password="123456")
+        seed_categories()
+
+    def test_custom_admin_accessible_by_staff(self):
+        self.client.login(username="staffadmin", password="123456")
+        resp = self.client.get(reverse("custom_admin_panel"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Control Console")
+
+    def test_custom_admin_denied_for_normal_user(self):
+        self.client.login(username="regularuser", password="123456")
+        resp = self.client.get(reverse("custom_admin_panel"))
+        self.assertEqual(resp.status_code, 403)
+        self.assertContains(resp, "Access Restricted")
+
+    def test_custom_admin_redirects_unauthenticated(self):
+        resp = self.client.get(reverse("custom_admin_panel"))
+        self.assertEqual(resp.status_code, 302)
+

@@ -772,3 +772,59 @@ def favicon_view(request):
     logo_path = os.path.join(settings.BASE_DIR, "static", "logo.svg")
     return FileResponse(open(logo_path, "rb"), content_type="image/svg+xml")
 
+
+# ── Custom Glassmorphic Admin Console ──────────────────────────────────
+@login_required(login_url="login")
+def custom_admin_panel(request):
+    """Custom glassmorphic admin dashboard for system administration."""
+    if not (request.user.is_staff or request.user.is_superuser):
+        return render(request, "quotes/admin_denied.html", status=403)
+
+    users = User.objects.all().order_by("-date_joined")
+    user_data = []
+    for u in users:
+        mem_count = Memory.objects.filter(user=u).count()
+        user_data.append({
+            "user": u,
+            "memory_count": mem_count,
+        })
+
+    recent_memories = Memory.objects.select_related("user", "category").all().order_by("-created_at")[:30]
+    total_memories = Memory.objects.count()
+    total_users = User.objects.count()
+    total_categories = Category.objects.count()
+    total_tags = Tag.objects.count()
+
+    db_url = os.environ.get("DATABASE_URL", "")
+    if "postgres" in db_url or "neon" in db_url:
+        db_name = "Neon PostgreSQL (Production)"
+    else:
+        db_name = "SQLite (Local Dev)"
+
+    return render(request, "quotes/admin_dashboard.html", {
+        "user_data": user_data,
+        "recent_memories": recent_memories,
+        "total_memories": total_memories,
+        "total_users": total_users,
+        "total_categories": total_categories,
+        "total_tags": total_tags,
+        "db_name": db_name,
+        "debug_mode": settings.DEBUG,
+    })
+
+
+@login_required(login_url="login")
+@require_http_methods(["POST"])
+def admin_toggle_staff(request, user_id):
+    """Toggle staff permission for a user (admin only)."""
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseBadRequest("Unauthorized")
+
+    target_user = get_object_or_404(User, pk=user_id)
+    if target_user != request.user:
+        target_user.is_staff = not target_user.is_staff
+        target_user.save()
+
+    return redirect("custom_admin_panel")
+
+
