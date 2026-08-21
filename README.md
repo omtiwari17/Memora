@@ -1,59 +1,79 @@
 # 🧠 Memora — Your Memory, Outside Your Head
 
-> A cross-device personal external memory system. Zero-friction capture for anything worth remembering — quotes, ideas, links, tasks, code snippets, purchase lists, places, people, and more. Everything goes into one app, organized later, found instantly.
+<p align="center">
+  <img src="static/logo.svg" alt="Memora Logo" width="100" height="100">
+</p>
+
+<p align="center">
+  <strong>Memora</strong> is a cross-device personal external memory system built for zero-friction capture.<br>
+  Capture quotes, ideas, links, tasks, code snippets, movies, places, people, and thoughts in seconds.<br>
+  Everything goes into one beautiful dark-aurora vault — organized effortlessly, found instantly.
+</p>
+
+<p align="center">
+  <a href="https://github.com/omtiwari17/Memora/actions"><img src="https://img.shields.io/badge/CI%2FCD-4--Stage%20Pipeline-emerald?style=flat-square&logo=githubactions" alt="CI/CD"></a>
+  <a href="https://github.com/omtiwari17/Memora"><img src="https://img.shields.io/badge/Tests-115%20Passed-purple?style=flat-square&logo=django" alt="Tests"></a>
+  <a href="https://omtiwari.tech/"><img src="https://img.shields.io/badge/Author-Om%20Tiwari-blue?style=flat-square" alt="Author"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-amber?style=flat-square" alt="License"></a>
+</p>
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-- **⚡ Zero-Friction Universal Capture**: Capture anything in seconds with `Ctrl+K` keyboard shortcut or top-header capture button. No mandatory metadata required.
-- **🤖 Real-Time Smart Auto-Categorization (200ms)**: High-confidence regex matching automatically categorizes your entries into **💻 Code**, **💬 Quotes**, **🔗 Links**, or **📥 Inbox** in real time as you type.
-- **✍️ Intelligent Live Auto-Titling**: Automatically formats titles as you type. Quotes automatically extract core phrases with author attribution (e.g. `"`I didn't fail the test..." — Benjamin Franklin`), web links extract domain paths, and code snippets extract HTML `<title>` tags.
-- **🎨 Type-Aware Glassmorphic Card Engine**: Beautiful custom visual layouts rendered per category:
-  - **💬 Quotes & 🧠 Thoughts**: Warm golden serif quotation typography with author attribution line and decorative quote mark icon.
-  - **💻 Code**: Monospace syntax blocks with horizontal scroll.
-  - **✅ Tasks**: Interactive completion checkboxes with strike-through styling.
-  - **🔗 Links**: Clickable URL previews.
-  - **🎬 Watch / 📖 Read / 🛒 Buy**: Status indicators and purchase/watched badges.
-  - **✈️ Places**: Map marker location styling.
-- **⚡ Instant 0ms HTMX Actions**: Delete, archive, and update status instantly without full page reloads or UI lag.
-- **⚙️ Complete Category Manager**:
-  - 16 seeded default categories.
-  - Create, edit, and delete any category with automatic memory fallback to Inbox.
-  - 20-color dark-mode preset palette with used-color checkmark indicators (`✓`).
-  - 32-emoji quick selector bar.
-  - **⬆️ / ⬇️ Category Reordering System** to customize sidebar and dropdown ordering.
-- **🚀 Dedicated Productivity Workspaces**:
-  - **`✅ Tasks`**: Filter and manage pending and completed task items.
-  - **`📅 Reminders`**: Chronological timeline of upcoming due dates and reminders.
-  - **`🔴 Priority Levels`**: Filter memories by Urgent, High, Medium, Low, or None.
-- **🧠 Memory Resurfacing & Nostalgia**:
-  - **`🎲 Random Memory`**: "Remember This" resurfacing engine.
-  - **`✨ On This Day`**: Historical memory resurfacing engine.
-  - **`🕒 Recently Viewed`**: Session-based history of inspected memories.
-  - **`💡 Smart Related Suggestions`**: Automatically suggests related memories on detail view.
-- **📱 Cross-Device Capture Everywhere**:
-  - **Desktop Bookmarklet**: Drag-and-drop 1-click browser capture button.
-  - **PWA Web Share Target**: Accept text, links, and titles directly from Android/iOS Chrome & Safari share menus via `/share/`.
-  - **Universal JSON API**: CSRF-exempt `/api/capture/` endpoint for integrations.
+### 🎬 Interactive Cinema & Movie Watch Ratings
+- **Cinema Category**: Consolidated visual media workspace for movies, TV series, anime, and documentaries.
+- **SVG Watch Status Pills**: Instant 0ms status toggles directly on memory cards:
+  - 🔖 **`Want to Watch`** (Plan to watch)
+  - 🍿 **`Watching`** (Currently watching)
+  - 📸 **`Watched`** (Completed)
+- **⭐ 5-Star Rating System**: Interactive star rating bar (**`⭐⭐⭐⭐★ 4/5`**) with smooth glowing CSS hover fill animation and instant HTMX save.
+
+### 🔐 Private Vault Security & Niche Authentication
+- **Vault Handle + 6-Digit PIN**: Zero email or password friction. Unlock your personal private memory vault using your unique handle (e.g. `@om`) and secure 6-digit PIN.
+- **Unlock Vault / Create New Vault**: Seamless mode toggle on login screen for new and returning users.
+
+### 🛡️ Custom Admin Command Console (`/ctrl/`)
+- Dedicated glassmorphic Admin Command Console at hidden route `/ctrl/`.
+- Amber Gold Command Console theme with session key isolation (`request.session["admin_unlocked"] = True`).
+- Dynamic HTMX handle filtering to inspect user activity feeds in real time.
+- Management CLI tool: `python manage.py create_admin --handle <handle> --pin <pin>`.
+
+### ⚡ Zero-Friction Capture & Smart Auto-Categorization
+- **High-Confidence Auto-Categorization (200ms)**: Real-time pattern & keyword engine automatically classifies notes into **Code**, **Quotes**, **Links**, **Cinema**, **Tasks**, **Read**, **Buy**, **Places**, etc.
+- **Smart Auto-Titling**: Client & server title extraction for quotes (`"Phrase..." — Author`), HTML snippets (`<title>`), and URLs.
+- **Clean Quick Capture**: Lightning-fast capture modal focused purely on content and title.
+
+### 🎨 Type-Aware Glassmorphic Card Engine
+Custom visual card layouts rendered per category:
+- **🎬 Cinema / Watch**: SVG Watch Status Pills & 5-Star Rating selector with glowing hover fill animation.
+- **💬 Quotes & 🧠 Thoughts**: Warm golden serif quotation typography with author attribution line.
+- **💻 Code**: Monospace syntax blocks with horizontal scroll.
+- **✅ Tasks**: Interactive checkboxes with strike-through styling.
+- **🔗 Links**: Clickable URL previews.
+- **✈️ Places**: Location marker styling.
+
+### 🚀 Productivity Workspaces & Memory Resurfacing
+- **Productivity**: Dedicated workspaces for **Tasks** (`/tasks/`), **Reminders** (`/reminders/`), and **Priority Levels** (`/priority/`).
+- **Resurfacing**: **Remember This** random memory resurfacing (`/random/`), **On This Day** historical resurfacing (`/on-this-day/`), and **Recently Viewed** history (`/recently-viewed/`).
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Tech Stack & Architecture
 
-| Layer | Technology | Description |
+| Layer | Technology | Why |
 |---|---|---|
-| **Backend** | Python 3.11 / Django 5 | Fast, stable, batteries-included web framework |
-| **Frontend Interactivity** | HTMX 1.9 | Dynamic live search, modal edits, and 0ms DOM swaps without SPA overhead |
-| **Styling & Aesthetics** | Tailwind CSS + DaisyUI | Dark Aurora background blobs & glassmorphism theme |
+| **Backend** | Python 3.11 / Django 5 | Fast, batteries-included, stable |
+| **Interactivity** | HTMX 1.9 | Dynamic search, filtering, and 0ms inline DOM swaps without JS framework overhead |
+| **Styling** | Tailwind CSS + DaisyUI | Dark Aurora background blobs & glassmorphism theme via CDN |
 | **Typography** | Space Grotesk | Modern geometric Google Font |
-| **Database** | SQLite (Local) / Neon PostgreSQL (Prod) | 100% Free forever PostgreSQL via `dj-database-url` |
-| **Hosting & Keep-Alive** | Render + cron-job.org | 100% Free production hosting with 24/7 zero cold-start keep-alive |
-| **Static Assets** | WhiteNoise | Compressed static asset handling |
+| **Database** | SQLite (Dev) / Neon PostgreSQL (Prod) | 100% Free forever PostgreSQL via `dj-database-url` |
+| **Hosting & Ping** | Render + cron-job.org | 100% Free production hosting with 24/7 zero cold-start keep-alive |
+| **Testing & CI/CD** | Django TestCase (115 tests) + GitHub Actions | 4-stage automated pipeline: Lint → System Check → 115 Tests → Deploy Gate |
 
 ---
 
-## 📁 File Structure
+## 📁 Repository Structure
 
 ```
 Memora/
@@ -61,34 +81,36 @@ Memora/
 ├── requirements.txt
 ├── README.md
 ├── AGENTS.md
-├── quotevault/              # Django project package
-│   ├── settings.py
+├── .github/
+│   └── workflows/
+│       └── ci.yml           # 4-stage GitHub Actions CI/CD pipeline (115 tests)
+├── quotevault/              # Django project core
+│   ├── settings.py          # Production security: HSTS, SSL redirect, secure cookies
 │   ├── urls.py
 │   └── wsgi.py
 ├── quotes/                  # Main memory application
 │   ├── models.py            # Memory, Category, Tag, Collection
-│   ├── views.py             # Dashboard, search, capture, API, category CRUD, reorder
+│   ├── views.py             # Dashboard, search, capture, API, category CRUD, custom admin
+│   ├── tests.py             # 115 automated tests (models, auth, views, CRUD, APIs, admin)
 │   ├── urls.py
 │   ├── management/
 │   │   └── commands/
-│   │       └── seed_categories.py
+│   │       ├── seed_categories.py
+│   │       └── create_admin.py
 │   └── templates/
 │       └── quotes/
-│           ├── dashboard.html       # Main dashboard with sidebar + header capture button
-│           ├── memory_list.html     # Filtered list view (inbox, category, tag, tasks, etc.)
-│           ├── memory_detail.html   # Single memory detail page with related suggestions
-│           ├── category_manage.html # Category manager with CRUD, palette, emoji suggest, reorder
-│           ├── capture_form.html    # Full-page capture form
-│           ├── random_memory.html   # Random memory page
+│           ├── dashboard.html       # Dashboard with sidebar & developer footer
+│           ├── login.html           # Vault login screen with Unlock/Create toggle
+│           ├── memory_list.html     # Filtered list view (category, tag, tasks, etc.)
+│           ├── admin_dashboard.html # Custom Admin Console at /ctrl/
+│           ├── admin_login.html     # Dedicated Admin Login Portal at /ctrl/login/
 │           └── partials/
-│               ├── memory_card.html       # Type-aware memory card partial
-│               ├── memory_grid.html       # Shared grid of memory cards with empty state
-│               ├── memory_edit_modal.html # Pre-filled edit modal partial with HTMX swap
-│               ├── capture_modal.html     # Quick capture modal with live title & auto-category
-│               └── capture_feedback.html  # Capture success/error feedback partial
+│               ├── memory_card.html      # Type-aware memory card partial (Watch & Ratings)
+│               └── memory_edit_modal.html# HTMX edit modal partial
 └── static/
     ├── manifest.json        # PWA Web Share Target manifest
-    └── bookmarklet.js       # Desktop browser bookmarklet script
+    ├── bookmarklet.js       # Desktop browser bookmarklet script
+    └── logo.svg             # Handcrafted Synapse Infinity M SVG logo
 ```
 
 ---
@@ -100,7 +122,7 @@ Memora/
 git clone https://github.com/omtiwari17/Memora.git
 cd Memora
 
-# 2. Create and activate virtual environment
+# 2. Setup virtual environment
 python -m venv venv
 venv\Scripts\activate        # On Windows (or source venv/bin/activate on Linux/Mac)
 
@@ -111,7 +133,10 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py seed_categories
 
-# 5. Start development server (sets DEBUG=True)
+# 5. Create your admin superuser account
+python manage.py create_admin --handle om --pin 123456
+
+# 6. Start development server (sets DEBUG=True)
 $env:DEBUG="True"             # PowerShell
 python manage.py runserver
 ```
@@ -126,15 +151,15 @@ Memora is configured to run **100% free forever** on Render and Neon PostgreSQL 
 
 ### Step 1: Database Setup (Neon — Free PostgreSQL)
 1. Sign up at **[Neon.tech](https://neon.tech)** (100% free PostgreSQL, no credit card required).
-2. Create a database `memora-db` and copy the connection string (`postgres://...`).
+2. Create a project `memora-db` and copy the connection string (`postgres://...`).
 
 ### Step 2: Web Hosting (Render — Free Web Service)
-1. Go to **[Render.com](https://render.com)** and create a new **Web Service** connected to `omtiwari17/Memora`.
+1. Create a new **Web Service** on **[Render.com](https://render.com)** connected to `omtiwari17/Memora`.
 2. Configure settings:
    - **Environment**: `Python 3`
    - **Build Command**:
      ```bash
-     pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py seed_categories
+     pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py seed_categories && python manage.py create_admin
      ```
    - **Start Command**:
      ```bash
@@ -145,6 +170,8 @@ Memora is configured to run **100% free forever** on Render and Neon PostgreSQL 
    - `SECRET_KEY` = *(Random secret key)*
    - `DEBUG` = `False`
    - `ALLOWED_HOSTS` = `*`
+   - `ADMIN_HANDLE` = `admin`
+   - `ADMIN_PIN` = `123456`
 
 ### Step 3: Prevent Render Sleep (cron-job.org Keep-Alive)
 Render free services sleep after 15 minutes of inactivity. To keep your app **online 24/7 with zero cold-start delays**:
@@ -154,13 +181,12 @@ Render free services sleep after 15 minutes of inactivity. To keep your app **on
 
 ---
 
-## 🗺️ Implementation Roadmap
+## 👨‍💻 Created By
 
-- [x] **Phase 1 — Foundation**: Generic Memory model, zero-friction capture, inbox, categories, universal HTMX search, recent memories feed.
-- [x] **Phase 2 — Organization**: Tags, collections, pinning, archive with 0ms DOM removal, category CRUD & palette.
-- [x] **Phase 3 — Productivity**: Tasks workspace, reminders timeline, due dates, priority levels.
-- [x] **Phase 4 — Smart Capture**: 200ms high-confidence auto-categorization, smart quote author titling, PWA share target, bookmarklet.
-- [x] **Phase 5 — Memory Features**: Random memory, "On This Day" resurfacing, Recently Viewed history, Smart Related Suggestions.
+**Om Tiwari**  
+- 🌐 **Portfolio**: [omtiwari.tech](https://omtiwari.tech/)  
+- 🐙 **GitHub**: [@omtiwari17](https://github.com/omtiwari17)  
+- 💼 **LinkedIn**: [in/tiwariom](https://www.linkedin.com/in/tiwariom/)  
 
 ---
 
