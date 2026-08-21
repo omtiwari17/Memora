@@ -7,6 +7,6 @@ admin.site.site_title = "Memora Admin"
 admin.site.index_title = "Database Management"
 
 urlpatterns = [
-    path("vault-control/", admin.site.urls),
+    path("ctrl/", admin.site.urls),
     path("", include("quotes.urls")),
 ]
