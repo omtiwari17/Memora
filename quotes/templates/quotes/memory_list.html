@@ -163,7 +163,7 @@
                 {% endfor %}
                 <a href="{% url 'category_manage' %}" class="sidebar-link flex items-center gap-2.5 text-xs text-purple-300/80 hover:text-purple-200 font-semibold py-2 px-3 my-1 rounded-xl bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 transition-all">
                     <svg class="w-3.5 h-3.5 text-purple-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                    <span>+ New Category</span>
+                    <span>New Category</span>
                 </a>
                 <p class="px-3 pt-5 pb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white/25">Organize</p>
                 <a href="{% url 'archive' %}" class="sidebar-link {% if active_filter == 'archive' %}active{% endif %} flex items-center gap-3 text-sm text-white/60 hover:text-white/90">

@@ -51,8 +51,31 @@
                     </select>
 
                     <div>
-                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Tags</label>
-                        <input type="text" name="tags" placeholder="comma, separated, tags" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl px-4 text-sm text-white placeholder-white/20 outline-none focus:border-purple-500/50 transition-colors">
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="text-[10px] text-white/40 uppercase font-semibold block">Tags</label>
+                            {% if all_tags %}
+                            <span class="text-[10px] text-purple-300/60 font-medium">Type or select existing tags</span>
+                            {% endif %}
+                        </div>
+                        <input type="text" name="tags" id="capture-tags-input" list="modal-existing-tags" placeholder="comma, separated, tags (e.g. movie, code)" 
+                            class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl px-4 text-sm text-white placeholder-white/20 outline-none focus:border-purple-500/50 transition-colors"
+                            oninput="onTagInput(this.value, 'modal-tag-suggestions')" autocomplete="off">
+                        <datalist id="modal-existing-tags">
+                            {% for tag in all_tags %}
+                            <option value="{{ tag.name }}"></option>
+                            {% endfor %}
+                        </datalist>
+                        {% if all_tags %}
+                        <div id="modal-tag-suggestions" class="flex flex-wrap gap-1.5 mt-2 max-h-24 overflow-y-auto">
+                            {% for tag in all_tags %}
+                            <button type="button" onclick="addTagToInput('capture-tags-input', '{{ tag.name }}', 'modal-tag-suggestions')" 
+                                data-tag="{{ tag.name|lower }}"
+                                class="tag-chip-btn px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/25 border border-purple-500/20 text-purple-300 text-xs transition-all flex items-center gap-1">
+                                <span>#{{ tag.name }}</span>
+                            </button>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
                     </div>
 
                     <div>
@@ -276,5 +299,38 @@ function suggestCategory(text) {
             if (opt) { categorySelect.value = slug; return; }
         }
     }
+}
+function onTagInput(value, suggestionsId) {
+    const box = document.getElementById(suggestionsId);
+    if (!box) return;
+    const parts = value.split(',').map(s => s.trim().toLowerCase());
+    const currentWord = parts[parts.length - 1];
+    const buttons = box.querySelectorAll('.tag-chip-btn');
+    
+    buttons.forEach(btn => {
+        const tagName = btn.getAttribute('data-tag');
+        if (parts.includes(tagName)) {
+            btn.classList.add('opacity-40');
+        } else {
+            btn.classList.remove('opacity-40');
+        }
+        if (!currentWord || tagName.includes(currentWord)) {
+            btn.classList.remove('hidden');
+        } else {
+            btn.classList.add('hidden');
+        }
+    });
+}
+
+function addTagToInput(inputId, tagName, suggestionsId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const parts = input.value.split(',').map(s => s.trim()).filter(Boolean);
+    if (!parts.map(p => p.toLowerCase()).includes(tagName.toLowerCase())) {
+        parts.push(tagName);
+    }
+    input.value = parts.join(', ') + ', ';
+    if (suggestionsId) onTagInput(input.value, suggestionsId);
+    input.focus();
 }
 </script>
