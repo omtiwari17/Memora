@@ -13,6 +13,12 @@ urlpatterns = [
     path("logout/", views.vault_logout, name="logout"),
     path("favicon.ico", views.favicon_view, name="favicon"),
 
+    # Preview Error Pages (Works in Dev & Prod)
+    path("404/", views.custom_404_view, name="preview_404"),
+    path("500/", views.custom_500_view, name="preview_500"),
+    path("403/", views.custom_403_view, name="preview_403"),
+    path("400/", views.custom_400_view, name="preview_400"),
+
     # Custom Admin Console & Dedicated Login
     path("ctrl/login/", views.admin_vault_login, name="admin_vault_login"),
     path("ctrl/logout/", views.admin_vault_logout, name="admin_vault_logout"),
