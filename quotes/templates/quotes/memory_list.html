@@ -67,9 +67,10 @@
     <div class="flex min-h-screen">
         <!-- Sidebar -->
         <aside class="hidden lg:flex flex-col w-64 fixed inset-y-0 left-0 z-30 border-r border-white/[0.06] bg-[#0f0e17]/85 backdrop-blur-xl overflow-y-auto">
-            <div class="px-5 py-6 flex items-center gap-3 border-b border-white/[0.04]">
-                <a href="{% url 'dashboard' %}" class="flex items-center gap-3">
-                    <div class="w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-purple-950/80 to-indigo-950/80 border border-purple-400/30 flex items-center justify-center shadow-lg shadow-purple-500/20 shrink-0">
+            <!-- Logo -->
+            <div class="px-5 py-5 border-b border-white/[0.04]">
+                <a href="{% url 'dashboard' %}" class="flex items-center gap-3.5 group transition-all hover:opacity-95">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-950/80 to-indigo-950/80 border border-purple-400/30 flex items-center justify-center shadow-lg shadow-purple-500/20 shrink-0 group-hover:scale-105 transition-transform">
                         <svg class="w-6 h-6" viewBox="0 0 32 32" fill="none">
                             <path d="M7 23V11.5L16 19.5L25 11.5V23" stroke="url(#list-mem-1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M11 10C11 7.79 13.24 6 16 6C18.76 6 21 7.79 21 10" stroke="url(#list-mem-2)" stroke-width="2" stroke-linecap="round"/>
@@ -87,9 +88,9 @@
                             </defs>
                         </svg>
                     </div>
-                    <div>
-                        <h1 class="text-lg font-bold bg-gradient-to-r from-white via-purple-200 to-indigo-300 bg-clip-text text-transparent">Memora</h1>
-                        <p class="text-[10px] text-white/30 tracking-wider uppercase">Your memory vault</p>
+                    <div class="flex flex-col justify-center">
+                        <h1 class="text-lg font-bold bg-gradient-to-r from-white via-purple-200 to-indigo-300 bg-clip-text text-transparent leading-tight">Memora</h1>
+                        <p class="text-[10px] text-white/40 tracking-wider uppercase font-medium leading-tight mt-0.5">Your memory vault</p>
                     </div>
                 </a>
             </div>
@@ -338,5 +339,30 @@
     </nav>
 
     {% include "quotes/partials/capture_modal.html" %}
+
+    <!-- Floating Scroll To Top Button -->
+    <button id="scrollTopBtn" onclick="scrollToTop()" aria-label="Scroll to top" class="fixed bottom-20 right-5 lg:bottom-6 lg:right-6 z-50 p-3 rounded-2xl glass bg-[#0f0e17]/90 text-purple-300 hover:text-white border border-purple-500/40 shadow-xl shadow-purple-500/20 opacity-0 pointer-events-none translate-y-4 transition-all duration-300 hover:scale-110 active:scale-95 group">
+        <svg class="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/>
+        </svg>
+    </button>
+
+    <script>
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
+    if (scrollTopBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                scrollTopBtn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+                scrollTopBtn.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
+            } else {
+                scrollTopBtn.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
+                scrollTopBtn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+            }
+        });
+    }
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    </script>
 </body>
 </html>

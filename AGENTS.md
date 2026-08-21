@@ -208,12 +208,14 @@ Memora/
 | `/random/` | `random_memory` | "Remember This" random memory resurfacing |
 | `/on-this-day/` | `on_this_day` | Historical memory resurfacing engine |
 | `/recently-viewed/` | `recently_viewed` | Session-based recently viewed history |
-| `/categories/` | `category_manage` | Full category management dashboard |
+| `/categories/` | `category_manage` | Full category management dashboard (36-color palette + Suggest Unused Color) |
 | `/categories/create/` | `category_create` | Create new category endpoint |
 | `/categories/<id>/edit/` | `category_edit` | Edit category endpoint |
 | `/categories/<id>/delete/` | `category_delete` | Delete category with Inbox fallback |
 | `/categories/<id>/reorder/<dir>/` | `category_reorder` | Swap category order (up/down) |
 | `/share/` | `share_target` | Mobile PWA Web Share Target handler |
+| `/healthz/` | `health_check` | Direct HTTP 200 OK uptime ping & Glassmorphic System Health Dashboard |
+| `/ping/` | `health_check` | Alias for health check uptime endpoint |
 
 ---
 
@@ -229,7 +231,11 @@ Memora/
 - [x] Interactive Movie / Cinema Watch Status pills (`Want to Watch`, `Watching`, `Watched`) & 5-Star Rating selector with glowing CSS hover fill animation
 - [x] Developer Profile Links Footer ("Created by Om Tiwari" linking to Portfolio `https://omtiwari.tech/`, GitHub `https://github.com/omtiwari17`, LinkedIn `https://www.linkedin.com/in/tiwariom/`)
 - [x] 100% Emoji Purge across entire database & templates replaced with crisp Heroicons SVG icons
-- [x] Full Category Management suite (Create, Edit, Delete with Inbox fallback, 20-color preset palette, Up/Down reordering)
+- [x] Full Category Management suite (Create, Edit, Delete with Inbox fallback, 36-color preset palette, in-use `✓` checkmark swatches, Up/Down reordering, and **`Suggest Unused Color`** generator)
+- [x] User-scoped tag autocomplete & click-to-add suggestion chips (`Tag.objects.filter(memories__user=request.user)`)
+- [x] Mobile view user profile badge (`@username`), direct sign-out button, and developer footer card
+- [x] Dedicated unauthenticated `/healthz/` and `/ping/` uptime monitoring endpoints returning direct `HTTP 200 OK` (0 redirects)
+- [x] Glassmorphic System Health & Uptime Dashboard front-end page (`health_check.html`)
 - [x] Dashboard with sidebar navigation & category chips
 - [x] Persistent sidebar **`+ New Category`** button across all views
 - [x] Header **`+ Capture New Memory`** button scoped exclusively to the "All Memories" dashboard page
@@ -245,11 +251,11 @@ Memora/
 - [x] Smart Related Memory suggestions on memory detail page
 - [x] Desktop bookmarklet script & PWA Web Share Target with auto-categorization
 - [x] Environment-aware sidebar version badge (Dev milestone vs Production branding)
-- [x] GitHub Actions CI/CD pipeline (4-stage, 115 tests, deploy readiness gatekeeper)
+- [x] GitHub Actions CI/CD pipeline (4-stage, 118 tests, deploy readiness gatekeeper)
 - [x] Production security hardening (HSTS, SSL redirect, secure cookies, CSRF — 0 deploy warnings)
 - [x] Full secret audit — zero sensitive data in Git history or tracked files
 - [x] GitHub repository setup and initial commit pushes (`omtiwari17/Memora`)
-- [x] Production deployment on **100% Free Forever Hosting** (Neon Postgres + Render + cron-job.org keep-alive)
+- [x] Production deployment on **100% Free Forever Hosting** (Neon Postgres + Render + cron-job.org keep-alive via `/healthz/`)
 
 ---
 
@@ -358,7 +364,7 @@ Render's free tier puts web services to sleep after 15 minutes of inactivity. To
 - [x] Custom Admin Console at `/ctrl/`
 - [x] Interactive Movie Watch Status & 5-Star Rating System
 - [x] Developer Profile Links Footer
-- [x] GitHub Actions CI/CD pipeline (115 tests)
+- [x] GitHub Actions CI/CD pipeline (118 tests)
 - [x] Production security hardening (0 deploy warnings)
 - [x] Secret audit (0 leaks in Git history)
 - [x] Live deployment (Neon + Render + cron-job.org)
@@ -368,26 +374,34 @@ Render's free tier puts web services to sleep after 15 minutes of inactivity. To
 
 ## 12. Git Branching & Deployment Workflow
 
-**CRITICAL RULE:** All new code changes MUST be committed to the `dev` branch first. NEVER push directly to `main`.
+> ⛔ **STRICT DIRECTIVE FOR ALL AI AGENTS & CONTRIBUTORS:**
+> **NEVER execute `git commit` or direct pushes on the `main` branch under ANY circumstance.**
+> All commits, feature work, bug fixes, and edits MUST be committed exclusively to the **`dev`** branch.
+> Merging from `dev` to `main` is performed ONLY when the user explicitly instructs to merge or deploy.
 
 ```
 dev branch  ──→  User tests locally  ──→  User says "merge"  ──→  main branch  ──→  Render auto-deploys
 ```
 
-### Rules:
-1. **All new features, fixes, and changes** → commit to `dev` branch
-2. **User tests locally** on `dev` branch (`python manage.py runserver`)
-3. **Only merge `dev` → `main`** when the user explicitly says to merge/deploy
-4. **Render auto-deploys** from `main` — merging to `main` = going live
-5. **GitHub Actions CI** runs on both `push` to `main` and `pull_request` to `main`
-6. **Update AGENTS.md** only when the user explicitly requests it
+### Strict Operating Rules:
+1. **NEVER commit on `main`** — switch to `dev` before creating any commit (`git checkout dev`).
+2. **All new features, fixes, and changes** → commit exclusively to `dev` branch.
+3. **User tests locally** on `dev` branch (`python manage.py runserver`).
+4. **Only merge `dev` → `main`** when the user explicitly gives instructions to merge or deploy.
+5. **Render auto-deploys** from `main` — merging `dev` → `main` triggers production release.
+6. **GitHub Actions CI** runs 118 unit tests on both `push` and `pull_request` to `main`.
 
-### Commands:
+### Exact Command Sequence:
 ```bash
-# Switch to dev for development
+# 1. ALWAYS verify you are on dev before working/committing
 git checkout dev
 
-# After user approves, merge to main
+# 2. Make changes and commit to dev
+git add .
+git commit -m "feat(...): ..."
+git push origin dev
+
+# 3. ONLY when the user explicitly instructs to merge/deploy to main:
 git checkout main
 git merge dev
 git push origin main

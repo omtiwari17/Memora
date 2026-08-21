@@ -126,6 +126,18 @@ def get_user_categories(user):
 
 
 # ── Authentication (Vault Handle + 6-Digit PIN) ──────────────────────
+def home_root(request):
+    """Home Root / handler — Serves the Product Landing Page for unauthenticated visitors, or redirects authenticated users to their Vault Dashboard."""
+    if request.user.is_authenticated:
+        return redirect("dashboard")
+    return render(request, "quotes/landing.html")
+
+
+def landing_page(request):
+    """Product Landing Page for Memora — Showcase features, design, and vault entry."""
+    return render(request, "quotes/landing.html")
+
+
 def health_check(request):
     """Health check endpoint — returns JSON for API/cron pings or a glassmorphic UI for browser visits."""
     if "application/json" in request.headers.get("Accept", ""):

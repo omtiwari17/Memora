@@ -26,6 +26,23 @@ TEST_STORAGES = {
 # MODEL TESTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+class LandingPageTest(TestCase):
+    """Test the product landing page view and home root."""
+
+    def test_home_root_renders_landing_page_for_unauthenticated(self):
+        client = Client()
+        resp = client.get("/")
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, "quotes/landing.html")
+
+    def test_landing_page_routes_render_successfully(self):
+        client = Client()
+        for route_name in ["landing", "landing_page", "about"]:
+            resp = client.get(reverse(route_name))
+            self.assertEqual(resp.status_code, 200)
+            self.assertTemplateUsed(resp, "quotes/landing.html")
+
+
 class HealthCheckTest(TestCase):
     """Test unauthenticated uptime health check endpoints."""
 
@@ -318,8 +335,11 @@ class VaultAuthTest(TestCase):
 class URLRoutingTest(TestCase):
     """Test that all URL patterns resolve correctly."""
 
+    def test_home_root_url(self):
+        self.assertEqual(resolve("/").url_name, "home_root")
+
     def test_dashboard_url(self):
-        self.assertEqual(resolve("/").url_name, "dashboard")
+        self.assertEqual(resolve("/app/").url_name, "dashboard")
 
     def test_login_url(self):
         self.assertEqual(resolve("/login/").url_name, "login")
