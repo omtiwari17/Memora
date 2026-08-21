@@ -31,41 +31,13 @@
             transform: translateY(-4px);
             box-shadow: 0 20px 40px -15px rgba(168, 85, 247, 0.15);
         }
-        .aurora-blob {
-            position: absolute;
-            border-radius: 50%;
-            pointer-events: none;
-            will-change: transform, opacity;
-            filter: blur(100px);
+        @keyframes purple-blue-pulse {
+            0%, 100% { transform: scale(1) translate(0px, 0px); opacity: 0.22; }
+            50% { transform: scale(1.08) translate(20px, -15px); opacity: 0.32; }
         }
-        @keyframes bg-mesh-shift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        .purple-blue-patch {
+            animation: purple-blue-pulse 10s ease-in-out infinite;
         }
-        .animated-bg-mesh {
-            background: linear-gradient(-45deg, #0a0914, #140d28, #0b132b, #1a0a27, #0a0914);
-            background-size: 400% 400%;
-            animation: bg-mesh-shift 14s ease infinite;
-        }
-        @keyframes float-aurora-1 {
-            0% { transform: translate(0px, 0px) scale(1) rotate(0deg); opacity: 0.45; }
-            50% { transform: translate(110px, -70px) scale(1.25) rotate(45deg); opacity: 0.65; }
-            100% { transform: translate(-60px, 60px) scale(0.9) rotate(-30deg); opacity: 0.35; }
-        }
-        @keyframes float-aurora-2 {
-            0% { transform: translate(0px, 0px) scale(1) rotate(0deg); opacity: 0.4; }
-            50% { transform: translate(-120px, 80px) scale(1.3) rotate(-60deg); opacity: 0.6; }
-            100% { transform: translate(70px, -50px) scale(0.95) rotate(30deg); opacity: 0.3; }
-        }
-        @keyframes float-aurora-3 {
-            0% { transform: translate(0px, 0px) scale(1); opacity: 0.35; }
-            50% { transform: translate(80px, 90px) scale(1.2); opacity: 0.55; }
-            100% { transform: translate(-70px, -80px) scale(0.85); opacity: 0.25; }
-        }
-        .aurora-animate-1 { animation: float-aurora-1 9s ease-in-out infinite alternate; }
-        .aurora-animate-2 { animation: float-aurora-2 12s ease-in-out infinite alternate; }
-        .aurora-animate-3 { animation: float-aurora-3 10s ease-in-out infinite alternate; }
         @keyframes float-slow {
             0%, 100% { transform: translateY(0px) scale(1); }
             50% { transform: translateY(-15px) scale(1.03); }
@@ -78,15 +50,11 @@
         .animate-glow { animation: glow-pulse 3s ease-in-out infinite; }
     </style>
 </head>
-<body class="min-h-screen animated-bg-mesh text-white selection:bg-purple-500/30 overflow-x-hidden relative">
+<body class="min-h-screen bg-[#0a0914] text-white selection:bg-purple-500/30 overflow-x-hidden relative">
 
-    <!-- Active Animated Aurora Background Blobs -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div class="aurora-blob aurora-animate-1 absolute -top-20 -left-20 w-[600px] h-[600px] bg-purple-600/40"></div>
-        <div class="aurora-blob aurora-animate-2 absolute top-1/3 -right-20 w-[650px] h-[650px] bg-indigo-600/35"></div>
-        <div class="aurora-blob aurora-animate-3 absolute bottom-10 left-1/4 w-[550px] h-[550px] bg-fuchsia-600/30"></div>
-        <div class="aurora-blob aurora-animate-1 absolute top-2/3 right-1/4 w-[480px] h-[480px] bg-emerald-600/25"></div>
-        <div class="aurora-blob aurora-animate-2 absolute top-1/2 left-10 w-[420px] h-[420px] bg-sky-600/25"></div>
+    <!-- Minimal Dark Purple-Blue Ambient Glow Patch -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10 flex items-center justify-center">
+        <div class="purple-blue-patch w-[650px] h-[450px] rounded-full bg-gradient-to-tr from-purple-900/30 via-indigo-950/25 to-slate-900/20 filter blur-[140px]"></div>
     </div>
 
     <!-- Top Navigation Header -->
