@@ -29,15 +29,21 @@ TEST_STORAGES = {
 class HealthCheckTest(TestCase):
     """Test unauthenticated uptime health check endpoints."""
 
-    def test_healthz_returns_200_ok(self):
+    def test_healthz_returns_200_ok_json(self):
         client = Client()
-        resp = client.get(reverse("health_check"))
+        resp = client.get(reverse("health_check"), headers={"accept": "application/json"})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["status"], "ok")
 
+    def test_healthz_returns_200_ok_html(self):
+        client = Client()
+        resp = client.get(reverse("health_check"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, "quotes/health_check.html")
+
     def test_ping_returns_200_ok(self):
         client = Client()
-        resp = client.get(reverse("ping"))
+        resp = client.get(reverse("ping"), headers={"accept": "application/json"})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["status"], "ok")
 
