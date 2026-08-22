@@ -646,9 +646,20 @@ def memory_status(request, pk):
     """Update memory status (e.g., done/active)."""
     memory = get_object_or_404(Memory, pk=pk, user=request.user)
     new_status = request.POST.get("status", "")
+    if not new_status and request.body:
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+            new_status = data.get("status", "")
+        except Exception:
+            pass
+
     if new_status in Memory.Status.values:
         memory.status = new_status
         memory.save()
+
+    if "application/json" in request.headers.get("Accept", "") or "application/json" in request.headers.get("Content-Type", ""):
+        return JsonResponse({"success": True, "memory_id": memory.id, "status": memory.status})
+
     return render(request, "quotes/partials/memory_card.html", {"memory": memory})
 
 
