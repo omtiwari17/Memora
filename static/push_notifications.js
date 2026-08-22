@@ -170,31 +170,29 @@
 
                         // Trigger native OS notification if permission granted
                         if ('Notification' in window && Notification.permission === 'granted') {
-                            if ('serviceWorker' in navigator) {
-                                navigator.serviceWorker.ready.then(swReg => {
-                                    if (swReg && typeof swReg.showNotification === 'function') {
-                                        swReg.showNotification(`🔔 Reminder: ${item.title}`, {
-                                            body: item.content,
-                                            icon: '/static/icon-192.png',
-                                            badge: '/static/icon-192.png',
-                                            requireInteraction: true,
-                                            data: { url: item.url }
-                                        }).catch(e => {
-                                            console.warn('[Memora Push] SW showNotification error:', e);
-                                            try { new Notification(`🔔 Reminder: ${item.title}`, { body: item.content, icon: '/static/icon-192.png' }); } catch(err) {}
-                                        });
-                                    }
+                            try {
+                                // Prioritize standard Notification (works on Desktop immediately)
+                                const n = new Notification(`🔔 Reminder: ${item.title}`, {
+                                    body: item.content,
+                                    icon: '/static/icon-192.png',
+                                    badge: '/static/icon-192.png',
+                                    requireInteraction: true
                                 });
-                            } else if (typeof Notification === 'function') {
-                                try {
-                                    new Notification(`🔔 Reminder: ${item.title}`, {
+                                n.onclick = function() {
+                                    window.focus();
+                                    this.close();
+                                };
+                            } catch (e) {
+                                // If standard Notification throws (e.g. Chrome on Android requires ServiceWorker)
+                                console.warn('[Memora Push] Native Notification threw error (likely Android), falling back to SW:', e);
+                                if (swRegistration && typeof swRegistration.showNotification === 'function') {
+                                    swRegistration.showNotification(`🔔 Reminder: ${item.title}`, {
                                         body: item.content,
                                         icon: '/static/icon-192.png',
                                         badge: '/static/icon-192.png',
-                                        requireInteraction: true
-                                    });
-                                } catch (e) {
-                                    console.warn('[Memora Push] Native notification error:', e);
+                                        requireInteraction: true,
+                                        data: { url: item.url }
+                                    }).catch(err => console.error('[Memora Push] SW showNotification failed:', err));
                                 }
                             }
                         }
