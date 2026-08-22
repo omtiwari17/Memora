@@ -6,6 +6,34 @@
     'use strict';
     console.log('[Memora Push] Script loaded and executing...');
 
+    // Helper function to decode VAPID public key
+    function urlB64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    // CSRF token helper
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
     let vapidPublicKey = null;
     let swRegistration = null;
     // In-Memory Notification Tracker (prevents spam from 60s interval, but resets on reload so uncompleted reminders show again)
@@ -13,6 +41,24 @@
     
     function addNotifiedId(id) {
         notifiedMemoryIds.add(id);
+    }
+
+    async function registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            try {
+                swRegistration = await navigator.serviceWorker.register('/static/sw.js');
+                console.log('[Memora Push] Service Worker registered successfully.');
+                
+                // Fetch VAPID Key for subscription
+                const response = await fetch('/api/vapid-public-key/');
+                if (response.ok) {
+                    const data = await response.json();
+                    vapidPublicKey = data.public_key;
+                }
+            } catch (error) {
+                console.warn('[Memora Push] Service Worker registration failed:', error);
+            }
+        }
     }
 
     // Mark Memory Done directly from Toast Notification
@@ -69,7 +115,27 @@
         if (permission === 'granted') {
             document.querySelectorAll('.memora-push-toggle-container').forEach(el => el.remove());
             
-            // Optionally, show a confirmation toast
+            if ('serviceWorker' in navigator && vapidPublicKey) {
+                try {
+                    const swReg = await navigator.serviceWorker.ready;
+                    const subscription = await swReg.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlB64ToUint8Array(vapidPublicKey)
+                    });
+                    
+                    await fetch('/api/push-subscribe/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify(subscription)
+                    });
+                } catch (e) {
+                    console.warn('[Memora Push] Push subscription failed:', e);
+                }
+            }
+            
             showMemoraToast('🔔 Notifications Enabled', 'You will now receive native OS push notifications for due reminders.');
         } else {
             showMemoraToast('🔕 Notifications Blocked', 'You denied push notifications. To enable them, change your browser settings.');
