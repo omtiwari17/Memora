@@ -214,13 +214,22 @@ Memora/
 | `/categories/<id>/delete/` | `category_delete` | Delete category with Inbox fallback |
 | `/categories/<id>/reorder/<dir>/` | `category_reorder` | Swap category order (up/down) |
 | `/share/` | `share_target` | Mobile PWA Web Share Target handler |
+| `/api/vapid-public-key/` | `vapid_public_key` | JSON VAPID Public Key endpoint for Service Worker |
+| `/api/push-subscribe/` | `push_subscribe` | Save browser Web Push subscription |
+| `/api/push-unsubscribe/` | `push_unsubscribe` | Delete browser Web Push subscription |
+| `/api/due-reminders/` | `due_reminders_api` | Active tab due reminders API |
+| `/api/trigger-due-reminders/` | `trigger_due_reminders` | Cron / push notification dispatch endpoint |
 | `/healthz/` | `health_check` | Direct HTTP 200 OK uptime ping & Glassmorphic System Health Dashboard |
 | `/ping/` | `health_check` | Alias for health check uptime endpoint |
 
 ---
 
-## 8. Completed Work (Phase 1 — Phase 6 Complete)
+## 8. Completed Work (Phase 1 — Phase 7 Complete)
 
+- [x] Native PWA Web Push & Service Worker Notification System (`sw.js`, `push_notifications.js`, VAPID key pair generation, `PushSubscription` model)
+- [x] In-App Glassmorphic Toast Notifications & 60s Due Reminder Poll Checker
+- [x] `static/logo.svg` standardized as 100% single source of truth global logo across all headers, sidebars, footers, login screens, and error pages
+- [x] Username profile badge cleaned (no `@` prefix, uppercase initial avatar) with vector Sign Out exit icon (`🚪`)
 - [x] Memory, Category, Tag, Collection models implemented
 - [x] 17 default categories seeded with custom colors
 - [x] Niche Vault Handle + 6-Digit PIN authentication system (`login.html`, `vault_login`, `vault_logout`, user-scoped data filtering)
