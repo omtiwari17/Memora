@@ -7,10 +7,10 @@
 
     let vapidPublicKey = null;
     let swRegistration = null;
-    // LocalStorage Persistent Notification Tracker
+    // SessionStorage Notification Tracker (prevents spam on same-tab reloads while allowing new due reminders)
     function getNotifiedIds() {
         try {
-            const raw = localStorage.getItem('memora_notified_memory_ids');
+            const raw = sessionStorage.getItem('memora_notified_memory_ids');
             return raw ? new Set(JSON.parse(raw)) : new Set();
         } catch (e) {
             return new Set();
@@ -21,7 +21,7 @@
         const ids = getNotifiedIds();
         ids.add(id);
         try {
-            localStorage.setItem('memora_notified_memory_ids', JSON.stringify(Array.from(ids)));
+            sessionStorage.setItem('memora_notified_memory_ids', JSON.stringify(Array.from(ids)));
         } catch (e) {}
     }
 
