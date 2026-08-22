@@ -4,6 +4,7 @@
 
 (function() {
     'use strict';
+    console.log('[Memora Push] Script loaded and executing...');
 
     let vapidPublicKey = null;
     let swRegistration = null;
@@ -75,18 +76,22 @@
 
     // Manual Test Notification Trigger
     window.triggerTestNotification = async function() {
+        console.log('[Memora Push] Test Notification Live button clicked!');
         if ('Notification' in window && Notification.permission === 'default') {
             await Notification.requestPermission();
         }
 
         if ('Notification' in window && Notification.permission === 'granted') {
             try {
-                if (swRegistration && swRegistration.active && typeof swRegistration.showNotification === 'function') {
-                    await swRegistration.showNotification('🔔 Test System Notification', {
-                        body: 'Your Memora native OS push notification system is working 100%!',
-                        icon: '/static/icon-192.png',
-                        badge: '/static/icon-192.png'
-                    }).catch(e => console.warn('[Memora Push] SW showNotification error:', e));
+                if ('serviceWorker' in navigator) {
+                    const swReg = await navigator.serviceWorker.ready;
+                    if (swReg && typeof swReg.showNotification === 'function') {
+                        await swReg.showNotification('🔔 Test System Notification', {
+                            body: 'Your Memora native OS push notification system is working 100%!',
+                            icon: '/static/icon-192.png',
+                            badge: '/static/icon-192.png'
+                        }).catch(e => console.warn('[Memora Push] SW showNotification error:', e));
+                    }
                 } else if (typeof Notification === 'function') {
                     new Notification('🔔 Test System Notification', {
                         body: 'Your Memora native OS push notification system is working 100%!',
@@ -123,13 +128,16 @@
                         // Trigger native OS notification if permission granted
                         if ('Notification' in window && Notification.permission === 'granted') {
                             try {
-                                if (swRegistration && swRegistration.active && typeof swRegistration.showNotification === 'function') {
-                                    await swRegistration.showNotification(`🔔 Reminder: ${item.title}`, {
-                                        body: item.content,
-                                        icon: '/static/icon-192.png',
-                                        badge: '/static/icon-192.png',
-                                        data: { url: item.url }
-                                    }).catch(e => console.warn('[Memora Push] SW showNotification error:', e));
+                                if ('serviceWorker' in navigator) {
+                                    const swReg = await navigator.serviceWorker.ready;
+                                    if (swReg && typeof swReg.showNotification === 'function') {
+                                        await swReg.showNotification(`🔔 Reminder: ${item.title}`, {
+                                            body: item.content,
+                                            icon: '/static/icon-192.png',
+                                            badge: '/static/icon-192.png',
+                                            data: { url: item.url }
+                                        }).catch(e => console.warn('[Memora Push] SW showNotification error:', e));
+                                    }
                                 } else if (typeof Notification === 'function') {
                                     new Notification(`🔔 Reminder: ${item.title}`, {
                                         body: item.content,
