@@ -214,13 +214,32 @@ Memora/
 | `/categories/<id>/delete/` | `category_delete` | Delete category with Inbox fallback |
 | `/categories/<id>/reorder/<dir>/` | `category_reorder` | Swap category order (up/down) |
 | `/share/` | `share_target` | Mobile PWA Web Share Target handler |
+| `/api/vapid-public-key/` | `vapid_public_key` | JSON VAPID Public Key endpoint for Service Worker |
+| `/api/push-subscribe/` | `push_subscribe` | Save browser Web Push subscription |
+| `/api/push-unsubscribe/` | `push_unsubscribe` | Delete browser Web Push subscription |
+| `/api/due-reminders/` | `due_reminders_api` | Active tab due reminders API |
+| `/api/trigger-due-reminders/` | `trigger_due_reminders` | Cron / push notification dispatch endpoint |
 | `/healthz/` | `health_check` | Direct HTTP 200 OK uptime ping & Glassmorphic System Health Dashboard |
 | `/ping/` | `health_check` | Alias for health check uptime endpoint |
 
 ---
 
-## 8. Completed Work (Phase 1 — Phase 6 Complete)
+## 8. Completed Work (Phase 1 — Phase 7 Complete)
 
+### Phase 7 — Native Web Push & Real-Time Reminders
+- [x] Native PWA Web Push & Service Worker Notification System (`sw.js`, `push_notifications.js`, VAPID key pair generation, `PushSubscription` model).
+- [x] In-App Glassmorphic Toast Notifications & 60s Due Reminder Poll Checker (`/api/due-reminders/`).
+- [x] `static/logo.svg` standardized as 100% single source of truth global logo across all headers, sidebars, footers, login screens, and error pages.
+- [x] Username profile badge cleaned (no `@` prefix, uppercase initial avatar) with vector Sign Out exit icon (`🚪`).
+- [x] **Notification Architecture & Bug Fixes Context**:
+  - **The Problem:** Repeatedly reloading the dashboard triggered duplicate toast alerts for already-notified reminders.
+  - **The Solution:** Implemented `sessionStorage` tracker (`memora_notified_memory_ids`) to persist notified IDs for the session, preventing spam while allowing fresh due reminders. (Replaced `localStorage` to avoid permanently blocking test IDs).
+  - **The Problem:** The native OS notification banner was not appearing reliably, and `triggerTestNotification` failed silently on Chrome/Android.
+  - **The Solution:** Added a `✓ Mark Done` action directly into the toast banner (marks status as `DONE` via API), added a manual `⚡ Test Notification Live` button to the sidebar for easy debugging, and explicitly awaited `navigator.serviceWorker.ready` before calling `swReg.showNotification(...)` to guarantee the Service Worker was active and ready, avoiding silent promise rejections when `swRegistration.active` was temporarily `null`.
+  - **The Problem:** Unquoted JavaScript variables in HTML strings (`window.markMemoryDoneFromToast(${memoryId})` when `memoryId` was `'test'`) threw `ReferenceError: test is not defined`.
+  - **The Solution:** Wrapped injected HTML string variables in explicit single quotes (`'${memoryId}'`).
+
+### Phases 1 to 6
 - [x] Memory, Category, Tag, Collection models implemented
 - [x] 17 default categories seeded with custom colors
 - [x] Niche Vault Handle + 6-Digit PIN authentication system (`login.html`, `vault_login`, `vault_logout`, user-scoped data filtering)
@@ -364,11 +383,21 @@ Render's free tier puts web services to sleep after 15 minutes of inactivity. To
 - [x] Custom Admin Console at `/ctrl/`
 - [x] Interactive Movie Watch Status & 5-Star Rating System
 - [x] Developer Profile Links Footer
-- [x] GitHub Actions CI/CD pipeline (118 tests)
+- [x] GitHub Actions CI/CD pipeline (127 tests)
 - [x] Production security hardening (0 deploy warnings)
 - [x] Secret audit (0 leaks in Git history)
 - [x] Live deployment (Neon + Render + cron-job.org)
 - [x] Login UX toggle (Unlock / Create New Vault)
+
+### Phase 7 — Native Web Push & Notifications
+- [x] Service Worker setup (`sw.js`) and PWA integration
+- [x] VAPID Key Generation & PushManager Subscription
+- [x] In-App Glassmorphic Toast Alerts with "✓ Mark Done" action
+- [x] Due reminder API & 60s polling check
+- [x] OS System Push Notifications via `navigator.serviceWorker.ready`
+- [x] `sessionStorage` notification spam protection
+- [x] 1-Click OS Banner Permission Trigger
+- [x] Dedicated "Test Notification Live ⚡" sidebar utility
 
 ---
 

@@ -70,8 +70,13 @@ urlpatterns = [
     path("on-this-day/", views.memory_list, {"filter_type": "on_this_day"}, name="on_this_day"),
     path("recently-viewed/", views.recently_viewed, name="recently_viewed"),
     
-    # PWA
+    # PWA & Web Push Notifications
     path("share/", views.share_target, name="share_target"),
+    path("api/vapid-public-key/", views.vapid_public_key_view, name="vapid_public_key"),
+    path("api/push-subscribe/", views.push_subscribe_view, name="push_subscribe"),
+    path("api/push-unsubscribe/", views.push_unsubscribe_view, name="push_unsubscribe"),
+    path("api/due-reminders/", views.due_reminders_api, name="due_reminders_api"),
+    path("api/trigger-due-reminders/", views.trigger_due_reminders_view, name="trigger_due_reminders"),
 
     # Catch-all unmatched route (renders custom glassmorphic 404 error page in dev & prod)
     path("<path:unmatched>", views.custom_404_view, name="catch_all_404"),
