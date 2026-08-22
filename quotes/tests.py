@@ -852,3 +852,14 @@ class MovieWatchStatusTest(TestCase):
         self.assertContains(resp, "Watched")
 
 
+class IconAndFaviconAssetsTest(TestCase):
+    """Test favicon endpoint and static icon availability for PWA and mobile shortcuts."""
+
+    def test_favicon_endpoint_serves_logo_svg(self):
+        client = Client()
+        resp = client.get(reverse("favicon"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Type"], "image/svg+xml")
+        self.assertIn(b"svg", resp.content)
+
+

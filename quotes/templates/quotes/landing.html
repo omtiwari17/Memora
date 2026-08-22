@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memora — Your Memory, Outside Your Head | Personal External Memory System</title>
     <meta name="description" content="Capture quotes, ideas, code snippets, tasks, links, movies, and thoughts instantly with Memora. Zero-friction capture, high-confidence auto-categorization, universal search, and vault PIN security.">
-    <link rel="icon" type="image/svg+xml" href="{% url 'favicon' %}">
+    <link rel="icon" type="image/svg+xml" href="{% static 'logo.svg' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'apple-touch-icon.png' %}">
+    <link rel="shortcut icon" href="{% url 'favicon' %}">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#0a0914">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

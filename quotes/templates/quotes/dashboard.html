@@ -7,9 +7,11 @@
     <title>Memora — Your memory, outside your head</title>
     <meta name="description" content="Memora: capture anything worth remembering. Quotes, ideas, links, tasks — everything in one place.">
 
-    <link rel="manifest" href="{% static 'manifest.json' %}">
     <link rel="icon" type="image/svg+xml" href="{% static 'logo.svg' %}">
-    <meta name="theme-color" content="#0f0e17">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'apple-touch-icon.png' %}">
+    <link rel="shortcut icon" href="{% url 'favicon' %}">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#0a0914">
 
     <!-- Tailwind + DaisyUI via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
