@@ -29,6 +29,18 @@
 
     // Mark Memory Done directly from Toast Notification
     window.markMemoryDoneFromToast = async function(memoryId, btnElement) {
+        if (memoryId === 'test') {
+            const toast = btnElement.closest('#memora-toast-container > div');
+            if (toast) {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.remove(), 300);
+            }
+            setTimeout(() => {
+                showMemoraToast('🎉 Test Completed', 'Your reminder system and Mark Done actions are working perfectly!');
+            }, 350);
+            return;
+        }
+
         try {
             const formData = new FormData();
             formData.append('status', 'done');
@@ -59,6 +71,40 @@
         } catch (err) {
             console.error('[Memora Push] Failed to mark memory done:', err);
         }
+    };
+
+    // Manual Test Notification Trigger
+    window.triggerTestNotification = async function() {
+        if ('Notification' in window && Notification.permission === 'default') {
+            await Notification.requestPermission();
+        }
+
+        if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+                if (swRegistration && swRegistration.showNotification) {
+                    swRegistration.showNotification('🔔 Test System Notification', {
+                        body: 'Your Memora native OS push notification system is working 100%!',
+                        icon: '/static/icon-192.png',
+                        badge: '/static/icon-192.png'
+                    });
+                } else {
+                    new Notification('🔔 Test System Notification', {
+                        body: 'Your Memora native OS push notification system is working 100%!',
+                        icon: '/static/icon-192.png',
+                        badge: '/static/icon-192.png'
+                    });
+                }
+            } catch (e) {
+                console.warn('[Memora Push] Test OS notification error:', e);
+            }
+        }
+
+        showMemoraToast(
+            '🔔 Test Reminder Notification',
+            'This is a live test notification! Click ✓ Mark Done below to test completing reminders.',
+            '/app/',
+            'test'
+        );
     };
 
     // Check Due Reminders for Active Tab (Instant Browser Notification + Toast)
