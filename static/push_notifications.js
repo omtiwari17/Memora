@@ -81,13 +81,13 @@
 
         if ('Notification' in window && Notification.permission === 'granted') {
             try {
-                if (swRegistration && swRegistration.showNotification) {
-                    swRegistration.showNotification('🔔 Test System Notification', {
+                if (swRegistration && swRegistration.active && typeof swRegistration.showNotification === 'function') {
+                    await swRegistration.showNotification('🔔 Test System Notification', {
                         body: 'Your Memora native OS push notification system is working 100%!',
                         icon: '/static/icon-192.png',
                         badge: '/static/icon-192.png'
-                    });
-                } else {
+                    }).catch(e => console.warn('[Memora Push] SW showNotification error:', e));
+                } else if (typeof Notification === 'function') {
                     new Notification('🔔 Test System Notification', {
                         body: 'Your Memora native OS push notification system is working 100%!',
                         icon: '/static/icon-192.png',
@@ -115,7 +115,7 @@
             const data = await resp.json();
 
             if (data.due_reminders && data.due_reminders.length > 0) {
-                data.due_reminders.forEach(item => {
+                data.due_reminders.forEach(async (item) => {
                     if (!notifiedMemoryIds.has(item.id)) {
                         addNotifiedId(item.id);
                         notifiedMemoryIds.add(item.id);
@@ -123,14 +123,14 @@
                         // Trigger native OS notification if permission granted
                         if ('Notification' in window && Notification.permission === 'granted') {
                             try {
-                                if (swRegistration && swRegistration.showNotification) {
-                                    swRegistration.showNotification(`🔔 Reminder: ${item.title}`, {
+                                if (swRegistration && swRegistration.active && typeof swRegistration.showNotification === 'function') {
+                                    await swRegistration.showNotification(`🔔 Reminder: ${item.title}`, {
                                         body: item.content,
                                         icon: '/static/icon-192.png',
                                         badge: '/static/icon-192.png',
                                         data: { url: item.url }
-                                    });
-                                } else {
+                                    }).catch(e => console.warn('[Memora Push] SW showNotification error:', e));
+                                } else if (typeof Notification === 'function') {
                                     new Notification(`🔔 Reminder: ${item.title}`, {
                                         body: item.content,
                                         icon: '/static/icon-192.png',
@@ -183,7 +183,7 @@
             <div class="flex items-center justify-between gap-2 mt-1">
                 <div class="flex items-center gap-2">
                     ${url ? `<a href="${url}" class="inline-flex items-center gap-1 text-[11px] font-bold text-purple-400 hover:text-purple-300">View Memory &rarr;</a>` : ''}
-                    ${memoryId ? `<button onclick="window.markMemoryDoneFromToast(${memoryId}, this)" class="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all">✓ Mark Done</button>` : ''}
+                    ${memoryId ? `<button onclick="window.markMemoryDoneFromToast('${memoryId}', this)" class="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all">✓ Mark Done</button>` : ''}
                 </div>
                 ${showEnablePermissionPrompt ? `<button onclick="window.subscribePushReminders()" class="text-[10px] font-bold px-2 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 transition-all">🔔 Enable OS Banners</button>` : ''}
             </div>
