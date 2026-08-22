@@ -203,12 +203,23 @@
         if (!container) {
             container = document.createElement('div');
             container.id = 'memora-toast-container';
-            container.className = 'fixed bottom-5 right-5 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4';
+            container.className = 'fixed top-24 right-5 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none px-2 max-h-[calc(100vh-7rem)] overflow-y-auto pb-4';
+            
+            // Custom scrollbar styling inline for the container
+            const style = document.createElement('style');
+            style.textContent = `
+                #memora-toast-container::-webkit-scrollbar { width: 4px; }
+                #memora-toast-container::-webkit-scrollbar-track { background: transparent; }
+                #memora-toast-container::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.2); border-radius: 4px; }
+                #memora-toast-container::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.4); }
+            `;
+            document.head.appendChild(style);
+            
             document.body.appendChild(container);
         }
 
         const toast = document.createElement('div');
-        toast.className = 'pointer-events-auto bg-[#141226]/95 backdrop-blur-2xl border border-purple-500/30 rounded-2xl p-4 shadow-2xl shadow-purple-950/50 flex flex-col gap-2 transform transition-all duration-300 translate-y-4 opacity-0';
+        toast.className = 'pointer-events-auto shrink-0 bg-[#141226]/95 backdrop-blur-2xl border border-purple-500/30 rounded-2xl p-4 shadow-2xl shadow-purple-950/50 flex flex-col gap-2 transform transition-all duration-300 -translate-y-4 opacity-0';
 
         const showEnablePermissionPrompt = ('Notification' in window && Notification.permission !== 'granted');
 
@@ -234,11 +245,15 @@
             </div>
         `;
 
-        container.appendChild(toast);
+        if (container.firstChild) {
+            container.insertBefore(toast, container.firstChild);
+        } else {
+            container.appendChild(toast);
+        }
 
         // Animate toast entry
         setTimeout(() => {
-            toast.classList.remove('translate-y-4', 'opacity-0');
+            toast.classList.remove('-translate-y-4', 'opacity-0');
         }, 50);
 
         // Auto remove toast after 10 seconds
