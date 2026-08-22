@@ -868,3 +868,65 @@ class IconAndFaviconAssetsTest(TestCase):
         self.assertIn(b"svg", content)
 
 
+@override_settings(STORAGES=TEST_STORAGES)
+class WebPushNotificationTest(TestCase):
+    """Test Web Push API endpoints and subscription lifecycle."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="pushuser", password="password123")
+        self.client = Client()
+        self.client.force_login(self.user)
+
+    def test_vapid_public_key_endpoint(self):
+        resp = self.client.get(reverse("vapid_public_key"))
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertIn("public_key", data)
+
+    def test_push_subscribe_and_unsubscribe(self):
+        # Subscribe
+        payload = {
+            "endpoint": "https://fcm.googleapis.com/fcm/send/test-token-123",
+            "keys": {
+                "p256dh": "test-p256dh-key",
+                "auth": "test-auth-key"
+            }
+        }
+        resp = self.client.post(
+            reverse("push_subscribe"),
+            data=json.dumps(payload),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(PushSubscription.objects.count(), 1)
+        sub = PushSubscription.objects.first()
+        self.assertEqual(sub.user, self.user)
+        self.assertEqual(sub.p256dh, "test-p256dh-key")
+
+        # Unsubscribe
+        unsub_payload = {"endpoint": "https://fcm.googleapis.com/fcm/send/test-token-123"}
+        resp = self.client.post(
+            reverse("push_unsubscribe"),
+            data=json.dumps(unsub_payload),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(PushSubscription.objects.count(), 0)
+
+    def test_due_reminders_api(self):
+        from datetime import timedelta
+        now = timezone.now()
+        Memory.objects.create(
+            user=self.user,
+            title="Important Meeting",
+            content="Project sync with team",
+            reminder_at=now - timedelta(minutes=10)
+        )
+        resp = self.client.get(reverse("due_reminders_api"))
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(data["due_reminders"][0]["title"], "Important Meeting")
+
+
+

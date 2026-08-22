@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-from .models import Memory, Category, Tag, Collection
+from .models import Memory, Category, Tag, Collection, PushSubscription
 
 
 # ── Category suggestion (pattern + keyword matching) ──────────────────────
@@ -1030,5 +1030,146 @@ def admin_toggle_staff(request, user_id):
         target_user.save()
 
     return redirect("custom_admin_panel")
+
+
+# ── Web Push & Native Reminder Notifications ─────────────────────────
+def vapid_public_key_view(request):
+    """Return VAPID Public Key for client Service Worker subscription."""
+    return JsonResponse({"public_key": getattr(settings, "VAPID_PUBLIC_KEY", "")})
+
+
+@csrf_exempt
+@login_required(login_url="login")
+@require_http_methods(["POST"])
+def push_subscribe_view(request):
+    """Register or update Web Push subscription for current user."""
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+        endpoint = data.get("endpoint")
+        keys = data.get("keys", {})
+        p256dh = keys.get("p256dh")
+        auth = keys.get("auth")
+
+        if not (endpoint and p256dh and auth):
+            return HttpResponseBadRequest("Missing subscription parameters")
+
+        user_agent = request.META.get("HTTP_USER_AGENT", "")[:500]
+
+        sub, _ = PushSubscription.objects.update_or_create(
+            endpoint=endpoint,
+            defaults={
+                "user": request.user,
+                "p256dh": p256dh,
+                "auth": auth,
+                "user_agent": user_agent,
+            }
+        )
+        return JsonResponse({"status": "subscribed", "subscription_id": sub.id})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+
+@csrf_exempt
+@login_required(login_url="login")
+@require_http_methods(["POST"])
+def push_unsubscribe_view(request):
+    """Remove Web Push subscription."""
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+        endpoint = data.get("endpoint")
+        if endpoint:
+            PushSubscription.objects.filter(endpoint=endpoint, user=request.user).delete()
+        return JsonResponse({"status": "unsubscribed"})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+
+@login_required(login_url="login")
+def due_reminders_api(request):
+    """Return due memories & reminders for active tab native/toast notifications."""
+    now = timezone.now()
+    memories = Memory.objects.filter(
+        user=request.user,
+        is_archived=False
+    ).filter(
+        Q(reminder_at__lte=now) | Q(due_date__lte=now)
+    ).exclude(status=Memory.Status.DONE).order_by("-reminder_at", "-due_date")[:10]
+
+    due_list = []
+    for m in memories:
+        due_list.append({
+            "id": m.id,
+            "title": m.title or (m.content[:40] + "..."),
+            "content": m.content[:120],
+            "category": m.category.name if m.category else "Reminder",
+            "url": reverse("memory_detail", args=[m.id]),
+        })
+
+    return JsonResponse({"due_reminders": due_list, "count": len(due_list)})
+
+
+@csrf_exempt
+def trigger_due_reminders_view(request):
+    """Trigger Web Push notifications for due memories across registered subscriptions."""
+    now = timezone.now()
+    due_memories = Memory.objects.filter(
+        is_archived=False
+    ).filter(
+        Q(reminder_at__lte=now) | Q(due_date__lte=now)
+    ).exclude(status=Memory.Status.DONE).select_related("user", "category")
+
+    sent_count = 0
+    errors = 0
+
+    if not due_memories.exists():
+        return JsonResponse({"status": "ok", "sent": 0, "message": "No due reminders"})
+
+    try:
+        from pywebpush import webpush, WebPushException
+        vapid_private_key = getattr(settings, "VAPID_PRIVATE_KEY", "")
+        vapid_claims = {"sub": f"mailto:{getattr(settings, 'VAPID_CLAIM_EMAIL', 'admin@memora.vault')}"}
+
+        for memory in due_memories:
+            subscriptions = PushSubscription.objects.filter(user=memory.user)
+            payload = json.dumps({
+                "title": f"🔔 Memora Reminder: {memory.title or 'Memory Reminder'}",
+                "body": memory.content[:140],
+                "url": reverse("memory_detail", args=[memory.id]),
+                "memory_id": memory.id,
+            })
+
+            for sub in subscriptions:
+                try:
+                    webpush(
+                        subscription_info={
+                            "endpoint": sub.endpoint,
+                            "keys": {
+                                "p256dh": sub.p256dh,
+                                "auth": sub.auth,
+                            }
+                        },
+                        data=payload,
+                        vapid_private_key=vapid_private_key,
+                        vapid_claims=vapid_claims,
+                        timeout=5
+                    )
+                    sent_count += 1
+                except WebPushException as ex:
+                    errors += 1
+                    if ex.response and ex.response.status_code in [404, 410]:
+                        sub.delete()
+                except Exception:
+                    errors += 1
+
+    except ImportError:
+        return JsonResponse({"error": "pywebpush not installed"}, status=500)
+
+    return JsonResponse({
+        "status": "ok",
+        "due_memories": due_memories.count(),
+        "sent_notifications": sent_count,
+        "errors": errors
+    })
+
 
 

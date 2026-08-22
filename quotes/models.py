@@ -124,3 +124,18 @@ class Memory(models.Model):
         if count == 0:
             return None
         return memories[random.randint(0, count - 1)]
+
+
+class PushSubscription(models.Model):
+    """Stores Web Push API subscriptions for native browser/PWA notifications."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="push_subscriptions")
+    endpoint = models.TextField(unique=True)
+    p256dh = models.TextField()
+    auth = models.TextField()
+    user_agent = models.CharField(max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"PushSubscription for {self.user.username} ({self.created_at.strftime('%Y-%m-%d')})"
+

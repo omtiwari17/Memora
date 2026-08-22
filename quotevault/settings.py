@@ -111,3 +111,41 @@ STORAGES = {
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# VAPID Web Push Keys Configuration
+import json
+VAPID_KEY_FILE = BASE_DIR / ".vapid_keys.json"
+
+if os.environ.get("VAPID_PUBLIC_KEY") and os.environ.get("VAPID_PRIVATE_KEY"):
+    VAPID_PUBLIC_KEY = os.environ.get("VAPID_PUBLIC_KEY")
+    VAPID_PRIVATE_KEY = os.environ.get("VAPID_PRIVATE_KEY")
+elif VAPID_KEY_FILE.exists():
+    try:
+        with open(VAPID_KEY_FILE, "r") as f:
+            _vapid_data = json.load(f)
+            VAPID_PUBLIC_KEY = _vapid_data.get("public_key", "")
+            VAPID_PRIVATE_KEY = _vapid_data.get("private_key", "")
+    except Exception:
+        VAPID_PUBLIC_KEY = ""
+        VAPID_PRIVATE_KEY = ""
+else:
+    try:
+        from py_vapid import Vapid
+        from cryptography.hazmat.primitives import serialization
+        import base64
+        _vapid = Vapid()
+        _vapid.generate_keys()
+        _raw_pub = _vapid.public_key.public_bytes(
+            serialization.Encoding.X962,
+            serialization.PublicFormat.UncompressedPoint
+        )
+        VAPID_PUBLIC_KEY = base64.urlsafe_b64encode(_raw_pub).rstrip(b'=').decode('utf-8')
+        VAPID_PRIVATE_KEY = _vapid.private_pem().decode('utf-8')
+        with open(VAPID_KEY_FILE, "w") as f:
+            json.dump({"public_key": VAPID_PUBLIC_KEY, "private_key": VAPID_PRIVATE_KEY}, f)
+    except Exception:
+        VAPID_PUBLIC_KEY = ""
+        VAPID_PRIVATE_KEY = ""
+
+VAPID_CLAIM_EMAIL = os.environ.get("VAPID_CLAIM_EMAIL", "admin@memora.vault")
+
