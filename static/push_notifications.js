@@ -82,25 +82,26 @@
         }
 
         if ('Notification' in window && Notification.permission === 'granted') {
-            try {
-                if ('serviceWorker' in navigator) {
-                    const swReg = await navigator.serviceWorker.ready;
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(swReg => {
                     if (swReg && typeof swReg.showNotification === 'function') {
-                        await swReg.showNotification('🔔 Test System Notification', {
+                        swReg.showNotification('🔔 Test System Notification', {
                             body: 'Your Memora native OS push notification system is working 100%!',
                             icon: '/static/icon-192.png',
                             badge: '/static/icon-192.png'
                         }).catch(e => console.warn('[Memora Push] SW showNotification error:', e));
                     }
-                } else if (typeof Notification === 'function') {
+                });
+            } else if (typeof Notification === 'function') {
+                try {
                     new Notification('🔔 Test System Notification', {
                         body: 'Your Memora native OS push notification system is working 100%!',
                         icon: '/static/icon-192.png',
                         badge: '/static/icon-192.png'
                     });
+                } catch (e) {
+                    console.warn('[Memora Push] Test OS notification error:', e);
                 }
-            } catch (e) {
-                console.warn('[Memora Push] Test OS notification error:', e);
             }
         }
 
@@ -127,26 +128,27 @@
 
                         // Trigger native OS notification if permission granted
                         if ('Notification' in window && Notification.permission === 'granted') {
-                            try {
-                                if ('serviceWorker' in navigator) {
-                                    const swReg = await navigator.serviceWorker.ready;
+                            if ('serviceWorker' in navigator) {
+                                navigator.serviceWorker.ready.then(swReg => {
                                     if (swReg && typeof swReg.showNotification === 'function') {
-                                        await swReg.showNotification(`🔔 Reminder: ${item.title}`, {
+                                        swReg.showNotification(`🔔 Reminder: ${item.title}`, {
                                             body: item.content,
                                             icon: '/static/icon-192.png',
                                             badge: '/static/icon-192.png',
                                             data: { url: item.url }
                                         }).catch(e => console.warn('[Memora Push] SW showNotification error:', e));
                                     }
-                                } else if (typeof Notification === 'function') {
+                                });
+                            } else if (typeof Notification === 'function') {
+                                try {
                                     new Notification(`🔔 Reminder: ${item.title}`, {
                                         body: item.content,
                                         icon: '/static/icon-192.png',
                                         badge: '/static/icon-192.png'
                                     });
+                                } catch (e) {
+                                    console.warn('[Memora Push] Native notification error:', e);
                                 }
-                            } catch (e) {
-                                console.warn('[Memora Push] Native notification error:', e);
                             }
                         }
 
