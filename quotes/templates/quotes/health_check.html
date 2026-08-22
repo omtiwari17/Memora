@@ -46,24 +46,7 @@
     <!-- Main Header -->
     <header class="w-full max-w-4xl mx-auto px-6 pt-8 pb-4 relative z-10 flex items-center justify-between">
         <a href="{% url 'dashboard' %}" class="flex items-center gap-3 group">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-950/90 to-indigo-950/90 border border-purple-400/30 flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
-                <svg class="w-6 h-6" viewBox="0 0 32 32" fill="none">
-                    <path d="M7 23V11.5L16 19.5L25 11.5V23" stroke="url(#hc-mem-1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M11 10C11 7.79 13.24 6 16 6C18.76 6 21 7.79 21 10" stroke="url(#hc-mem-2)" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="16" cy="13.5" r="1.75" fill="#e879f9"/>
-                    <defs>
-                        <linearGradient id="hc-mem-1" x1="7" y1="11.5" x2="25" y2="23" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#c084fc"/>
-                            <stop offset="0.5" stop-color="#818cf8"/>
-                            <stop offset="1" stop-color="#38bdf8"/>
-                        </linearGradient>
-                        <linearGradient id="hc-mem-2" x1="11" y1="6" x2="21" y2="10" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#f472b6"/>
-                            <stop offset="1" stop-color="#c084fc"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-            </div>
+            <img src="{% static 'logo.svg' %}" alt="Memora Logo" class="w-10 h-10 rounded-2xl group-hover:scale-105 transition-transform shadow-lg shadow-purple-500/20">
             <div>
                 <span class="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-indigo-300 bg-clip-text text-transparent block">Memora</span>
                 <span class="text-[10px] text-white/40 font-mono block">System Health Monitor</span>

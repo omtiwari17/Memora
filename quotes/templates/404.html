@@ -49,24 +49,7 @@
         
         <!-- Logo Branding -->
         <a href="{% url 'home_root' %}" class="inline-flex items-center gap-3.5 group mb-8">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-950/90 to-indigo-950/90 border border-purple-400/30 flex items-center justify-center shadow-xl shadow-purple-500/20 group-hover:scale-105 transition-transform">
-                <svg class="w-7 h-7" viewBox="0 0 32 32" fill="none">
-                    <path d="M7 23V11.5L16 19.5L25 11.5V23" stroke="url(#404-mem-1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M11 10C11 7.79 13.24 6 16 6C18.76 6 21 7.79 21 10" stroke="url(#404-mem-2)" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="16" cy="13.5" r="1.75" fill="#e879f9"/>
-                    <defs>
-                        <linearGradient id="404-mem-1" x1="7" y1="11.5" x2="25" y2="23" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#c084fc"/>
-                            <stop offset="0.5" stop-color="#818cf8"/>
-                            <stop offset="1" stop-color="#38bdf8"/>
-                        </linearGradient>
-                        <linearGradient id="404-mem-2" x1="11" y1="6" x2="21" y2="10" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#f472b6"/>
-                            <stop offset="1" stop-color="#c084fc"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-            </div>
+            <img src="{% static 'logo.svg' %}" alt="Memora Logo" class="w-12 h-12 rounded-2xl shadow-xl shadow-purple-500/20 group-hover:scale-105 transition-transform">
             <div class="flex flex-col text-left">
                 <span class="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-indigo-300 bg-clip-text text-transparent">Memora</span>
                 <span class="text-[10px] text-white/40 tracking-wider uppercase font-medium">Your memory vault</span>
