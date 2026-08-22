@@ -26,6 +26,7 @@ TEST_STORAGES = {
 # MODEL TESTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+@override_settings(STORAGES=TEST_STORAGES)
 class LandingPageTest(TestCase):
     """Test the product landing page view and home root."""
 
@@ -43,6 +44,7 @@ class LandingPageTest(TestCase):
             self.assertTemplateUsed(resp, "quotes/landing.html")
 
 
+@override_settings(STORAGES=TEST_STORAGES)
 class CustomErrorPagesTest(TestCase):
     """Test custom glassmorphic error handlers (404, 500, 403, 400)."""
 
@@ -64,6 +66,7 @@ class CustomErrorPagesTest(TestCase):
         self.assertEqual(custom_400_view(req).status_code, 400)
 
 
+@override_settings(STORAGES=TEST_STORAGES)
 class HealthCheckTest(TestCase):
     """Test unauthenticated uptime health check endpoints."""
 
@@ -852,6 +855,7 @@ class MovieWatchStatusTest(TestCase):
         self.assertContains(resp, "Watched")
 
 
+@override_settings(STORAGES=TEST_STORAGES)
 class IconAndFaviconAssetsTest(TestCase):
     """Test favicon endpoint and static icon availability for PWA and mobile shortcuts."""
 
