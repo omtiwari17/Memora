@@ -8,25 +8,12 @@
 
     let vapidPublicKey = null;
     let swRegistration = null;
-    // SessionStorage Notification Tracker (prevents spam on same-tab reloads while allowing new due reminders)
-    function getNotifiedIds() {
-        try {
-            const raw = sessionStorage.getItem('memora_notified_memory_ids');
-            return raw ? new Set(JSON.parse(raw)) : new Set();
-        } catch (e) {
-            return new Set();
-        }
-    }
-
+    // In-Memory Notification Tracker (prevents spam from 60s interval, but resets on reload so uncompleted reminders show again)
+    let notifiedMemoryIds = new Set();
+    
     function addNotifiedId(id) {
-        const ids = getNotifiedIds();
-        ids.add(id);
-        try {
-            sessionStorage.setItem('memora_notified_memory_ids', JSON.stringify(Array.from(ids)));
-        } catch (e) {}
+        notifiedMemoryIds.add(id);
     }
-
-    let notifiedMemoryIds = getNotifiedIds();
 
     // Mark Memory Done directly from Toast Notification
     window.markMemoryDoneFromToast = async function(memoryId, btnElement) {
