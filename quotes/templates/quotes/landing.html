@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" class="h-full bg-[#0a0914] text-white">
 <head>
@@ -5,7 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memora — Your Memory, Outside Your Head | Personal External Memory System</title>
     <meta name="description" content="Capture quotes, ideas, code snippets, tasks, links, movies, and thoughts instantly with Memora. Zero-friction capture, high-confidence auto-categorization, universal search, and vault PIN security.">
-    <link rel="icon" type="image/svg+xml" href="{% url 'favicon' %}">
+    <link rel="icon" type="image/svg+xml" href="{% static 'logo.svg' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'apple-touch-icon.png' %}">
+    <link rel="shortcut icon" href="{% url 'favicon' %}">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#0a0914">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,24 +74,7 @@
             
             <!-- Logo Mark -->
             <a href="{% url 'home_root' %}" class="flex items-center gap-3.5 group">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-950/90 to-indigo-950/90 border border-purple-400/30 flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
-                    <svg class="w-6 h-6" viewBox="0 0 32 32" fill="none">
-                        <path d="M7 23V11.5L16 19.5L25 11.5V23" stroke="url(#landing-mem-1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M11 10C11 7.79 13.24 6 16 6C18.76 6 21 7.79 21 10" stroke="url(#landing-mem-2)" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="16" cy="13.5" r="1.75" fill="#e879f9"/>
-                        <defs>
-                            <linearGradient id="landing-mem-1" x1="7" y1="11.5" x2="25" y2="23" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#c084fc"/>
-                                <stop offset="0.5" stop-color="#818cf8"/>
-                                <stop offset="1" stop-color="#38bdf8"/>
-                            </linearGradient>
-                            <linearGradient id="landing-mem-2" x1="11" y1="6" x2="21" y2="10" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#f472b6"/>
-                                <stop offset="1" stop-color="#c084fc"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                </div>
+                <img src="{% static 'logo.svg' %}" alt="Memora Logo" class="w-10 h-10 rounded-xl group-hover:scale-105 transition-transform shadow-lg shadow-purple-500/20">
                 <div class="flex flex-col justify-center">
                     <span class="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-indigo-300 bg-clip-text text-transparent leading-tight">Memora</span>
                     <span class="text-[10px] text-white/40 tracking-wider uppercase font-medium leading-tight">Your memory vault</span>
@@ -446,12 +434,7 @@
     <!-- FOOTER WITH DEVELOPER CREDITS -->
     <footer class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 border-t border-white/[0.06] text-center space-y-4">
         <div class="flex items-center justify-center gap-3">
-            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-950/90 to-indigo-950/90 border border-purple-400/30 flex items-center justify-center">
-                <svg class="w-4 h-4" viewBox="0 0 32 32" fill="none">
-                    <path d="M7 23V11.5L16 19.5L25 11.5V23" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="16" cy="13.5" r="1.75" fill="#e879f9"/>
-                </svg>
-            </div>
+            <img src="{% static 'logo.svg' %}" alt="Memora Logo" class="w-7 h-7 rounded-lg shadow-md shadow-purple-500/20">
             <span class="text-base font-bold text-white">Memora</span>
         </div>
 
