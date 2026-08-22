@@ -175,8 +175,7 @@
                                 const n = new Notification(`🔔 Reminder: ${item.title}`, {
                                     body: item.content,
                                     icon: '/static/icon-192.png',
-                                    badge: '/static/icon-192.png',
-                                    requireInteraction: true
+                                    badge: '/static/icon-192.png'
                                 });
                                 n.onclick = function() {
                                     window.focus();
@@ -190,7 +189,6 @@
                                         body: item.content,
                                         icon: '/static/icon-192.png',
                                         badge: '/static/icon-192.png',
-                                        requireInteraction: true,
                                         data: { url: item.url }
                                     }).catch(err => console.error('[Memora Push] SW showNotification failed:', err));
                                 }
