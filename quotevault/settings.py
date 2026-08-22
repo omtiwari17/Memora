@@ -94,11 +94,20 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
+import sys
+
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STORAGES = {
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        if (DEBUG or "test" in sys.argv)
+        else "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
