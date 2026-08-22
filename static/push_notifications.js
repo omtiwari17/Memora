@@ -83,7 +83,8 @@
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
                 },
                 body: formData
             });
@@ -164,8 +165,12 @@
                                             body: item.content,
                                             icon: '/static/icon-192.png',
                                             badge: '/static/icon-192.png',
+                                            requireInteraction: true,
                                             data: { url: item.url }
-                                        }).catch(e => console.warn('[Memora Push] SW showNotification error:', e));
+                                        }).catch(e => {
+                                            console.warn('[Memora Push] SW showNotification error:', e);
+                                            try { new Notification(`🔔 Reminder: ${item.title}`, { body: item.content, icon: '/static/icon-192.png' }); } catch(err) {}
+                                        });
                                     }
                                 });
                             } else if (typeof Notification === 'function') {
@@ -173,7 +178,8 @@
                                     new Notification(`🔔 Reminder: ${item.title}`, {
                                         body: item.content,
                                         icon: '/static/icon-192.png',
-                                        badge: '/static/icon-192.png'
+                                        badge: '/static/icon-192.png',
+                                        requireInteraction: true
                                     });
                                 } catch (e) {
                                     console.warn('[Memora Push] Native notification error:', e);
