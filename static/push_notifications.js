@@ -165,13 +165,26 @@
                     if (!notifiedMemoryIds.has(item.id)) {
                         notifiedMemoryIds.add(item.id);
 
-                        // Trigger native browser notification if allowed
-                        if (Notification.permission === 'granted') {
-                            new Notification(`🔔 Reminder: ${item.title}`, {
-                                body: item.content,
-                                icon: '/static/icon-192.png',
-                                badge: '/static/icon-192.png'
-                            });
+                        // Trigger native OS notification if permission granted
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            try {
+                                if (swRegistration && swRegistration.showNotification) {
+                                    swRegistration.showNotification(`🔔 Reminder: ${item.title}`, {
+                                        body: item.content,
+                                        icon: '/static/icon-192.png',
+                                        badge: '/static/icon-192.png',
+                                        data: { url: item.url }
+                                    });
+                                } else {
+                                    new Notification(`🔔 Reminder: ${item.title}`, {
+                                        body: item.content,
+                                        icon: '/static/icon-192.png',
+                                        badge: '/static/icon-192.png'
+                                    });
+                                }
+                            } catch (e) {
+                                console.warn('[Memora Push] Native notification error:', e);
+                            }
                         }
 
                         // Trigger in-app glassmorphic toast
@@ -197,6 +210,8 @@
         const toast = document.createElement('div');
         toast.className = 'pointer-events-auto bg-[#141226]/95 backdrop-blur-2xl border border-purple-500/30 rounded-2xl p-4 shadow-2xl shadow-purple-950/50 flex flex-col gap-2 transform transition-all duration-300 translate-y-4 opacity-0';
 
+        const showEnablePermissionPrompt = ('Notification' in window && Notification.permission !== 'granted');
+
         toast.innerHTML = `
             <div class="flex items-start justify-between gap-3">
                 <div class="flex items-center gap-2">
@@ -210,7 +225,10 @@
                 </button>
             </div>
             <p class="text-xs text-white/70 line-clamp-2">${body}</p>
-            ${url ? `<a href="${url}" class="inline-flex items-center gap-1 text-[11px] font-bold text-purple-400 hover:text-purple-300 mt-1">View Memory &rarr;</a>` : ''}
+            <div class="flex items-center justify-between gap-2 mt-1">
+                ${url ? `<a href="${url}" class="inline-flex items-center gap-1 text-[11px] font-bold text-purple-400 hover:text-purple-300">View Memory &rarr;</a>` : '<div></div>'}
+                ${showEnablePermissionPrompt ? `<button onclick="window.subscribePushReminders()" class="text-[10px] font-bold px-2 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 transition-all">🔔 Enable OS Banners</button>` : ''}
+            </div>
         `;
 
         container.appendChild(toast);
