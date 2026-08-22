@@ -61,43 +61,19 @@
         }
     };
 
-    // Manual Test Notification Trigger
-    window.triggerTestNotification = async function() {
-        console.log('[Memora Push] Test Notification Live button clicked!');
-        if ('Notification' in window && Notification.permission === 'default') {
-            await Notification.requestPermission();
+    // Request Push Notification Permission
+    window.subscribePushReminders = async function() {
+        if (!('Notification' in window)) return;
+        
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            document.querySelectorAll('.memora-push-toggle-container').forEach(el => el.remove());
+            
+            // Optionally, show a confirmation toast
+            showMemoraToast('🔔 Notifications Enabled', 'You will now receive native OS push notifications for due reminders.');
+        } else {
+            showMemoraToast('🔕 Notifications Blocked', 'You denied push notifications. To enable them, change your browser settings.');
         }
-
-        if ('Notification' in window && Notification.permission === 'granted') {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.ready.then(swReg => {
-                    if (swReg && typeof swReg.showNotification === 'function') {
-                        swReg.showNotification('🔔 Test System Notification', {
-                            body: 'Your Memora native OS push notification system is working 100%!',
-                            icon: '/static/icon-192.png',
-                            badge: '/static/icon-192.png'
-                        }).catch(e => console.warn('[Memora Push] SW showNotification error:', e));
-                    }
-                });
-            } else if (typeof Notification === 'function') {
-                try {
-                    new Notification('🔔 Test System Notification', {
-                        body: 'Your Memora native OS push notification system is working 100%!',
-                        icon: '/static/icon-192.png',
-                        badge: '/static/icon-192.png'
-                    });
-                } catch (e) {
-                    console.warn('[Memora Push] Test OS notification error:', e);
-                }
-            }
-        }
-
-        showMemoraToast(
-            '🔔 Test Reminder Notification',
-            'This is a live test notification! Click ✓ Mark Done below to test completing reminders.',
-            '/app/',
-            'test'
-        );
     };
 
     // Check Due Reminders for Active Tab (Instant Browser Notification + Toast)
@@ -204,6 +180,10 @@
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            document.querySelectorAll('.memora-push-toggle-container').forEach(el => el.remove());
+        }
+        
         registerServiceWorker();
         checkDueReminders();
         setInterval(checkDueReminders, 60000); // Check every 60 seconds
