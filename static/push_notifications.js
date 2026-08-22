@@ -76,24 +76,30 @@
         }
 
         try {
-            const formData = new FormData();
-            formData.append('status', 'done');
+            const params = new URLSearchParams();
+            params.append('status', 'done');
+            
+            let csrfToken = getCookie('csrftoken');
+            if (!csrfToken) {
+                console.warn('[Memora Push] CSRF token not found, request might fail.');
+                csrfToken = ''; // Fallback
+            }
 
             const resp = await fetch(`/memory/${memoryId}/status/`, {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken
                 },
-                body: formData
+                body: params
             });
 
             if (resp.ok) {
                 addNotifiedId(memoryId);
                 const toast = btnElement.closest('#memora-toast-container > div');
                 if (toast) {
-                    toast.classList.add('opacity-0', 'translate-y-4');
+                    toast.classList.add('opacity-0', '-translate-y-4');
                     setTimeout(() => toast.remove(), 300);
                 }
 
@@ -102,9 +108,15 @@
                 if (card) {
                     card.classList.add('opacity-40', 'line-through');
                 }
+                
+                showMemoraToast('✅ Marked as Done', 'Memory successfully completed.');
+            } else {
+                console.error('[Memora Push] Server returned status:', resp.status);
+                showMemoraToast('❌ Error', 'Failed to mark done. Server returned ' + resp.status);
             }
         } catch (err) {
             console.error('[Memora Push] Failed to mark memory done:', err);
+            showMemoraToast('❌ Error', 'Network error while marking done.');
         }
     };
 
