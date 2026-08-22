@@ -860,6 +860,7 @@ class IconAndFaviconAssetsTest(TestCase):
         resp = client.get(reverse("favicon"))
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp["Content-Type"], "image/svg+xml")
-        self.assertIn(b"svg", resp.content)
+        content = b"".join(resp.streaming_content)
+        self.assertIn(b"svg", content)
 
 
