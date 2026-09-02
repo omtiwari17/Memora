@@ -633,6 +633,58 @@ class MemoryCRUDTest(TestCase):
         resp = self.client.get(reverse("memory_detail", args=[mem.pk]))
         self.assertEqual(resp.status_code, 404)
 
+    def test_capture_memory_htmx_oob_swaps(self):
+        resp = self.client.post(
+            reverse("capture"),
+            {"content": "New memory via HTMX"},
+            HTTP_HX_REQUEST="true"
+        )
+        self.assertEqual(resp.status_code, 200)
+        content = resp.content.decode()
+        self.assertIn('hx-swap-oob="afterbegin"', content)
+        self.assertIn('id="stat-total-count"', content)
+        self.assertIn("New memory via HTMX", content)
+
+    def test_pin_memory_detail_target(self):
+        mem = Memory.objects.create(content="Pin detail test", user=self.user)
+        resp = self.client.post(
+            reverse("memory_pin", args=[mem.pk]),
+            HTTP_HX_TARGET="detail-pin-btn"
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("Unpin", resp.content.decode())
+
+    def test_archive_memory_detail_redirect(self):
+        mem = Memory.objects.create(content="Archive detail test", user=self.user)
+        resp = self.client.post(
+            reverse("memory_archive", args=[mem.pk]),
+            HTTP_HX_REQUEST="true",
+            HTTP_HX_CURRENT_URL=f"http://testserver/memory/{mem.pk}/"
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.headers.get("HX-Redirect"), reverse("dashboard"))
+
+    def test_delete_memory_detail_redirect(self):
+        mem = Memory.objects.create(content="Delete detail test", user=self.user)
+        resp = self.client.post(
+            reverse("memory_delete", args=[mem.pk]),
+            HTTP_HX_REQUEST="true",
+            HTTP_HX_CURRENT_URL=f"http://testserver/memory/{mem.pk}/"
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.headers.get("HX-Redirect"), reverse("dashboard"))
+
+    def test_update_memory_status_detail_target(self):
+        tasks_cat = Category.objects.filter(slug="tasks").first()
+        mem = Memory.objects.create(content="Task item", user=self.user, category=tasks_cat)
+        resp = self.client.post(
+            reverse("memory_status", args=[mem.pk]),
+            {"status": "done"},
+            HTTP_HX_TARGET="detail-status-btn"
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("Undo Done", resp.content.decode())
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # CATEGORY MANAGEMENT TESTS
