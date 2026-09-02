@@ -12,7 +12,9 @@
     <meta name="theme-color" content="#0a0914">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
-    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <!-- HTMX (Local with CDN fallback) -->
+    <script src="{% static 'htmx.min.js' %}"></script>
+    <script>window.htmx || document.write('<script src="https://unpkg.com/htmx.org@1.9.12"><\/script>')</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -51,29 +53,43 @@
 
             <form method="POST" action="{% url 'capture' %}" class="space-y-4">
                 {% csrf_token %}
-                <textarea name="content" rows="5" placeholder="Type anything worth remembering..." class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white/90 placeholder-white/25 outline-none focus:border-purple-400/40 resize-none transition-colors" required></textarea>
-                <input type="text" name="title" placeholder="Title (auto-generated if empty)" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors">
-                <select name="category" class="w-full bg-[#181726] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/50 transition-colors cursor-pointer">
-                    <option value="" class="bg-[#181726] text-white py-2">No category (Inbox)</option>
-                    {% for cat in categories %}
-                    <option value="{{ cat.slug }}" class="bg-[#181726] text-white py-2">{{ cat.name }}</option>
-                    {% endfor %}
-                </select>
-                <input type="text" name="tags" placeholder="Tags (comma separated)" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors">
-                <input type="url" name="source_url" placeholder="URL (optional)" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors">
-                <select name="priority" class="w-full bg-[#181726] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/50 transition-colors cursor-pointer">
-                    <option value="none">No priority</option>
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                    <option value="urgent">Urgent</option>
-                </select>
-                    <option value="none" class="bg-[#181726] text-white py-2">⚪ No priority</option>
-                    <option value="low" class="bg-[#181726] text-white py-2">🟢 Low</option>
-                    <option value="medium" class="bg-[#181726] text-white py-2">🟡 Medium</option>
-                    <option value="high" class="bg-[#181726] text-white py-2">🟠 High</option>
-                    <option value="urgent" class="bg-[#181726] text-white py-2">🔴 Urgent</option>
-                </select>
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-white/40 tracking-wider block mb-1.5">Title</label>
+                    <input type="text" name="title" placeholder="Title (optional, auto-generated if empty)" class="w-full bg-[#18162b] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/25 outline-none focus:border-purple-400/60 transition-colors">
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-white/40 tracking-wider block mb-1.5">Memory Content *</label>
+                    <textarea name="content" rows="5" placeholder="Type anything worth remembering..." class="w-full bg-[#18162b] border border-white/10 rounded-xl px-4 py-3 text-sm text-white/95 placeholder-white/25 outline-none focus:border-purple-400/60 resize-none transition-colors" required></textarea>
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-white/40 tracking-wider block mb-1.5">Category</label>
+                    <select name="category" class="w-full bg-[#18162b] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/60 transition-colors cursor-pointer">
+                        <option value="" class="bg-[#18162b] text-white">No category (Inbox)</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.slug }}" class="bg-[#18162b] text-white">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-white/40 tracking-wider block mb-1.5">Tags</label>
+                        <input type="text" name="tags" placeholder="Tags (comma separated)" class="w-full bg-[#18162b] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/25 outline-none focus:border-purple-400/60 transition-colors">
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-white/40 tracking-wider block mb-1.5">Priority</label>
+                        <select name="priority" class="w-full bg-[#18162b] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/60 transition-colors cursor-pointer">
+                            <option value="none">No priority</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent ⚡</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-white/40 tracking-wider block mb-1.5">Source URL</label>
+                    <input type="url" name="source_url" placeholder="https://... (optional)" class="w-full bg-[#18162b] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/25 outline-none focus:border-purple-400/60 transition-colors">
+                </div>
                 <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-sm font-semibold shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all active:translate-y-0">
                     Save Memory
                 </button>

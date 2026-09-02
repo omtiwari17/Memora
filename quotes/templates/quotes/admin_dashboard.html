@@ -15,7 +15,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <!-- HTMX (Local with CDN fallback) -->
+    <script src="{% static 'htmx.min.js' %}"></script>
+    <script>window.htmx || document.write('<script src="https://unpkg.com/htmx.org@1.9.12"><\/script>')</script>
 
     <script>
         tailwind.config = {

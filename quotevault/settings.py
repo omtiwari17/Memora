@@ -8,12 +8,15 @@ SECRET_KEY = os.environ.get(
     "SECRET_KEY",
     "django-secure-memora-vault-key-prod-dev-fallback-2026-a1b2c3d4e5f6g7h8i9j0"
 )
-DEBUG = os.environ.get("DEBUG", "False") == "True"
+IS_PRODUCTION = bool(os.environ.get("RENDER") or os.environ.get("RENDER_EXTERNAL_HOSTNAME"))
+DEBUG = os.environ.get("DEBUG", "False" if IS_PRODUCTION else "True") == "True"
 INTERNAL_IPS = ["127.0.0.1", "::1"]
+
+import sys
 
 # Production Security & Reverse Proxy Settings
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-if not DEBUG:
+if not DEBUG and "test" not in sys.argv and IS_PRODUCTION:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
@@ -93,8 +96,6 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
-
-import sys
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]

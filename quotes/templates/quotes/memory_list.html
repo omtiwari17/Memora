@@ -15,7 +15,9 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
-    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <!-- HTMX (Local with CDN fallback) -->
+    <script src="{% static 'htmx.min.js' %}"></script>
+    <script>window.htmx || document.write('<script src="https://unpkg.com/htmx.org@1.9.12"><\/script>')</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -56,9 +58,21 @@
         .code-card { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
         @keyframes slide-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .slide-up { animation: slide-up 0.25s ease-out; }
+
+        /* Smooth HTMX swap animations (zero page reloads) */
+        .htmx-swapping {
+            opacity: 0 !important;
+            transform: scale(0.95) translateY(-6px) !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .htmx-settling {
+            opacity: 1 !important;
+            transform: scale(1) translateY(0) !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
     </style>
 </head>
-<body class="bg-[#0f0e17] text-white min-h-screen relative overflow-x-hidden">
+<body class="bg-[#0f0e17] text-white min-h-screen relative overflow-x-hidden" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <!-- Aurora -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <div class="aurora-blob float-1 absolute -top-40 -left-32 w-[500px] h-[500px] rounded-full bg-purple-600/30"></div>
@@ -238,16 +252,23 @@
 
                 <!-- Search within this view -->
                 <div class="w-full mb-6">
-                    <div class="glass rounded-2xl flex items-center px-4 py-3 border border-white/10 focus-within:border-purple-400/50 transition-all duration-200">
-                        <svg class="w-4 h-4 text-white/30 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
-                        <input type="text" name="q" placeholder="Search in {{ title }}..." class="bg-transparent outline-none w-full placeholder-white/25 text-sm"
+                    <div class="glass rounded-2xl flex items-center px-4 py-3.5 border border-white/10 focus-within:border-purple-400/60 focus-within:shadow-[0_0_25px_rgba(168,85,247,0.18)] transition-all duration-200 group">
+                        <svg class="w-5 h-5 text-white/30 mr-3 shrink-0 group-focus-within:text-purple-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                        <input type="text" name="q" id="list-search-input" placeholder="Search in {{ title }}..." class="bg-transparent outline-none w-full placeholder-white/25 text-sm text-white/90"
                             hx-get="{% url 'search_memories' %}{% if active_filter == 'category' %}?category={{ filter_value }}{% endif %}"
-                            hx-trigger="keyup changed delay:300ms, search"
+                            hx-trigger="keyup changed delay:250ms, search"
                             hx-target="#memory-grid"
                             hx-swap="innerHTML"
                             hx-indicator="#search-spinner"
-                            hx-include="[name='q']">
-                        <span id="search-spinner" class="htmx-indicator loading loading-spinner loading-sm text-purple-400"></span>
+                            hx-include="[name='q']"
+                            oninput="toggleClearListSearch(this.value)">
+                        <button type="button" id="clear-list-search-btn" onclick="clearListSearch()" class="hidden p-1 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors mr-2 cursor-pointer" title="Clear search">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                        <span id="search-spinner" class="htmx-indicator loading loading-spinner loading-sm text-purple-400 mr-2"></span>
+                        <kbd class="hidden sm:inline-flex items-center gap-0.5 px-2 py-0.5 rounded-lg bg-white/5 border border-white/10 text-[10px] font-mono text-white/40">
+                            <span>/</span>
+                        </kbd>
                     </div>
                 </div>
 
@@ -341,6 +362,58 @@
     function scrollToTop() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    function copyCardContent(btn) {
+        const text = btn.getAttribute('data-content');
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(() => {
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<svg class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+            }, 1400);
+        });
+    }
+
+    function toggleClearListSearch(val) {
+        const btn = document.getElementById('clear-list-search-btn');
+        if (btn) {
+            if (val && val.trim()) {
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+            }
+        }
+    }
+
+    function clearListSearch() {
+        const input = document.getElementById('list-search-input');
+        if (input) {
+            input.value = '';
+            toggleClearListSearch('');
+            htmx.trigger(input, 'search');
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+            e.preventDefault();
+            const searchInput = document.getElementById('list-search-input');
+            if (searchInput) searchInput.focus();
+        }
+    });
+    </script>
+    <script>
+    document.body.addEventListener('htmx:configRequest', (event) => {
+        let token = '{{ csrf_token }}';
+        if (!token) {
+            const match = document.cookie.match(/csrftoken=([^;]+)/);
+            if (match) token = match[1];
+        }
+        if (token) {
+            event.detail.headers['X-CSRFToken'] = token;
+        }
+    });
     </script>
     <script src="{% static 'push_notifications.js' %}"></script>
 </body>

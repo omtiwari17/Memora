@@ -30,8 +30,8 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 | **Database** | **SQLite** (local dev) / **Neon PostgreSQL** (production) | 100% Free forever PostgreSQL via `dj-database-url` |
 | **Hosting** | **Render** (Free Web Service) + **cron-job.org** (Keep-Alive Ping) | 100% Free production hosting, stays awake 24/7 without cold starts |
 | **Static Files** | WhiteNoise | Compressed static assets served directly by Django WSGI |
-| **CI/CD** | GitHub Actions | 4-stage pipeline: Lint → Django Checks → 115 Tests → Deploy Readiness |
-| **Testing** | Django TestCase (115 tests) | Models, auth, views, URLs, CRUD, APIs, custom admin, movie watch ratings, data isolation |
+| **CI/CD** | GitHub Actions | 4-stage pipeline: Lint → Django Checks → 132 Tests → Deploy Readiness |
+| **Testing** | Django TestCase (132 tests) | Models, auth, views, URLs, CRUD, APIs, custom admin, movie watch ratings, HTMX in-place updates, data isolation |
 
 **Explicitly Excluded:** React, Node.js, npm build pipelines, heavy SPA frameworks. Tailwind and DaisyUI are loaded directly via CDN.
 
@@ -224,7 +224,22 @@ Memora/
 
 ---
 
-## 8. Completed Work (Phase 1 — Phase 7 Complete)
+## 8. Completed Work (Phase 1 — Phase 8 Complete)
+
+### Phase 8 — Zero-Reload In-Place HTMX Architecture & Performance
+- [x] **Zero Full-Page Reloads**: Purged native `<form>` tags from card actions (Pin/Heart, Archive, Delete, Task complete, Cinema Watch Status, and 5-Star Ratings). Converted all to `<button type="button">` with `hx-post`, `hx-vals`, and `hx-target="closest .memory-card"` with `hx-swap="outerHTML"`.
+- [x] **Eliminated Modal Capture Reload**: Removed explicit `window.location.reload()` from `capture_modal.html` and implemented Out-of-Band (OOB) insertion (`hx-swap-oob="afterbegin"`) in `capture_feedback.html` targeting `#memory-stream` and `#memory-grid`, accompanied by real-time stat counter updates (`#stat-total-count`, `#stat-inbox-count`, etc.) without page refresh.
+- [x] **Local HTMX 1.9.12 Bundle**: Downloaded and vendor-bundled `static/htmx.min.js` with automatic CDN fallback across all templates, guaranteeing HTMX executes reliably without third-party network blocking.
+- [x] **SSL Redirect & Development Environment Guard**: Configured `quotevault/settings.py` so `DEBUG` defaults to `True` locally and `SECURE_SSL_REDIRECT` only activates when deployed on Render (`IS_PRODUCTION`), preventing local 301 redirects from corrupting POST requests.
+- [x] **Global CSRF Security Headers**: Applied `hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'` and `htmx:configRequest` token listeners across `dashboard.html`, `memory_list.html`, `memory_detail.html`, `random_memory.html`, `capture_form.html`, and `admin_dashboard.html`.
+- [x] **Smooth HTMX Micro-Animations**: Injected `.htmx-swapping` and `.htmx-settling` CSS transitions for seamless card exit and entry animations.
+- [x] **Expanded CI Test Suite**: 132 automated tests passing cleanly with new tests covering HTMX OOB swaps, in-place detail targeting, and `HX-Redirect` handling.
+- [x] **Elevated Glassmorphic UI & Micro-Interactions**:
+  - Ambient radial category top glow on each memory card (`radial-gradient(circle at 10% 0%, color 0%, transparent 65%)`).
+  - 1-Click Clipboard Copy button (`copyCardContent`, `copyDetailText`) on every memory card and detail page with live green checkmark micro-feedback.
+  - Redesigned search bar with glowing group focus (`shadow-[0_0_25px_rgba(168,85,247,0.18)]`), quick clear (`×`) button, and keyboard shortcut indicators (`/` to focus).
+  - Redesigned statistics cards with subtle gradient hover glow, distinct accent iconography, and micro-label badges.
+  - Elevated Quick Capture modal with deep frosted backdrop (`backdrop-blur-xl bg-black/80`), `Ctrl+Enter` keyboard submit shortcut, and refined textarea focus styling.
 
 ### Phase 7 — Native Web Push & Real-Time Reminders
 - [x] Native PWA Web Push & Service Worker Notification System (`sw.js`, `push_notifications.js`, VAPID key pair generation, `PushSubscription` model).

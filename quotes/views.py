@@ -512,9 +512,18 @@ def capture(request):
                 memory.tags.add(tag)
 
         if request.headers.get("HX-Request"):
+            user_memories = Memory.objects.filter(user=request.user, is_archived=False)
+            total_count = user_memories.count()
+            inbox_count = user_memories.filter(status=Memory.Status.INBOX).count()
+            tasks_done = user_memories.filter(status=Memory.Status.DONE).count()
+            due_soon = user_memories.filter(due_date__isnull=False, due_date__gte=timezone.now()).count()
             return render(request, "quotes/partials/capture_feedback.html", {
                 "success": True,
                 "memory": memory,
+                "total_count": total_count,
+                "inbox_count": inbox_count,
+                "tasks_done": tasks_done,
+                "due_soon": due_soon,
             })
 
         return redirect("dashboard")
@@ -622,6 +631,20 @@ def memory_pin(request, pk):
     memory = get_object_or_404(Memory, pk=pk, user=request.user)
     memory.is_pinned = not memory.is_pinned
     memory.save()
+
+    if request.headers.get("HX-Target") == "detail-pin-btn":
+        from django.http import HttpResponse
+        svg_class = "text-red-400 fill-current" if memory.is_pinned else ""
+        label = "Unpin" if memory.is_pinned else "Pin"
+        btn_html = (
+            f'<button type="button" hx-post="{reverse("memory_pin", args=[memory.id])}" '
+            f'hx-target="#detail-pin-btn" hx-swap="outerHTML" id="detail-pin-btn" '
+            f'class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-white/70 hover:text-white transition-all border border-white/10 cursor-pointer">'
+            f'<svg class="w-3.5 h-3.5 {svg_class}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'
+            f'<span>{label}</span></button>'
+        )
+        return HttpResponse(btn_html)
+
     return render(request, "quotes/partials/memory_card.html", {"memory": memory})
 
 
@@ -635,6 +658,11 @@ def memory_archive(request, pk):
 
     if request.headers.get("HX-Request"):
         from django.http import HttpResponse
+        current_url = request.headers.get("HX-Current-URL", "")
+        if f"/memory/{pk}/" in current_url:
+            response = HttpResponse("")
+            response["HX-Redirect"] = reverse("dashboard")
+            return response
         return HttpResponse("")
 
     return render(request, "quotes/partials/memory_card.html", {"memory": memory})
@@ -660,6 +688,20 @@ def memory_status(request, pk):
     if "application/json" in request.headers.get("Accept", "") or "application/json" in request.headers.get("Content-Type", ""):
         return JsonResponse({"success": True, "memory_id": memory.id, "status": memory.status})
 
+    if request.headers.get("HX-Target") == "detail-status-btn":
+        from django.http import HttpResponse
+        next_status = "active" if memory.status == "done" else "done"
+        label = "Undo Done" if memory.status == "done" else "Mark Done"
+        btn_html = (
+            f'<button type="button" hx-post="{reverse("memory_status", args=[memory.id])}" '
+            f'hx-vals=\'{{"status": "{next_status}"}}\' '
+            f'hx-target="#detail-status-btn" hx-swap="outerHTML" id="detail-status-btn" '
+            f'class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-white/70 hover:text-white transition-all border border-white/10 cursor-pointer">'
+            f'<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>'
+            f'<span>{label}</span></button>'
+        )
+        return HttpResponse(btn_html)
+
     return render(request, "quotes/partials/memory_card.html", {"memory": memory})
 
 
@@ -672,6 +714,11 @@ def memory_delete(request, pk):
 
     if request.headers.get("HX-Request"):
         from django.http import HttpResponse
+        current_url = request.headers.get("HX-Current-URL", "")
+        if f"/memory/{pk}/" in current_url:
+            response = HttpResponse("")
+            response["HX-Redirect"] = reverse("dashboard")
+            return response
         return HttpResponse("")
 
     return redirect("dashboard")

@@ -1,19 +1,29 @@
 {# Edit Memory Modal Partial #}
-<div id="edit-modal-{{ memory.id }}" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+<div id="edit-modal-{{ memory.id }}" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-hidden">
     <!-- Backdrop -->
-    <div class="fixed inset-0 bg-black/70 backdrop-blur-md" onclick="closeEditModal('{{ memory.id }}')"></div>
+    <div class="fixed inset-0 bg-black/80 backdrop-blur-xl transition-opacity" onclick="closeEditModal('{{ memory.id }}')"></div>
 
     <!-- Modal Card -->
-    <div class="relative w-full max-w-xl max-h-[90vh] flex flex-col modal-glass rounded-3xl shadow-2xl shadow-black/50 overflow-hidden my-auto z-10">
+    <div class="relative w-full max-w-lg max-h-[92vh] flex flex-col rounded-3xl bg-[#121020]/95 border border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.85),0_0_50px_rgba(168,85,247,0.15)] backdrop-blur-2xl overflow-hidden my-auto z-10 transition-all duration-300">
+        <style>
+        #edit-modal-body-{{ memory.id }}::-webkit-scrollbar { width: 5px; }
+        #edit-modal-body-{{ memory.id }}::-webkit-scrollbar-track { background: transparent; }
+        #edit-modal-body-{{ memory.id }}::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 9999px; }
+        #edit-modal-body-{{ memory.id }}::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+        </style>
+
         <!-- Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] shrink-0 bg-[#0f0e17]/40">
-            <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-xs">
-                    ✏️
+        <div class="flex items-center justify-between px-6 py-4 border-b border-white/[0.08] shrink-0 bg-[#0c0b16]/70">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-md shadow-purple-500/25 shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
                 </div>
-                <span class="text-sm font-semibold text-white/80">Edit Memory</span>
+                <div>
+                    <span class="text-sm font-bold text-white/95 leading-tight block">Edit Memory</span>
+                    <span class="text-[10px] text-white/40 leading-tight block">Update content, categorization, and metadata</span>
+                </div>
             </div>
-            <button type="button" onclick="closeEditModal('{{ memory.id }}')" class="p-1.5 rounded-lg hover:bg-white/10 transition-colors text-white/40 hover:text-white/70">
+            <button type="button" onclick="closeEditModal('{{ memory.id }}')" class="p-1.5 rounded-xl hover:bg-white/10 transition-colors text-white/40 hover:text-white cursor-pointer" title="Close (Esc)">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
@@ -22,116 +32,86 @@
         <form hx-post="{% url 'memory_edit' memory.id %}" hx-target="#memory-{{ memory.id }}" hx-swap="outerHTML" hx-on::after-request="closeEditModal('{{ memory.id }}')" class="flex flex-col flex-1 overflow-hidden">
             {% csrf_token %}
             <!-- Scrollable Content Body -->
-            <div class="px-6 py-4 space-y-4 overflow-y-auto flex-1 max-h-[calc(85vh-120px)]">
-                <!-- Content -->
+            <div id="edit-modal-body-{{ memory.id }}" class="px-6 py-4 space-y-3.5 overflow-y-auto flex-1 max-h-[calc(85vh-125px)]" style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.14) transparent;">
+                
+                <!-- 1. Title Input (On Top) -->
                 <div>
-                    <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1">Memory Content</label>
+                    <label class="text-[10px] uppercase font-bold text-white/40 tracking-wider flex items-center justify-between mb-1.5">
+                        <span>Title</span>
+                    </label>
+                    <input type="text"
+                        name="title"
+                        value="{{ memory.title }}"
+                        placeholder="Memory title..."
+                        class="w-full bg-[#18162b] hover:bg-[#1d1a33] focus:bg-[#1d1a33] border border-white/10 focus:border-purple-400/60 rounded-xl px-3.5 py-2.5 text-sm font-medium text-white placeholder-white/25 outline-none transition-all shadow-inner">
+                </div>
+
+                <!-- 2. Memory Content Area -->
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-white/40 tracking-wider flex items-center justify-between mb-1.5">
+                        <span>Memory Content <span class="text-purple-400">*</span></span>
+                    </label>
                     <textarea
                         name="content"
                         rows="5"
-                        class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white/90 placeholder-white/25 outline-none focus:border-purple-400/40 resize-none transition-colors"
+                        class="w-full bg-[#18162b] hover:bg-[#1d1a33] focus:bg-[#1d1a33] border border-white/10 focus:border-purple-400/60 rounded-xl p-3.5 text-sm text-white/95 placeholder-white/25 outline-none resize-none transition-all focus:ring-1 focus:ring-purple-500/20 leading-relaxed shadow-inner"
                         required
                     >{{ memory.content }}</textarea>
                 </div>
 
-                <!-- Title -->
-                <div>
-                    <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1">Title</label>
-                    <input type="text" name="title" value="{{ memory.title }}" placeholder="Title" class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors">
-                </div>
-
-                <!-- Category -->
-                <div>
-                    <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1">Category</label>
-                    <select name="category" class="w-full bg-[#181726] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/50 transition-colors appearance-none cursor-pointer" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22rgba(255,255,255,0.6)%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center;">
-                        <option value="" class="bg-[#181726] text-white py-2" {% if not memory.category %}selected{% endif %}>No category (Inbox)</option>
-                        {% for cat in categories %}
-                        <option value="{{ cat.slug }}" class="bg-[#181726] text-white py-2" {% if memory.category and memory.category.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Tags -->
-                <div>
-                    <div class="flex items-center justify-between mb-1">
-                        <label class="text-[10px] text-white/40 uppercase font-semibold block">Tags (comma separated)</label>
-                        {% if all_tags %}
-                        <span class="text-[10px] text-purple-300/60 font-medium">Type or select existing tags</span>
-                        {% endif %}
-                    </div>
-                    <input type="text" name="tags" id="edit-tags-input" value="{{ tags_str }}" list="edit-existing-tags" placeholder="e.g. movie, code, priority" 
-                        class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors"
-                        oninput="onTagInput(this.value, 'edit-tag-suggestions')" autocomplete="off">
-                    <datalist id="edit-existing-tags">
-                        {% for tag in all_tags %}
-                        <option value="{{ tag.name }}"></option>
-                        {% endfor %}
-                    </datalist>
-                    {% if all_tags %}
-                    <div id="edit-tag-suggestions" class="flex flex-wrap gap-1.5 mt-2 max-h-24 overflow-y-auto">
-                        {% for tag in all_tags %}
-                        <button type="button" onclick="addTagToInput('edit-tags-input', '{{ tag.name }}', 'edit-tag-suggestions')" 
-                            data-tag="{{ tag.name|lower }}"
-                            class="tag-chip-btn px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/25 border border-purple-500/20 text-purple-300 text-xs transition-all flex items-center gap-1">
-                            <span>#{{ tag.name }}</span>
-                        </button>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                </div>
-
-                <!-- URL -->
-                <div>
-                    <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1">URL / Link</label>
-                    <input type="url" name="source_url" value="{{ memory.source_url }}" placeholder="https://..." class="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder-white/20 outline-none focus:border-purple-400/40 transition-colors">
-                </div>
-
-                <!-- Priority -->
-                <div>
-                    <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1">Priority</label>
-                    <select name="priority" class="w-full bg-[#181726] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/50 transition-colors appearance-none cursor-pointer" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22rgba(255,255,255,0.6)%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center;">
-                        <option value="none" class="bg-[#181726] text-white py-2" {% if memory.priority == 'none' %}selected{% endif %}>No priority</option>
-                        <option value="low" class="bg-[#181726] text-white py-2" {% if memory.priority == 'low' %}selected{% endif %}>Low</option>
-                        <option value="medium" class="bg-[#181726] text-white py-2" {% if memory.priority == 'medium' %}selected{% endif %}>Medium</option>
-                        <option value="high" class="bg-[#181726] text-white py-2" {% if memory.priority == 'high' %}selected{% endif %}>High</option>
-                        <option value="urgent" class="bg-[#181726] text-white py-2" {% if memory.priority == 'urgent' %}selected{% endif %}>Urgent</option>
-                    </select>
-                </div>
-
-                <!-- Author -->
-                <div>
-                    <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Author</label>
-                    <input type="text" name="author" value="{{ memory.author }}" placeholder="Author name" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl px-4 text-sm text-white placeholder-white/20 outline-none focus:border-purple-500/50 transition-colors">
-                </div>
-
-                <!-- Due Date & Status -->
-                <div class="grid grid-cols-2 gap-3">
+                <!-- 3. Primary Grid: Category, Priority, Status -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
                     <div>
-                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Due Date</label>
-                        <input type="date" name="due_date" value="{{ memory.due_date|date:'Y-m-d' }}" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl px-3 text-sm text-white outline-none focus:border-purple-500/50 transition-colors [color-scheme:dark]">
+                        <label class="text-[10px] uppercase font-bold text-white/40 tracking-wider block mb-1.5">Category</label>
+                        <select name="category" class="w-full bg-[#18162b] border border-white/10 hover:border-white/20 rounded-xl px-3 py-2 text-xs text-white/90 outline-none focus:border-purple-400/60 transition-all cursor-pointer">
+                            <option value="" class="bg-[#18162b] text-white" {% if not memory.category %}selected{% endif %}>Inbox (Default)</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.slug }}" class="bg-[#18162b] text-white" {% if memory.category and memory.category.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
+
                     <div>
-                        <label class="text-[10px] text-white/40 uppercase font-semibold block mb-1.5">Status</label>
-                        <select name="status" class="w-full h-11 bg-[#181726] border border-white/10 rounded-xl px-3 text-sm text-white outline-none focus:border-purple-500/50 transition-colors">
+                        <label class="text-[10px] uppercase font-bold text-white/40 tracking-wider block mb-1.5">Priority</label>
+                        <select name="priority" class="w-full bg-[#18162b] border border-white/10 hover:border-white/20 rounded-xl px-3 py-2 text-xs text-white/90 outline-none focus:border-purple-400/60 transition-all cursor-pointer">
+                            <option value="none" class="bg-[#18162b] text-white" {% if memory.priority == 'none' %}selected{% endif %}>None</option>
+                            <option value="low" class="bg-[#18162b] text-white" {% if memory.priority == 'low' %}selected{% endif %}>Low</option>
+                            <option value="medium" class="bg-[#18162b] text-white" {% if memory.priority == 'medium' %}selected{% endif %}>Medium</option>
+                            <option value="high" class="bg-[#18162b] text-white" {% if memory.priority == 'high' %}selected{% endif %}>High</option>
+                            <option value="urgent" class="bg-[#18162b] text-white" {% if memory.priority == 'urgent' %}selected{% endif %}>Urgent ⚡</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-white/40 tracking-wider block mb-1.5">Status</label>
+                        <select name="status" class="w-full bg-[#18162b] border border-white/10 hover:border-white/20 rounded-xl px-3 py-2 text-xs text-white/90 outline-none focus:border-purple-400/60 transition-all cursor-pointer">
                             <option value="inbox" {% if memory.status == 'inbox' %}selected{% endif %}>Inbox</option>
                             <option value="active" {% if memory.status == 'active' %}selected{% endif %}>Active</option>
                             <option value="done" {% if memory.status == 'done' %}selected{% endif %}>Done</option>
                             <option value="archived" {% if memory.status == 'archived' %}selected{% endif %}>Archived</option>
                         </select>
                     </div>
-                <!-- Movie / Watch Options -->
-                <div class="grid grid-cols-2 gap-3 pt-1">
+                </div>
+
+                <!-- 4. Due Date & Cinema Watch / Ratings -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     <div>
-                        <label class="text-[10px] text-amber-300/80 uppercase font-semibold block mb-1.5">Watch Status</label>
-                        <select name="watch_status" class="w-full h-11 bg-[#181726] border border-amber-500/20 rounded-xl px-3 text-sm text-white outline-none focus:border-amber-400/50 transition-colors">
+                        <label class="text-[10px] uppercase font-bold text-white/40 tracking-wider block mb-1.5">Due Date</label>
+                        <input type="date" name="due_date" value="{{ memory.due_date|date:'Y-m-d' }}" class="w-full bg-[#18162b] border border-white/10 hover:border-white/20 rounded-xl px-2.5 py-1.5 text-xs text-white/90 outline-none focus:border-purple-400/60 transition-all [color-scheme:dark]">
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-amber-300/80 tracking-wider block mb-1.5">Watch Status</label>
+                        <select name="watch_status" class="w-full bg-[#18162b] border border-amber-500/20 hover:border-amber-400/40 rounded-xl px-3 py-2 text-xs text-white/90 outline-none focus:border-amber-400/60 transition-all cursor-pointer">
                             <option value="want_to_watch" {% if memory.watch_status == 'want_to_watch' %}selected{% endif %}>🎬 Want to Watch</option>
                             <option value="watching" {% if memory.watch_status == 'watching' %}selected{% endif %}>🍿 Watching Now</option>
                             <option value="watched" {% if memory.watch_status == 'watched' %}selected{% endif %}>✅ Watched</option>
                         </select>
                     </div>
+
                     <div>
-                        <label class="text-[10px] text-amber-300/80 uppercase font-semibold block mb-1.5">Rating (1-5 Stars)</label>
-                        <select name="rating" class="w-full h-11 bg-[#181726] border border-amber-500/20 rounded-xl px-3 text-sm text-white outline-none focus:border-amber-400/50 transition-colors">
+                        <label class="text-[10px] uppercase font-bold text-amber-300/80 tracking-wider block mb-1.5">Rating (1-5)</label>
+                        <select name="rating" class="w-full bg-[#18162b] border border-amber-500/20 hover:border-amber-400/40 rounded-xl px-3 py-2 text-xs text-white/90 outline-none focus:border-amber-400/60 transition-all cursor-pointer">
                             <option value="" {% if not memory.rating %}selected{% endif %}>No Rating</option>
                             <option value="5" {% if memory.rating == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ (5/5)</option>
                             <option value="4" {% if memory.rating == 4 %}selected{% endif %}>⭐⭐⭐⭐ (4/5)</option>
@@ -141,14 +121,56 @@
                         </select>
                     </div>
                 </div>
+
+                <!-- 5. Tags input with chips -->
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-[10px] uppercase font-bold text-white/40 tracking-wider block">Tags</label>
+                        {% if all_tags %}
+                        <span class="text-[10px] text-purple-300/60 font-medium">Click chip or type tags</span>
+                        {% endif %}
+                    </div>
+                    <input type="text" name="tags" id="edit-tags-input" value="{{ tags_str }}" list="edit-existing-tags" placeholder="e.g. movie, code, priority (comma separated)" 
+                        class="w-full bg-[#18162b] border border-white/10 rounded-xl px-3 py-2 text-xs text-white/90 placeholder-white/20 outline-none focus:border-purple-400/60 transition-all"
+                        oninput="onTagInput(this.value, 'edit-tag-suggestions')" autocomplete="off">
+                    <datalist id="edit-existing-tags">
+                        {% for tag in all_tags %}
+                        <option value="{{ tag.name }}"></option>
+                        {% endfor %}
+                    </datalist>
+                    {% if all_tags %}
+                    <div id="edit-tag-suggestions" class="flex flex-wrap gap-1.5 mt-2 max-h-20 overflow-y-auto" style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;">
+                        {% for tag in all_tags %}
+                        <button type="button" onclick="addTagToInput('edit-tags-input', '{{ tag.name }}', 'edit-tag-suggestions')" 
+                            data-tag="{{ tag.name|lower }}"
+                            class="tag-chip-btn px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/25 border border-purple-500/20 text-purple-300 text-xs transition-all flex items-center gap-1 cursor-pointer">
+                            <span>#{{ tag.name }}</span>
+                        </button>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- 6. Author & Source URL -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-white/40 tracking-wider block mb-1">Author</label>
+                        <input type="text" name="author" value="{{ memory.author }}" placeholder="Author name" class="w-full bg-[#18162b] border border-white/10 rounded-xl px-3 py-2 text-xs text-white/90 placeholder-white/20 outline-none focus:border-purple-400/60 transition-all">
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-white/40 tracking-wider block mb-1">Source URL</label>
+                        <input type="url" name="source_url" value="{{ memory.source_url }}" placeholder="https://..." class="w-full bg-[#18162b] border border-white/10 rounded-xl px-3 py-2 text-xs text-white/90 placeholder-white/20 outline-none focus:border-purple-400/60 transition-all">
+                    </div>
+                </div>
+
             </div>
 
             <!-- Footer -->
-            <div class="flex items-center justify-between px-6 py-3.5 border-t border-white/[0.06] bg-[#0f0e17]/80 shrink-0">
-                <div></div>
-                <div class="flex gap-2">
-                    <button type="button" onclick="closeEditModal('{{ memory.id }}')" class="px-4 py-2 rounded-xl text-xs text-white/40 hover:text-white/60 hover:bg-white/5 transition-all">Cancel</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-xs font-semibold text-white shadow-lg shadow-purple-500/20 hover:shadow-purple-500/35 transition-all">
+            <div class="flex items-center justify-between px-6 py-3.5 border-t border-white/[0.08] bg-[#0c0b16]/90 shrink-0">
+                <span class="text-[11px] text-white/35 hidden sm:inline-block font-mono">Editing memory #{{ memory.id }}</span>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeEditModal('{{ memory.id }}')" class="px-4 py-2 rounded-xl text-xs text-white/40 hover:text-white/80 hover:bg-white/5 transition-all cursor-pointer">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-indigo-600 text-xs font-bold text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer">
                         Save Changes
                     </button>
                 </div>
