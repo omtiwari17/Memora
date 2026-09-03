@@ -843,21 +843,25 @@ def category_create(request):
     ).first()
 
     if existing:
-        messages.error(request, f'A category named "{existing.name}" already exists. Category names must be unique.')
+        messages.error(request, f'Duplicate detected: A category named "{existing.name}" already exists. Category names must be unique.')
         return redirect("category_manage")
 
     max_order = Category.objects.filter(Q(is_default=True) | Q(user=request.user)).count()
 
-    Category.objects.create(
-        user=request.user,
-        name=name,
-        slug=slug,
-        emoji="",
-        color=color,
-        is_default=False,
-        order=max_order + 1
-    )
-    messages.success(request, f'Category "{name}" created successfully.')
+    try:
+        Category.objects.create(
+            user=request.user,
+            name=name,
+            slug=slug,
+            emoji="",
+            color=color,
+            is_default=False,
+            order=max_order + 1
+        )
+        messages.success(request, f'Category "{name}" created successfully.')
+    except Exception as e:
+        messages.error(request, f"Could not create category: {e}")
+
     return redirect("category_manage")
 
 
@@ -883,15 +887,19 @@ def category_edit(request, pk):
         ).first()
 
         if existing:
-            messages.error(request, f'A category named "{existing.name}" already exists. Category names must be unique.')
+            messages.error(request, f'Duplicate detected: A category named "{existing.name}" already exists. Category names must be unique.')
             return redirect("category_manage")
 
         category.name = name
         category.slug = slug
 
     category.color = color
-    category.save()
-    messages.success(request, f'Category "{category.name}" updated successfully.')
+    try:
+        category.save()
+        messages.success(request, f'Category "{category.name}" updated successfully.')
+    except Exception as e:
+        messages.error(request, f"Could not update category: {e}")
+
     return redirect("category_manage")
 
 
@@ -900,8 +908,13 @@ def category_edit(request, pk):
 def category_delete(request, pk):
     """Delete a category; associated memories default to Inbox."""
     category = get_object_or_404(Category, pk=pk)
+    if category.is_default:
+        messages.error(request, f'Default category "{category.name}" is a core system category and cannot be deleted.')
+        return redirect("category_manage")
+
     Memory.objects.filter(category=category).update(category=None, status=Memory.Status.INBOX)
     category.delete()
+    messages.success(request, f'Category "{category.name}" deleted. Associated memories moved to Inbox.')
     return redirect("category_manage")
 
 
