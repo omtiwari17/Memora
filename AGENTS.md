@@ -258,23 +258,28 @@ Quotes • Thoughts • Ideas • Learn • Save • Links • Watch • Cinema 
 
 ## 8. Completed Work (Phases 1 to 10 Complete)
 
-### Phase 10 - Modern Minimalist Linear & Notion Workspace Overhaul
+### Phase 10 - Modern Minimalist Workspace & Mobile UX Overhaul
 - [x] **De-Congestion & Progressive Disclosure**: Completely overhauled application density following Linear, Notion, and Raycast interaction design patterns.
 - [x] **Slim, Calm Sidebar (`w-60`)**:
   - Removed 17 duplicate category pills from the sidebar to eliminate visual exhaustion and endless vertical scrolling.
   - Replaced with airy, purposeful navigation sections: Core (All Memories, Inbox, Important), Action (Tasks, Reminders), Explore (Today, On This Day, Random, Recent), and Library (Categories count, Archive).
   - Streamlined bottom dock with creator links (`omtiwari.tech`, GitHub, LinkedIn) and clean user vault profile.
-- [x] **Unified Single-Row Command Header**:
+- [x] **Unified Command Header Bar**:
   - Eliminated stacked marketing hero and standalone search boxes across both `dashboard.html` and `memory_list.html`.
   - Integrated into a cohesive single-row header: Title + active vault indicator on left, centered Spotlight search input with `/` shortcut badge and smooth focus styling, and preserved OOB stat counters (`#stat-inbox-count`, `#stat-tasks-done`, `#stat-due-soon`) with high-contrast Linear-style `+ Capture` button (`⌘K`).
-- [x] **Spacious, Relaxed Memory Cards (`p-5 sm:p-6`, `gap-6`)**:
-  - Upgraded card grid layout from cramped `gap-4` to comfortable `gap-6` (`grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6`).
-  - Increased card padding to `p-5 sm:p-6` with relaxed typography (`leading-relaxed text-white/80`).
-  - Implemented progressive disclosure: 5-action toolbar (Copy, Edit, Pin, Archive, Delete) is neatly hidden until hover/focus (`opacity-0 group-hover:opacity-100 focus-within:opacity-100`), turning cards into serene index cards.
-  - Eliminated redundant secondary "Edit" button from card footers, prioritizing clean timestamp and `View →` detail action.
-- [x] **Fluid Minimalist Category Filter Rail**:
-  - Restyled filter chips with sleek neutral translucent backgrounds (`bg-white/[0.04] hover:bg-white/[0.08]`) and delicate color indicator dots.
-  - Retained triple-action horizontal scrolling engine (chevrons, mouse wheel translation, drag-to-scroll fling, and touch swipe).
+- [x] **Proportional Memory Cards & Grid Tuning**:
+  - Balanced card grid layout (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5`) with `max-w-7xl` container.
+  - Resolved unclosed div nesting bug so cards lay out across columns seamlessly.
+  - Refined card padding to `p-4 sm:p-5` with relaxed typography (`text-white/80`).
+- [x] **Mobile UX & Touch Interactions**:
+  - Consolidated mobile app bar: removed duplicate stacked headers and redundant mobile capture buttons.
+  - Enabled mobile touch accessibility on card action toolbar (`opacity-80 sm:opacity-0 sm:group-hover:opacity-100`) with comfortable touch targets.
+  - Synchronized fixed bottom navigation bar with iPhone home indicator safe-area padding (`pb-[max(0.5rem,env(safe-area-inset-bottom))]`) and content clearance (`pb-28`).
+  - Mobile-optimized Quick Capture & Edit Modals (`rounded-2xl sm:rounded-3xl`, `min-h-[38px]` touch inputs, `max-h-[90vh]`).
+- [x] **Strict Zero Em Dash Enforcement**:
+  - Replaced quote author attribution line (`w-3.5 h-px`) with clean Hyphen (`-`).
+  - Added model-level `save()` filter on `Memory` (`self.title`, `self.content`, `self.author`) converting all Em Dashes (`—`) and En Dashes (`–`) to clean Hyphens (`-`).
+  - Sanitized existing database memories to guarantee zero Em Dashes anywhere.
 - [x] **100% CI & Test Suite Integrity**: All 135 automated tests passing cleanly with zero regressions.
 
 ### Phase 9 - Modern Executive UI, Fluid Category Rail, Strict Uniqueness & Typographic Consistency

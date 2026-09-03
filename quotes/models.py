@@ -137,6 +137,15 @@ class Memory(models.Model):
     def __str__(self):
         return self.title or self.content[:80]
 
+    def save(self, *args, **kwargs):
+        if self.title:
+            self.title = self.title.replace("—", "-").replace("–", "-")
+        if self.content:
+            self.content = self.content.replace("—", "-").replace("–", "-")
+        if self.author:
+            self.author = self.author.replace("—", "-").replace("–", "-")
+        super().save(*args, **kwargs)
+
     @classmethod
     def random_memory(cls):
         """Return a random non-archived memory for the 'Remember This' feature."""
