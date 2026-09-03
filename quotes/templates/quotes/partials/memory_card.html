@@ -86,20 +86,24 @@
 
         {# ─── TASK-STYLE CARD ─── #}
         {% if memory.category.slug == 'tasks' %}
-        <div class="flex items-start gap-3">
+        <div class="flex items-start gap-3 my-0.5">
             <button type="button"
                 hx-post="{% url 'memory_status' memory.id %}"
                 hx-vals='{"status": "{% if memory.status == "done" %}active{% else %}done{% endif %}"}'
                 hx-target="closest .memory-card"
                 hx-swap="outerHTML"
-                class="mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer
-                {% if memory.status == 'done' %}border-emerald-400 bg-emerald-400/20 text-emerald-400{% else %}border-white/20 hover:border-purple-400{% endif %}">
+                class="mt-0.5 w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer shadow-sm
+                {% if memory.status == 'done' %}border-emerald-400 bg-emerald-500/20 text-emerald-300 shadow-[0_0_10px_rgba(52,211,153,0.3)]{% else %}border-white/25 hover:border-purple-400 hover:scale-110 bg-white/5{% endif %}"
+                title="Mark {% if memory.status == 'done' %}Active{% else %}Done{% endif %}">
                 {% if memory.status == 'done' %}
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                 {% endif %}
             </button>
             <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-white/90 {% if memory.status == 'done' %}line-through text-white/40{% endif %}">
+                {% if memory.title and memory.title != memory.content %}
+                <p class="text-xs font-bold text-white/90 mb-0.5 {% if memory.status == 'done' %}line-through text-white/40{% endif %}">{{ memory.title }}</p>
+                {% endif %}
+                <p class="text-sm font-medium leading-relaxed text-white/90 {% if memory.status == 'done' %}line-through text-white/40{% endif %}">
                     {{ memory.content|truncatewords:40 }}
                 </p>
             </div>
@@ -107,29 +111,45 @@
 
         {# ─── CODE-STYLE CARD ─── #}
         {% elif memory.category.slug == 'code' %}
-        <div class="code-card">
-            {% if memory.title %}
-            <p class="text-xs font-semibold text-white/60 mb-2">{{ memory.title }}</p>
-            {% endif %}
-            <div class="bg-black/40 rounded-xl p-3.5 border border-white/[0.06] shadow-inner">
-                <pre class="text-xs text-emerald-300/90 whitespace-pre-wrap break-words leading-relaxed overflow-hidden font-mono" style="max-height: 160px;">{{ memory.content|truncatechars:500 }}</pre>
+        <div class="code-card my-1 rounded-xl overflow-hidden border border-white/[0.08] bg-[#07070f] shadow-lg">
+            <div class="flex items-center justify-between px-3 py-2 border-b border-white/[0.06] bg-white/[0.02]">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-rose-500/70 inline-block"></span>
+                    <span class="w-2 h-2 rounded-full bg-amber-500/70 inline-block"></span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500/70 inline-block"></span>
+                    {% if memory.title %}
+                    <span class="text-[11px] font-mono text-white/60 ml-2 truncate max-w-[200px]">{{ memory.title }}</span>
+                    {% endif %}
+                </div>
+                <button type="button" onclick="copyCardContent(this)" data-content="{{ memory.content|escape }}" class="text-[10px] font-mono text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 cursor-pointer" title="Copy code">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>
+                    <span>Copy</span>
+                </button>
+            </div>
+            <div class="p-3.5 bg-black/40">
+                <pre class="text-xs text-emerald-300/90 whitespace-pre-wrap break-words leading-relaxed overflow-hidden font-mono" style="max-height: 180px;">{{ memory.content|truncatechars:500 }}</pre>
             </div>
         </div>
 
         {# ─── LINK-STYLE CARD ─── #}
         {% elif memory.category.slug == 'links' %}
-        <div>
+        <div class="my-0.5">
             {% if memory.title %}
-            <p class="text-sm font-semibold text-white/90 mb-1.5">{{ memory.title }}</p>
+            <p class="text-sm font-bold text-white/95 mb-1.5">{{ memory.title }}</p>
             {% endif %}
             {% if memory.source_url %}
-            <a href="{{ memory.source_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs text-cyan-300/80 hover:text-cyan-300 transition-colors truncate max-w-full font-mono">
-                <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.06a4.5 4.5 0 00-1.242-7.244l-4.5-4.5a4.5 4.5 0 00-6.364 6.364l1.757 1.757"/></svg>
-                {{ memory.source_url|truncatechars:50 }}
-            </a>
+            <div class="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] transition-all group/link mb-2">
+                <a href="{{ memory.source_url }}" target="_blank" rel="noopener" class="flex items-center justify-between gap-2 text-xs text-sky-300 hover:text-sky-200 transition-colors truncate font-mono">
+                    <div class="flex items-center gap-1.5 truncate">
+                        <svg class="w-3.5 h-3.5 text-sky-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.06a4.5 4.5 0 00-1.242-7.244l-4.5-4.5a4.5 4.5 0 00-6.364 6.364l1.757 1.757"/></svg>
+                        <span class="truncate">{{ memory.source_url|truncatechars:45 }}</span>
+                    </div>
+                    <svg class="w-3.5 h-3.5 text-white/40 group-hover/link:text-sky-300 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-all shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"/></svg>
+                </a>
+            </div>
             {% endif %}
             {% if memory.content and memory.content != memory.title %}
-            <p class="text-xs text-white/50 mt-2 leading-relaxed">{{ memory.content|truncatewords:30 }}</p>
+            <p class="text-xs text-white/60 leading-relaxed">{{ memory.content|truncatewords:30 }}</p>
             {% endif %}
         </div>
 

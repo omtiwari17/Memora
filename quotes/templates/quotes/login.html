@@ -66,14 +66,19 @@
             background: rgba(255,255,255,0.03);
             color: rgba(255,255,255,0.5);
         }
+        /* Subtle architectural dot grid canvas */
+        .bg-grid-pattern {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
     </style>
 </head>
-<body class="bg-[#0f0e17] text-white min-h-screen relative overflow-x-hidden flex items-center justify-center p-4">
+<body class="bg-[#0b0a14] text-white min-h-screen relative overflow-x-hidden flex items-center justify-center p-4 bg-grid-pattern">
 
-    <!-- Dark Aurora background -->
+    <!-- Dark Aurora background with enhanced ambient lighting -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div class="aurora-blob float-1 absolute -top-40 -left-32 w-[500px] h-[500px] rounded-full bg-purple-600/30"></div>
-        <div class="aurora-blob float-2 absolute top-1/3 -right-40 w-[550px] h-[550px] rounded-full bg-indigo-500/20"></div>
+        <div class="aurora-blob float-1 absolute -top-44 -left-36 w-[620px] h-[620px] rounded-full bg-gradient-to-br from-purple-600/25 via-indigo-600/20 to-transparent"></div>
+        <div class="aurora-blob float-2 absolute top-1/3 -right-44 w-[680px] h-[680px] rounded-full bg-gradient-to-bl from-fuchsia-600/20 via-purple-900/15 to-transparent"></div>
     </div>
 
     <div class="w-full max-w-md">
