@@ -1,4 +1,4 @@
-{# Random memory — "Remember This" feature #}
+{# Random memory - "Remember This" feature #}
 {% if memory %}
 <div class="glass rounded-2xl p-6 fade-in max-w-lg mx-auto border-l-4" style="{% if memory.category %}border-left-color: {{ memory.category.color }};{% else %}border-left-color: rgba(255,255,255,0.15);{% endif %}">
     <div class="flex items-center gap-2.5 mb-4">
@@ -24,7 +24,7 @@
     <p class="text-sm text-white/75 leading-relaxed">{{ memory.content }}</p>
 
     {% if memory.author %}
-    <p class="text-xs text-purple-300/70 font-medium mt-3">— {{ memory.author }}</p>
+    <p class="text-xs text-purple-300/70 font-medium mt-3">- {{ memory.author }}</p>
     {% endif %}
 
     {% if memory.source_url %}

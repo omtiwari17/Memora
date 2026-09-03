@@ -1,5 +1,5 @@
 {% load static %}
-{# Individual memory card — renders differently based on category type #}
+{# Individual memory card - renders differently based on category type #}
 <div class="memory-card group relative glass rounded-2xl overflow-hidden fade-in border border-white/[0.08] shadow-[0_8px_30px_rgb(0,0,0,0.35)] transition-all duration-300 hover:shadow-2xl hover:border-white/[0.18] hover:-translate-y-1"
      id="memory-{{ memory.id }}"
      style="background: radial-gradient(ellipse at 15% 0%, {{ memory.category.color|default:'#a78bfa' }}16 0%, rgba(20,18,32,0.6) 60%, rgba(15,14,23,0.9) 100%);">
@@ -337,7 +337,7 @@
             {% endif %}
             <p class="text-sm text-white/[0.88] leading-relaxed">{{ memory.content|truncatewords:40 }}</p>
             {% if memory.author and memory.category.slug != 'quotes' and memory.category.slug != 'thoughts' %}
-            <p class="text-[11px] text-white/40 mt-1.5 font-medium">— {{ memory.author }}</p>
+            <p class="text-[11px] text-white/40 mt-1.5 font-medium">- {{ memory.author }}</p>
             {% endif %}
             {% if memory.source_url %}
             <a href="{{ memory.source_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-[11px] text-indigo-300/70 hover:text-indigo-200 mt-2 transition-colors">

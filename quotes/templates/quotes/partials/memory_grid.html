@@ -1,4 +1,4 @@
-{# Memory grid — shared partial for dashboard stream, search results, and filtered views #}
+{# Memory grid - shared partial for dashboard stream, search results, and filtered views #}
 {% for memory in memories %}
     {% include "quotes/partials/memory_card.html" %}
 {% empty %}
@@ -18,7 +18,7 @@
             {% if query %}
                 No results matching "<span class="text-purple-300 font-semibold">{{ query }}</span>". Try different keywords or press <kbd class="px-1 py-0.5 rounded bg-white/10 text-white/70 font-mono text-[10px]">Esc</kbd> to clear.
             {% else %}
-                Capture your first thought, book quote, link, or task — organize it now or sort it later.
+                Capture your first thought, book quote, link, or task - organize it now or sort it later.
             {% endif %}
         </p>
         <button onclick="openCapture()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-xs font-bold text-white shadow-xl shadow-purple-500/25 hover:shadow-purple-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer">

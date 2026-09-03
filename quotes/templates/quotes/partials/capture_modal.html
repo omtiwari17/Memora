@@ -188,7 +188,7 @@ function generateLiveTitle(val) {
         const quoteText = clean.split('\n')[0].replace(/["“”']/g, '').trim();
         const words = quoteText.split(/\s+/);
         const shortQuote = words.length > 5 ? words.slice(0, 5).join(' ') + '...' : quoteText;
-        titleInput.value = `"${shortQuote}" — ${author}`;
+        titleInput.value = `"${shortQuote}" - ${author}`;
         return;
     }
 

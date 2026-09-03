@@ -97,7 +97,7 @@ def extract_title(text):
         author_name = author_match.group(1).strip()
         words = quote_text.split()
         short_quote = " ".join(words[:5]) + "..." if len(words) > 5 else quote_text
-        return f'"{short_quote}" — {author_name}'
+        return f'"{short_quote}" - {author_name}'
 
     if clean.startswith("<") and ">" in clean:
         tag_title = re.search(r'<title[^>]*>(.*?)</title>', clean, re.IGNORECASE)
@@ -150,19 +150,19 @@ def custom_400_view(request, exception=None):
 
 # ── Authentication (Vault Handle + 6-Digit PIN) ──────────────────────
 def home_root(request):
-    """Home Root / handler — Serves the Product Landing Page for unauthenticated visitors, or redirects authenticated users to their Vault Dashboard."""
+    """Home Root / handler - Serves the Product Landing Page for unauthenticated visitors, or redirects authenticated users to their Vault Dashboard."""
     if request.user.is_authenticated:
         return redirect("dashboard")
     return render(request, "quotes/landing.html")
 
 
 def landing_page(request):
-    """Product Landing Page for Memora — Showcase features, design, and vault entry."""
+    """Product Landing Page for Memora - Showcase features, design, and vault entry."""
     return render(request, "quotes/landing.html")
 
 
 def health_check(request):
-    """Health check endpoint — returns JSON for API/cron pings or a glassmorphic UI for browser visits."""
+    """Health check endpoint - returns JSON for API/cron pings or a glassmorphic UI for browser visits."""
     if "application/json" in request.headers.get("Accept", ""):
         return JsonResponse({"status": "ok", "app": "Memora", "service": "awake"}, status=200)
     
@@ -221,7 +221,7 @@ def vault_logout(request):
 # ── Dashboard ──────────────────────────────────────────────────────────
 @login_required(login_url="login")
 def dashboard(request):
-    """Main dashboard — shows recent memories, pinned items, upcoming."""
+    """Main dashboard - shows recent memories, pinned items, upcoming."""
     categories = get_user_categories(request.user)
     user_memories = Memory.objects.filter(user=request.user, is_archived=False)
 

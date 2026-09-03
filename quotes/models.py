@@ -49,7 +49,7 @@ class Collection(models.Model):
 
 
 class Memory(models.Model):
-    """The core model — anything worth remembering."""
+    """The core model - anything worth remembering."""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="memories")
 
