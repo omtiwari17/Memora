@@ -13,6 +13,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.db.models import Q
 
 from .models import Memory, Category, Tag, Collection, PushSubscription
@@ -821,15 +822,29 @@ def category_manage(request):
 @login_required(login_url="login")
 @require_http_methods(["POST"])
 def category_create(request):
-    """Create a new category."""
+    """Create a new category with strict uniqueness validation."""
     name = request.POST.get("name", "").strip()
     color = request.POST.get("color", "#a78bfa").strip()
 
     if not name:
+        messages.error(request, "Category name cannot be empty.")
         return redirect("category_manage")
 
-    slug = name.lower().replace(" ", "-")
-    slug = re.sub(r"[^a-z0-9-]", "", slug)
+    slug = re.sub(r"[^a-z0-9-]", "", name.lower().replace(" ", "-"))
+    if not slug:
+        messages.error(request, "Please provide a valid category name.")
+        return redirect("category_manage")
+
+    # Enforce uniqueness against default categories and current user's categories
+    existing = Category.objects.filter(
+        Q(is_default=True) | Q(user=request.user)
+    ).filter(
+        Q(name__iexact=name) | Q(slug=slug)
+    ).first()
+
+    if existing:
+        messages.error(request, f'A category named "{existing.name}" already exists. Category names must be unique.')
+        return redirect("category_manage")
 
     max_order = Category.objects.filter(Q(is_default=True) | Q(user=request.user)).count()
 
@@ -842,24 +857,41 @@ def category_create(request):
         is_default=False,
         order=max_order + 1
     )
-
+    messages.success(request, f'Category "{name}" created successfully.')
     return redirect("category_manage")
 
 
 @login_required(login_url="login")
 @require_http_methods(["POST"])
 def category_edit(request, pk):
-    """Edit an existing category."""
+    """Edit an existing category with strict uniqueness validation."""
     category = get_object_or_404(Category, pk=pk)
     name = request.POST.get("name", "").strip()
     color = request.POST.get("color", category.color).strip()
 
     if name:
+        slug = re.sub(r"[^a-z0-9-]", "", name.lower().replace(" ", "-"))
+        if not slug:
+            messages.error(request, "Please provide a valid category name.")
+            return redirect("category_manage")
+
+        # Enforce uniqueness against other categories accessible by user
+        existing = Category.objects.filter(
+            Q(is_default=True) | Q(user=request.user)
+        ).exclude(pk=category.pk).filter(
+            Q(name__iexact=name) | Q(slug=slug)
+        ).first()
+
+        if existing:
+            messages.error(request, f'A category named "{existing.name}" already exists. Category names must be unique.')
+            return redirect("category_manage")
+
         category.name = name
-        category.slug = re.sub(r"[^a-z0-9-]", "", name.lower().replace(" ", "-"))
+        category.slug = slug
+
     category.color = color
     category.save()
-
+    messages.success(request, f'Category "{category.name}" updated successfully.')
     return redirect("category_manage")
 
 
@@ -962,10 +994,19 @@ def seed_categories():
         {"name": "Important", "slug": "important", "emoji": "", "color": "#ef4444", "order": 17},
     ]
     for cat_data in defaults:
-        Category.objects.get_or_create(
+        cat, created = Category.objects.get_or_create(
             slug=cat_data["slug"],
+            is_default=True,
             defaults={**cat_data, "is_default": True}
         )
+        # Deduplicate any custom user categories colliding with default categories
+        custom_dups = Category.objects.filter(
+            Q(slug=cat_data["slug"]) | Q(name__iexact=cat_data["name"]),
+            is_default=False
+        )
+        for dup in custom_dups:
+            Memory.objects.filter(category=dup).update(category=cat)
+            dup.delete()
 
 
 def favicon_view(request):

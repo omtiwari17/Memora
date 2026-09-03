@@ -708,6 +708,45 @@ class CategoryManagementTest(TestCase):
         self.assertIn(resp.status_code, [200, 302])
         self.assertTrue(Category.objects.filter(name="Custom Cat").exists())
 
+    def test_cannot_create_duplicate_matching_default_category(self):
+        """Cannot create a category with the same name or slug as a default category."""
+        resp = self.client.post(reverse("category_create"), {
+            "name": "Quotes",
+            "color": "#ee5253",
+        })
+        self.assertEqual(resp.status_code, 302)
+        # Should still be exactly 1 Quotes category (the default one)
+        self.assertEqual(Category.objects.filter(name__iexact="Quotes").count(), 1)
+
+    def test_cannot_create_duplicate_custom_category(self):
+        """Cannot create two custom categories with the same name."""
+        self.client.post(reverse("category_create"), {
+            "name": "Unique Tag Cat",
+            "color": "#38bdf8",
+        })
+        self.assertEqual(Category.objects.filter(name="Unique Tag Cat").count(), 1)
+
+        # Attempt to create duplicate (case-insensitive)
+        resp = self.client.post(reverse("category_create"), {
+            "name": "unique tag cat",
+            "color": "#f472b6",
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(Category.objects.filter(name__iexact="Unique Tag Cat").count(), 1)
+
+    def test_cannot_edit_category_to_duplicate_name(self):
+        """Cannot edit a category to a name that already exists."""
+        cat_a = Category.objects.create(name="Alpha", slug="alpha", user=self.user)
+        cat_b = Category.objects.create(name="Beta", slug="beta", user=self.user)
+
+        resp = self.client.post(reverse("category_edit", args=[cat_b.pk]), {
+            "name": "Alpha",
+            "color": "#a78bfa",
+        })
+        self.assertEqual(resp.status_code, 302)
+        cat_b.refresh_from_db()
+        self.assertEqual(cat_b.name, "Beta")  # Name should remain Beta
+
     def test_delete_category(self):
         cat = Category.objects.create(
             name="Deletable", slug="deletable", user=self.user
