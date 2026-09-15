@@ -152,6 +152,20 @@
         }
         .scrollbar-none::-webkit-scrollbar { display: none; }
         .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Cinema Interactive Star Rating Group */
+        .star-rating-group:hover .star-icon {
+            color: rgba(255, 255, 255, 0.25) !important;
+            filter: none !important;
+        }
+        .star-rating-group .star-btn:hover .star-icon,
+        .star-rating-group .star-btn:hover ~ .star-btn .star-icon {
+            color: #fbbf24 !important;
+            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.9)) !important;
+        }
+        .star-rating-group .star-btn:active {
+            transform: scale(1.25);
+        }
     </style>
 </head>
 <body class="bg-[#0b0a14] text-white min-h-screen relative overflow-x-hidden bg-grid-pattern" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
