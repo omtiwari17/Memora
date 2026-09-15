@@ -34,8 +34,7 @@ CODE_PATTERNS = [
 ]
 
 CATEGORY_KEYWORDS = {
-    "cinema": ["movie", "film", "cinema", "show", "series", "tv show", "web series", "netflix", "imdb", "boxoffice", "season", "episode", "anime"],
-    "watch": ["watch", "youtube", "video", "documentary", "stream"],
+    "cinema": ["movie", "film", "cinema", "show", "series", "tv show", "web series", "netflix", "imdb", "boxoffice", "season", "episode", "anime", "watch", "youtube", "video", "documentary", "stream"],
     "read": ["read", "book", "article", "paper", "blog", "novel", "manga", "ebook"],
     "buy": ["buy", "purchase", "order", "price", "cost", "shopping", "amazon", "flipkart", "deal"],
     "tasks": ["todo", "to-do", "task", "need to", "should", "must", "finish", "complete", "submit", "deadline"],
@@ -980,12 +979,17 @@ def seed_categories():
     """Create default categories if they don't exist."""
     Category.objects.all().update(emoji="")
 
-    shows_cat = Category.objects.filter(slug="shows", is_default=True).first()
-    cinema_cat = Category.objects.filter(slug="cinema", is_default=True).first()
-    if shows_cat:
-        if cinema_cat:
-            Memory.objects.filter(category=shows_cat).update(category=cinema_cat)
-        shows_cat.delete()
+    # Ensure Cinema category exists first as the canonical media category
+    cinema_cat, _ = Category.objects.get_or_create(
+        slug="cinema",
+        defaults={"name": "Cinema", "slug": "cinema", "emoji": "", "color": "#e11d48", "order": 7, "is_default": True}
+    )
+
+    # Safely migrate memories from legacy 'shows' and 'watch' categories into 'cinema'
+    for legacy_slug in ["shows", "watch"]:
+        for legacy_cat in Category.objects.filter(slug=legacy_slug):
+            Memory.objects.filter(category=legacy_cat).update(category=cinema_cat)
+            legacy_cat.delete()
 
     defaults = [
         {"name": "Quotes", "slug": "quotes", "emoji": "", "color": "#f59e0b", "order": 1},
@@ -994,17 +998,16 @@ def seed_categories():
         {"name": "Learn", "slug": "learn", "emoji": "", "color": "#34d399", "order": 4},
         {"name": "Save", "slug": "save", "emoji": "", "color": "#60a5fa", "order": 5},
         {"name": "Links", "slug": "links", "emoji": "", "color": "#38bdf8", "order": 6},
-        {"name": "Watch", "slug": "watch", "emoji": "", "color": "#f87171", "order": 7},
-        {"name": "Cinema", "slug": "cinema", "emoji": "", "color": "#e11d48", "order": 8},
-        {"name": "Read", "slug": "read", "emoji": "", "color": "#fb923c", "order": 9},
-        {"name": "Buy", "slug": "buy", "emoji": "", "color": "#4ade80", "order": 10},
-        {"name": "Tasks", "slug": "tasks", "emoji": "", "color": "#22d3ee", "order": 11},
-        {"name": "Reminders", "slug": "reminders", "emoji": "", "color": "#e879f9", "order": 12},
-        {"name": "Places", "slug": "places", "emoji": "", "color": "#2dd4bf", "order": 13},
-        {"name": "Code", "slug": "code", "emoji": "", "color": "#a3e635", "order": 14},
-        {"name": "People", "slug": "people", "emoji": "", "color": "#f472b6", "order": 15},
-        {"name": "Projects", "slug": "projects", "emoji": "", "color": "#818cf8", "order": 16},
-        {"name": "Important", "slug": "important", "emoji": "", "color": "#ef4444", "order": 17},
+        {"name": "Cinema", "slug": "cinema", "emoji": "", "color": "#e11d48", "order": 7},
+        {"name": "Read", "slug": "read", "emoji": "", "color": "#fb923c", "order": 8},
+        {"name": "Buy", "slug": "buy", "emoji": "", "color": "#4ade80", "order": 9},
+        {"name": "Tasks", "slug": "tasks", "emoji": "", "color": "#22d3ee", "order": 10},
+        {"name": "Reminders", "slug": "reminders", "emoji": "", "color": "#e879f9", "order": 11},
+        {"name": "Places", "slug": "places", "emoji": "", "color": "#2dd4bf", "order": 12},
+        {"name": "Code", "slug": "code", "emoji": "", "color": "#a3e635", "order": 13},
+        {"name": "People", "slug": "people", "emoji": "", "color": "#f472b6", "order": 14},
+        {"name": "Projects", "slug": "projects", "emoji": "", "color": "#818cf8", "order": 15},
+        {"name": "Important", "slug": "important", "emoji": "", "color": "#ef4444", "order": 16},
     ]
     for cat_data in defaults:
         cat, created = Category.objects.get_or_create(

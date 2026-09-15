@@ -184,20 +184,20 @@ class MemoryModelTest(TestCase):
 class SeedCategoriesTest(TestCase):
     """Test that default categories are seeded correctly."""
 
-    def test_seed_creates_17_categories(self):
+    def test_seed_creates_16_categories(self):
         seed_categories()
-        self.assertEqual(Category.objects.filter(is_default=True).count(), 17)
+        self.assertEqual(Category.objects.filter(is_default=True).count(), 16)
 
     def test_seed_is_idempotent(self):
         seed_categories()
         seed_categories()  # Run twice
-        self.assertEqual(Category.objects.filter(is_default=True).count(), 17)
+        self.assertEqual(Category.objects.filter(is_default=True).count(), 16)
 
     def test_seeded_categories_have_correct_slugs(self):
         seed_categories()
         expected_slugs = [
             "quotes", "thoughts", "ideas", "learn", "save", "links",
-            "watch", "cinema", "read", "buy", "tasks", "reminders", "places",
+            "cinema", "read", "buy", "tasks", "reminders", "places",
             "code", "people", "projects", "important",
         ]
         for slug in expected_slugs:
@@ -232,8 +232,8 @@ class AutoCategorizationTest(TestCase):
     def test_detects_tasks(self):
         self.assertEqual(suggest_category("todo: finish CI pipeline"), "tasks")
 
-    def test_detects_watch(self):
-        self.assertEqual(suggest_category("watch youtube video documentary"), "watch")
+    def test_detects_watch_as_cinema(self):
+        self.assertEqual(suggest_category("watch youtube video documentary"), "cinema")
 
     def test_detects_cinema(self):
         self.assertEqual(suggest_category("watch Inception movie tonight"), "cinema")
@@ -915,14 +915,14 @@ class MovieWatchStatusTest(TestCase):
         self.user = User.objects.create_user(username="moviebuff", password="123456")
         self.client.login(username="moviebuff", password="123456")
         seed_categories()
-        self.watch_cat = Category.objects.get(slug="watch")
+        self.cinema_cat = Category.objects.get(slug="cinema")
 
     def test_create_movie_with_watch_status_and_rating(self):
         memory = Memory.objects.create(
             user=self.user,
             title="Inception",
             content="Great sci-fi thriller",
-            category=self.watch_cat,
+            category=self.cinema_cat,
             watch_status=Memory.WatchStatus.WATCHED,
             rating=5
         )
@@ -934,7 +934,7 @@ class MovieWatchStatusTest(TestCase):
             user=self.user,
             title="Interstellar",
             content="Space exploration movie",
-            category=self.watch_cat,
+            category=self.cinema_cat,
             watch_status=Memory.WatchStatus.WANT_TO_WATCH,
         )
         resp = self.client.post(

@@ -180,7 +180,7 @@ Memora/
 - `color` (CharField, hex color for UI)
 - `is_default` (BooleanField, default=False)
 - `order` (IntegerField, default=0)
-- 17 default system categories seeded via `python manage.py seed_categories`
+- 16 default system categories seeded via `python manage.py seed_categories`
 - Strict uniqueness enforced per user across custom and system categories
 
 ### Tag
@@ -200,7 +200,7 @@ Memora/
 
 ## 6. Default Categories
 
-Quotes • Thoughts • Ideas • Learn • Save • Links • Watch • Cinema • Read • Buy • Tasks • Reminders • Places • Code • People • Projects • Important
+Quotes • Thoughts • Ideas • Learn • Save • Links • Cinema • Read • Buy • Tasks • Reminders • Places • Code • People • Projects • Important
 
 ---
 
