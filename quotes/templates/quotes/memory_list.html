@@ -251,12 +251,20 @@
                             </div>
                         </div>
 
-                        <!-- User Handle Badge & Sign Out -->
-                        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-purple-500/15 border border-purple-500/25 text-xs text-purple-200 shrink-0">
-                            <span class="font-semibold max-w-[90px] sm:max-w-[130px] truncate">@{{ request.user.username }}</span>
-                            <a href="{% url 'logout' %}" class="ml-1 text-white/40 hover:text-red-400 transition-colors" title="Sign Out">
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
-                            </a>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <!-- Tablet Top Capture Button -->
+                            <button onclick="openCapture()" class="hidden sm:inline-flex lg:hidden items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                                <span>Capture</span>
+                            </button>
+
+                            <!-- User Handle Badge & Sign Out -->
+                            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-purple-500/15 border border-purple-500/25 text-xs text-purple-200">
+                                <span class="font-semibold max-w-[90px] sm:max-w-[130px] truncate">@{{ request.user.username }}</span>
+                                <a href="{% url 'logout' %}" class="ml-1 text-white/40 hover:text-red-400 transition-colors" title="Sign Out">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
+                                </a>
+                            </div>
                         </div>
                     </div>
 
@@ -332,12 +340,12 @@
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
                     </button>
 
-                    <!-- Fading edge indicators -->
-                    <div id="list-category-rail-fade-l" class="absolute left-0 inset-y-0 w-8 bg-gradient-to-r from-[#0b0a14] to-transparent pointer-events-none opacity-0 transition-opacity z-10"></div>
-                    <div id="list-category-rail-fade-r" class="absolute right-0 inset-y-0 w-8 bg-gradient-to-l from-[#0b0a14] to-transparent pointer-events-none opacity-100 transition-opacity z-10"></div>
+                    <!-- Fading edge indicators (Hidden on mobile to prevent chip truncation) -->
+                    <div id="list-category-rail-fade-l" class="hidden sm:block absolute left-0 inset-y-0 w-8 bg-gradient-to-r from-[#0b0a14] to-transparent pointer-events-none opacity-0 transition-opacity z-10"></div>
+                    <div id="list-category-rail-fade-r" class="hidden sm:block absolute right-0 inset-y-0 w-8 bg-gradient-to-l from-[#0b0a14] to-transparent pointer-events-none opacity-100 transition-opacity z-10"></div>
 
                     <!-- Scrollable Filter Chips -->
-                    <div id="list-category-rail" class="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none text-xs scroll-smooth cursor-grab select-none">
+                    <div id="list-category-rail" class="flex items-center gap-2 overflow-x-auto py-1.5 scrollbar-none text-xs scroll-smooth cursor-grab select-none px-0.5 pr-8 sm:pr-2" style="-webkit-overflow-scrolling: touch;">
                         <a href="{% url 'dashboard' %}" class="px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-white/70 hover:text-white border border-white/[0.06] shrink-0 transition-all">
                             All
                         </a>
