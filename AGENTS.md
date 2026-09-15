@@ -256,7 +256,28 @@ Quotes • Thoughts • Ideas • Learn • Save • Links • Cinema • Read �
 
 ---
 
-## 8. Completed Work (Phases 1 to 10 Complete)
+## 8. Completed Work (Phases 1 to 11 Complete)
+
+### Phase 11 - Cinema Consolidation, Adaptive Shortcuts, Icon Refinements & All-Screen Usability
+- [x] **Cinema Category Consolidation**:
+  - Merged legacy `watch` category into canonical `cinema` category (`slug: cinema`).
+  - Scoped movie watch status pills (`Want to Watch`, `Watching`, `Watched`) and interactive 5-star ratings strictly to the `cinema` category.
+  - Dynamically shows/hides cinema watch status and star ratings in Quick Capture (`capture_modal.html`) and Edit Modal (`memory_edit_modal.html`) only when Cinema is selected.
+  - Updated keyword auto-categorization and database seeder (`seed_categories`) to 16 default system categories.
+- [x] **Pixel-Perfect Vector Icon Polish**:
+  - Replaced deformed magnifying glass search SVG with standard Heroicons geometry across all search headers and empty states.
+  - Fixed sign-out icon distortion in sidebar dock, mobile header bar, mobile footer card, and health check dashboard.
+- [x] **OS-Adaptive Capture Shortcuts (`Ctrl K` / `⌘K`)**:
+  - Replaced hardcoded Mac `⌘K` badge with dynamic `.capture-kbd-shortcut` element.
+  - Automatically renders `⌘K` on macOS/iOS and `Ctrl K` on Windows/Linux with zero layout shifts.
+  - Keyboard shortcuts gracefully hide on small touchscreens (`hidden sm:inline-block`) to preserve space.
+- [x] **Mobile & Tablet All-Screen Polish**:
+  - Fixed cinema star rating visibility on dark backgrounds with high-contrast unrated stars (`text-white/40 hover:text-amber-400`).
+  - Upgraded touch hitboxes on star ratings (`min-w-[28px] min-h-[28px]`) and watch status pills (`min-h-[30px]`) for effortless finger taps.
+  - Removed nested `<style>` blocks from card loops into template header stylesheets, preventing rendering glitches on mobile WebKit/Blink.
+  - Resolved category rail horizontal scroll clipping on mobile by hiding gradient fade masks on narrow viewports (`hidden sm:block`) and adding safe end padding (`pr-8 sm:pr-2`) with momentum scrolling (`-webkit-overflow-scrolling: touch`).
+  - Added tablet top-bar capture buttons (`hidden sm:inline-flex lg:hidden`) for iPad and medium screen productivity.
+- [x] **100% CI & Test Suite Integrity**: All 135 automated tests passing cleanly with zero regressions.
 
 ### Phase 10 - Modern Minimalist Workspace & Mobile UX Overhaul
 - [x] **De-Congestion & Progressive Disclosure**: Completely overhauled application density following Linear, Notion, and Raycast interaction design patterns.
