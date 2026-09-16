@@ -209,9 +209,8 @@
     function showMemoraToast(title, body, url = null, memoryId = null) {
         let container = document.getElementById('memora-toast-container');
         if (!container) {
-            container = document.createElement('div');
             container.id = 'memora-toast-container';
-            container.className = 'fixed top-24 right-5 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none px-2 max-h-[calc(100vh-7rem)] overflow-y-auto pb-4';
+            container.className = 'fixed top-20 left-3 right-3 sm:left-auto sm:right-5 sm:max-w-sm sm:w-full z-[9999] flex flex-col gap-3 pointer-events-none px-2 max-h-[calc(100dvh-7rem)] overflow-y-auto pb-4';
             
             // Custom scrollbar styling inline for the container
             const style = document.createElement('style');
