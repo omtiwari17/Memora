@@ -87,6 +87,13 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 - **Environment-Aware Sidebar Branding** - Conditionally renders `Memora v5.0 - All 5 Phases Complete 🎉` in development (`DEBUG=True` + `INTERNAL_IPS`) and clean product branding `Memora v5.0 - Personal Vault` in production (`DEBUG=False`).
 - **Universal Capture API** - CSRF-exempt JSON endpoint (`/api/capture/`) enabling 1-click capture from desktop bookmarklets and browser extensions.
 - **PWA Web Share Target** - Accepts shared links, text, and titles from Android/iOS Web Share API via `/share/` with server-side auto-categorization.
+- **Mobile, Tablet & All-Screen Usability System** - Complete cross-device responsive architecture:
+  - *Flexbox Viewport Containment*: Eliminated the 1200px flexbox blowout caused by `min-width: auto` on flex containers with horizontal rails. Applied `min-w-0 w-full max-w-full overflow-x-hidden` across root wrappers, `<main>`, `#category-rail`, and `#memory-stream`.
+  - *Hardware-Level Safe-Area Cover*: Enabled `viewport-fit=cover` across all 16 user, admin, and error templates, activating CSS `env(safe-area-inset-top)` and `env(safe-area-inset-bottom)` for iPhone notches and dynamic home indicators.
+  - *Slide-Over Navigation Drawer (`mobile_drawer.html`)*: Off-canvas navigation drawer with Dark Aurora backdrop blur, tap-outside overlay, Escape key dismiss, and touch swipe-left gesture detection granting 100% desktop sidebar parity on mobile.
+  - *Mobile Bottom-Sheet Modals*: Quick Capture and Edit Modals render as native mobile bottom sheets (`items-end sm:items-center p-0 sm:p-6`) with pinned sticky headers and footers, safe-area bottom padding, and virtual keyboard tolerance.
+  - *iOS Auto-Zoom Guard*: Global 16px font size rule on mobile inputs prevents WebKit auto-zooming.
+  - *Calibrated Touch Targets*: Card toolbars (`min-w-[32px] min-h-[32px]`), category swatches (`w-8 h-8`), and `inputmode="numeric"` for mobile PIN entry.
 
 ---
 
@@ -142,6 +149,7 @@ Memora/
 │               ├── capture_modal.html   # Quick capture modal with live title & auto-category
 │               ├── capture_feedback.html # Capture success/error feedback partial with OOB updates
 │               ├── admin_memory_feed.html# HTMX admin feed partial with filter & empty state
+│               ├── mobile_drawer.html    # Slide-over navigation drawer with backdrop blur & swipe dismiss
 │               └── random_memory.html    # Random memory card partial
 ├── static/
 │   ├── htmx.min.js          # Vendor-bundled HTMX 1.9.12
@@ -274,6 +282,13 @@ Quotes • Thoughts • Ideas • Learn • Save • Links • Cinema • Read �
   - Re-architected modal dialogs on mobile (`items-end sm:items-center p-0 sm:p-6`) to render as native bottom sheets.
   - Pinned modal headers and action footers (`sticky bottom-0`) with safe-area padding `pb-[max(0.75rem,env(safe-area-inset-bottom))]` so virtual keyboards never push the Save button offscreen.
   - Enabled smooth internal scrolling (`max-h-[calc(92dvh-130px)]`) for category and tag selectors.
+- [x] **Flexbox Viewport Containment & 1200px Mobile Blowout Root-Cause Fix**:
+  - *Diagnosis*: On mobile viewports (e.g. iPhone 15 393px width), flex items default to `min-width: auto` (which computes to `min-content`). The horizontal `#category-rail` contained 21 flex items with `shrink-0`, which caused its parent `<main class="flex-1">` to compute its minimum width as ~1200px. As a result, the viewport zoomed out to ~30%, memory cards stretched to 1200px, and card action toolbars, watch status pills, and 5-star rating boxes overflowed ~800px offscreen.
+  - *Architectural Fix*: Injected `min-w-0 w-full max-w-full overflow-x-hidden` across `<html>`, `<body>`, root flex wrappers, `<main>`, `#category-rail` outer container, `#memory-stream`, and `#memory-grid` in `dashboard.html` and `memory_list.html`.
+  - *Card Containment*: Enforced `max-w-full min-w-0` on `.memory-card`, card content containers, Cinema watch status pills container, and star rating box in `memory_card.html`, completely eliminating horizontal overflow on all mobile devices.
+- [x] **Tablet & Medium Screen Usability (768px - 1024px)**:
+  - Added dedicated tablet top-bar quick capture trigger (`hidden sm:inline-flex lg:hidden`).
+  - Standardized single-column flex-col layout on mobile transitioning to 2-column on desktop for `memory_detail.html`, `category_manage.html`, and `admin_dashboard.html`.
 - [x] **Touch Target Calibration & Hitbox Polish**:
   - Upgraded card toolbar action buttons (`memory_card.html`) from 26px to `min-w-[32px] min-h-[32px]` with touch-friendly spacing.
   - Upgraded category palette color swatches (`category_manage.html`) from 24px to 32px (`w-8 h-8 sm:w-7 sm:h-7`) for comfortable finger taps.
@@ -540,6 +555,37 @@ Render's free tier puts web services to sleep after 15 minutes of inactivity. To
 - [x] Resolved CI deployment warnings in `quotevault/settings.py` (0 warnings)
 - [x] Universal typographic standardization from Em dashes (`—`) to En dashes / hyphens (`-`)
 - [x] 135 automated unit and integration tests passing cleanly
+
+### Phase 10 - Modern Minimalist Workspace & Mobile UX Overhaul
+- [x] De-congestion & progressive disclosure interaction model
+- [x] Slim, calm navigation sidebar (`w-60`) replacing 17 duplicate sidebar category pills
+- [x] Unified single-row command header bar with inline Spotlight search (`/`)
+- [x] Proportional memory cards (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`)
+- [x] Mobile app bar consolidation and fixed bottom navigation bar
+- [x] Strict zero Em Dash enforcement (`save()` filter sanitization)
+- [x] 135 automated tests passing cleanly
+
+### Phase 11 - Cinema Consolidation, Adaptive Shortcuts, Icon Refinements & All-Screen Usability
+- [x] Cinema category consolidation (`slug: cinema`) merging legacy watch category
+- [x] Scoped Cinema watch status pills and 5-star ratings to Cinema category
+- [x] Standardized Heroicons geometry for search and sign-out SVGs
+- [x] OS-adaptive keyboard capture shortcuts (`Ctrl K` on Windows/Linux vs `⌘K` on Mac)
+- [x] High-contrast unrated cinema stars and enlarged mobile rating hitboxes
+- [x] Extracted nested `<style>` tags to template headers to prevent WebKit rendering bugs
+- [x] Category rail momentum scrolling and tablet top-bar capture triggers
+- [x] 135 automated tests passing cleanly
+
+### Phase 12 - Mobile, Tablet & All-Screen Usability System
+- [x] Universal `viewport-fit=cover` for notch & home-indicator hardware safe-area protection
+- [x] iOS WebKit 16px input font size guard eliminating auto-zooming on focus
+- [x] Slide-over off-canvas navigation drawer (`mobile_drawer.html`) with touch swipe dismissal
+- [x] Mobile bottom-sheet modals with safe-area pinned headers and action footers
+- [x] Flexbox `min-width: auto` root-cause containment (`min-w-0 w-full max-w-full overflow-x-hidden`)
+- [x] Memory card bounds containment (`max-w-full min-w-0`) eliminating horizontal blowout
+- [x] Touch target calibration: card actions (`32x32px`), category swatches (`32x32px`), and `inputmode="numeric"`
+- [x] Landing page mobile slide-down navigation menu
+- [x] Push notification toast mobile boundary containment
+- [x] All 135 automated tests passing cleanly
 
 ---
 
