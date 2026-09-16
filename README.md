@@ -176,7 +176,7 @@ To keep the application awake 24/7 without cold starts or redirect errors:
 ## 👨‍💻 Author & Developer Credits
 
 **Om Tiwari**  
-- 🌐 **Portfolio**: [omtiwari.tech](https://omtiwari.tech/)  
+- 🌐 **Portfolio**: [omtiwari.dev](https://omtiwari.dev/)  
 - 🐙 **GitHub**: [@omtiwari17](https://github.com/omtiwari17)  
 - 💼 **LinkedIn**: [in/tiwariom](https://www.linkedin.com/in/tiwariom/)  
 
