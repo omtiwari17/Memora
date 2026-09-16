@@ -264,7 +264,16 @@ Quotes • Thoughts • Ideas • Learn • Save • Links • Cinema • Read �
 
 ---
 
-## 8. Completed Work (Phases 1 to 12 Complete)
+## 8. Completed Work (Phases 1 to 13 Complete)
+
+### Phase 13 - Mobile Profile Parity & Vector Icon Restoration
+- [x] **Mobile Profile Avatar & Handle Parity**:
+  - Replaced the hardcoded `@` symbol inside the mobile footer profile avatar (`dashboard.html`, `memory_list.html`) with the user's dynamic uppercase initial `{{ request.user.username|slice:":1"|upper }}`.
+  - Standardized handle presentation to `@{{ request.user.username }}` across desktop sidebar, mobile drawer, and mobile footer card.
+- [x] **Heroicons `lock-open` Vector Restoration**:
+  - Replaced corrupted/distorted lock SVG path in `login.html` (Unlock Vault tab & submit button) and `admin_login.html` (admin login button) with the official, mathematically clean Heroicons v2 `lock-open` path (`d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"`).
+- [x] **100% CI & Automated Test Suite Verification**:
+  - All 135 automated unit and integration tests passing cleanly.
 
 ### Phase 12 - Mobile, Tablet & All-Screen Usability System
 - [x] **Universal Viewport & Safe-Area Cover (`viewport-fit=cover`)**:
@@ -585,6 +594,11 @@ Render's free tier puts web services to sleep after 15 minutes of inactivity. To
 - [x] Touch target calibration: card actions (`32x32px`), category swatches (`32x32px`), and `inputmode="numeric"`
 - [x] Landing page mobile slide-down navigation menu
 - [x] Push notification toast mobile boundary containment
+
+### Phase 13 - Mobile Profile Parity & Vector Icon Restoration
+- [x] Uppercase initial avatar parity in mobile footer cards (`dashboard.html`, `memory_list.html`)
+- [x] Clean `@username` handle display consistency across all screen layouts
+- [x] Restored official Heroicons `lock-open` vector geometry in `login.html` and `admin_login.html`
 - [x] All 135 automated tests passing cleanly
 
 ---
