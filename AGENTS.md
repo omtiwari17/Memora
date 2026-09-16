@@ -256,7 +256,34 @@ Quotes • Thoughts • Ideas • Learn • Save • Links • Cinema • Read �
 
 ---
 
-## 8. Completed Work (Phases 1 to 11 Complete)
+## 8. Completed Work (Phases 1 to 12 Complete)
+
+### Phase 12 - Mobile, Tablet & All-Screen Usability System
+- [x] **Universal Viewport & Safe-Area Cover (`viewport-fit=cover`)**:
+  - Upgraded `<meta name="viewport">` with `viewport-fit=cover` across all 16 user and admin templates (`dashboard.html`, `memory_list.html`, `landing.html`, `login.html`, `capture_form.html`, `memory_detail.html`, `random_memory.html`, `category_manage.html`, `health_check.html`, `admin_dashboard.html`, `admin_login.html`, `admin_denied.html`, and `400.html`/`403.html`/`404.html`/`500.html`).
+  - Activates hardware-level CSS `env(safe-area-inset-top)` and `env(safe-area-inset-bottom)` for notch and home-indicator protection on iOS and modern Android devices.
+- [x] **iOS Safari Auto-Zoom Elimination (16px Input Guard)**:
+  - Injected global media query rule `@media screen and (max-width: 640px) { input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), select, textarea { font-size: 16px !important; } }` across forms and templates.
+  - Prevents iOS WebKit from forcibly zooming the viewport when tapping text inputs, selects, or search fields.
+- [x] **Slide-Over Navigation Drawer (`mobile_drawer.html`)**:
+  - Built an accessible, responsive off-canvas slide-over navigation drawer partial (`lg:hidden`) with Dark Aurora glassmorphism backdrop blur.
+  - Grants mobile and tablet users 100% desktop sidebar feature parity: All Memories, Inbox (with counter), Important, Tasks, Reminders, Today, On This Day, Random Memory, Archive, Category Management (with count), Push Notification trigger, Creator profile badges, and Vault sign out.
+  - Triggered via top bar hamburger buttons (`openMobileNav()`) and bottom navigation bar (`toggleMobileNav()`).
+  - Includes Escape key dismiss, tap-outside-to-close overlay, and touch swipe-left gesture detection (`touchstart`/`touchend`).
+- [x] **Mobile Bottom Sheet Modals (`capture_modal.html` & `memory_edit_modal.html`)**:
+  - Re-architected modal dialogs on mobile (`items-end sm:items-center p-0 sm:p-6`) to render as native bottom sheets.
+  - Pinned modal headers and action footers (`sticky bottom-0`) with safe-area padding `pb-[max(0.75rem,env(safe-area-inset-bottom))]` so virtual keyboards never push the Save button offscreen.
+  - Enabled smooth internal scrolling (`max-h-[calc(92dvh-130px)]`) for category and tag selectors.
+- [x] **Touch Target Calibration & Hitbox Polish**:
+  - Upgraded card toolbar action buttons (`memory_card.html`) from 26px to `min-w-[32px] min-h-[32px]` with touch-friendly spacing.
+  - Upgraded category palette color swatches (`category_manage.html`) from 24px to 32px (`w-8 h-8 sm:w-7 sm:h-7`) for comfortable finger taps.
+  - Added `inputmode="numeric"` on PIN authentication fields (`login.html`, `admin_login.html`) to invoke the native mobile numeric keypad.
+- [x] **Push Notification Toast Mobile Bounds (`push_notifications.js`)**:
+  - Replaced fixed right offset with adaptive edge-to-edge mobile container (`left-3 right-3 sm:left-auto sm:right-5 sm:max-w-sm sm:w-full`) to prevent notifications from clipping off narrow screens.
+- [x] **Landing Page Mobile Navigation**:
+  - Added mobile menu toggle button and collapsible slide-down navigation menu to `landing.html` for instant mobile access to Features, Cinema Tracker, Security, Tech Stack, Status, and Admin console.
+- [x] **100% CI & Automated Test Suite Verification**:
+  - All 135 automated tests passing cleanly with zero regressions.
 
 ### Phase 11 - Cinema Consolidation, Adaptive Shortcuts, Icon Refinements & All-Screen Usability
 - [x] **Cinema Category Consolidation**:
