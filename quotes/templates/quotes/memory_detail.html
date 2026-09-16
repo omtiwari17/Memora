@@ -3,7 +3,7 @@
 <html lang="en" data-theme="dracula">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{{ memory.title|default:"Memory" }} - Memora</title>
     <link rel="icon" type="image/svg+xml" href="{% static 'logo.svg' %}">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'apple-touch-icon.png' %}">
@@ -114,6 +114,38 @@
                 </div>
                 {% endif %}
 
+                {# Cinema / Watch Tracking Status & Rating #}
+                {% if memory.category.slug == 'cinema' or memory.category.slug == 'watch' %}
+                <div class="mb-5 p-4 rounded-2xl bg-amber-500/[0.06] border border-amber-500/20 space-y-3">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                        <div class="flex items-center gap-2 text-amber-300 text-xs font-semibold">
+                            <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-8.625 1.125l.892-14.276A1.125 1.125 0 015.637 4.15h12.726a1.125 1.125 0 011.12 1.074l.892 14.276m-16.5 0h16.5m-16.5 0V6a2.25 2.25 0 012.25-2.25h12A2.25 2.25 0 0121 6v13.5m-18 0h18"/></svg>
+                            <span>Cinema & Video Tracking</span>
+                        </div>
+                        {% if memory.watch_status %}
+                        <span class="px-2.5 py-1 rounded-lg text-xs font-bold {% if memory.watch_status == 'watched' %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/30{% elif memory.watch_status == 'watching' %}bg-sky-500/20 text-sky-300 border border-sky-500/30{% else %}bg-amber-500/20 text-amber-300 border border-amber-500/30{% endif %}">
+                            {% if memory.watch_status == 'want_to_watch' %}🎬 Want to Watch{% elif memory.watch_status == 'watching' %}🍿 Watching Now{% elif memory.watch_status == 'watched' %}✅ Watched{% endif %}
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% if memory.rating %}
+                    <div class="flex items-center gap-2 pt-1 border-t border-amber-500/15 text-xs text-amber-300/80 font-medium">
+                        <span>Rating:</span>
+                        <div class="flex items-center text-amber-400">
+                            {% for i in "12345" %}
+                            {% if forloop.counter <= memory.rating %}
+                            <span class="text-amber-400">★</span>
+                            {% else %}
+                            <span class="text-white/20">★</span>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        <span class="font-bold text-amber-300 ml-1 font-mono">({{ memory.rating }}/5)</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
                 {# Author for general categories #}
                 {% if memory.author and memory.category.slug != 'quotes' and memory.category.slug != 'thoughts' %}
                 <p class="text-sm text-purple-300/70 font-medium mb-4">- {{ memory.author }}</p>
@@ -175,7 +207,7 @@
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
                         <span>{% if memory.is_archived %}Restore{% else %}Archive{% endif %}</span>
                     </button>
-                    {% if memory.category.slug == 'tasks' or memory.category.slug == 'watch' or memory.category.slug == 'read' or memory.category.slug == 'buy' %}
+                    {% if memory.category.slug == 'tasks' or memory.category.slug == 'cinema' or memory.category.slug == 'watch' or memory.category.slug == 'read' or memory.category.slug == 'buy' %}
                     <button type="button"
                         hx-post="{% url 'memory_status' memory.id %}"
                         hx-vals='{"status": "{% if memory.status == "done" %}active{% else %}done{% endif %}"}'
@@ -218,6 +250,7 @@
             </div>
         </div>
         {% endif %}
+    </div>
     <script>
     document.body.addEventListener('htmx:configRequest', (event) => {
         let token = '{{ csrf_token }}';

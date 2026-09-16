@@ -3,7 +3,7 @@
 <html lang="en" data-theme="dracula">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Admin Access - Memora Control Console</title>
     <meta name="description" content="Dedicated Admin Authentication Portal for Memora Control Console.">
     <link rel="icon" type="image/svg+xml" href="{% static 'logo.svg' %}">
@@ -106,6 +106,7 @@
                         type="password"
                         name="pin"
                         placeholder="••••••"
+                        inputmode="numeric"
                         class="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-center text-xl font-mono text-white placeholder-white/20 outline-none focus:border-amber-400/50 focus:bg-white/[0.06] transition-all"
                         required
                     >

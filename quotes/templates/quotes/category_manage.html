@@ -3,7 +3,7 @@
 <html lang="en" data-theme="dracula">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Manage Categories - Memora</title>
     <link rel="icon" type="image/svg+xml" href="{% static 'logo.svg' %}">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'apple-touch-icon.png' %}">
@@ -130,7 +130,7 @@
                     <div class="flex flex-wrap gap-2" id="create-color-presets">
                         {% for hex_code, color_title in preset_palette %}
                         <button type="button" onclick="selectPresetColor('{{ hex_code }}', 'create-color', this)" 
-                            class="color-swatch-btn w-7 h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md relative {% if forloop.first %}ring-2 ring-white scale-110{% endif %}" 
+                            class="color-swatch-btn w-8 h-8 sm:w-7 sm:h-7 rounded-xl flex items-center justify-center transition-transform hover:scale-110 shadow-md relative {% if forloop.first %}ring-2 ring-white scale-110{% endif %}" 
                             style="background-color: {{ hex_code }}; box-shadow: 0 0 10px {{ hex_code }}50;" 
                             title="{{ color_title }}{% if hex_code in used_colors %} (Already in use){% else %} (Available){% endif %}">
                             {% if hex_code in used_colors %}
@@ -168,20 +168,20 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="flex items-center gap-1.5">
+                <div class="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
                     <form method="POST" action="{% url 'category_reorder' cat.id 'up' %}" class="inline">
                         {% csrf_token %}
-                        <button type="submit" class="h-9 w-9 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white/60 hover:text-white transition-all flex items-center justify-center" title="Move Up">
+                        <button type="submit" class="h-9 w-9 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white/60 hover:text-white transition-all flex items-center justify-center cursor-pointer" title="Move Up">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/></svg>
                         </button>
                     </form>
                     <form method="POST" action="{% url 'category_reorder' cat.id 'down' %}" class="inline">
                         {% csrf_token %}
-                        <button type="submit" class="h-9 w-9 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white/60 hover:text-white transition-all flex items-center justify-center" title="Move Down">
+                        <button type="submit" class="h-9 w-9 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white/60 hover:text-white transition-all flex items-center justify-center cursor-pointer" title="Move Down">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
                         </button>
                     </form>
-                    <button onclick="toggleEdit('{{ cat.id }}')" class="h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white/60 hover:text-white transition-all flex items-center justify-center gap-1">
+                    <button onclick="toggleEdit('{{ cat.id }}')" class="h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white/60 hover:text-white transition-all flex items-center justify-center gap-1 cursor-pointer">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
                         Edit
                     </button>
@@ -236,10 +236,10 @@
                                 <span class="text-[9px] text-white/30">✓ = In use</span>
                             </div>
                         </div>
-                        <div class="flex flex-wrap gap-1.5">
+                        <div class="flex flex-wrap gap-2">
                             {% for hex_code, color_title in preset_palette %}
                             <button type="button" onclick="selectPresetColor('{{ hex_code }}', 'edit-color-{{ cat.id }}', this)" 
-                                class="color-swatch-btn w-6 h-6 rounded-lg flex items-center justify-center transition-transform hover:scale-110 relative {% if cat.color|lower == hex_code %}ring-2 ring-white scale-110{% endif %}" 
+                                class="color-swatch-btn w-8 h-8 sm:w-6 sm:h-6 rounded-lg flex items-center justify-center transition-transform hover:scale-110 relative {% if cat.color|lower == hex_code %}ring-2 ring-white scale-110{% endif %}" 
                                 style="background-color: {{ hex_code }};" 
                                 title="{{ color_title }}{% if hex_code in used_colors %} (Already in use){% else %} (Available){% endif %}">
                                 {% if hex_code in used_colors %}
