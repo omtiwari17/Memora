@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 from datetime import timedelta
 
@@ -13,9 +14,12 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.db.models import Q
 
 from .models import Memory, Category, Tag, Collection, PushSubscription
+
+logger = logging.getLogger(__name__)
 
 
 # ── Category suggestion (pattern + keyword matching) ──────────────────────
@@ -33,8 +37,7 @@ CODE_PATTERNS = [
 ]
 
 CATEGORY_KEYWORDS = {
-    "cinema": ["movie", "film", "cinema", "show", "series", "tv show", "web series", "netflix", "imdb", "boxoffice", "season", "episode", "anime"],
-    "watch": ["watch", "youtube", "video", "documentary", "stream"],
+    "cinema": ["movie", "film", "cinema", "show", "series", "tv show", "web series", "netflix", "imdb", "boxoffice", "season", "episode", "anime", "watch", "youtube", "video", "documentary", "stream"],
     "read": ["read", "book", "article", "paper", "blog", "novel", "manga", "ebook"],
     "buy": ["buy", "purchase", "order", "price", "cost", "shopping", "amazon", "flipkart", "deal"],
     "tasks": ["todo", "to-do", "task", "need to", "should", "must", "finish", "complete", "submit", "deadline"],
@@ -96,7 +99,7 @@ def extract_title(text):
         author_name = author_match.group(1).strip()
         words = quote_text.split()
         short_quote = " ".join(words[:5]) + "..." if len(words) > 5 else quote_text
-        return f'"{short_quote}" — {author_name}'
+        return f'"{short_quote}" - {author_name}'
 
     if clean.startswith("<") and ">" in clean:
         tag_title = re.search(r'<title[^>]*>(.*?)</title>', clean, re.IGNORECASE)
@@ -149,19 +152,19 @@ def custom_400_view(request, exception=None):
 
 # ── Authentication (Vault Handle + 6-Digit PIN) ──────────────────────
 def home_root(request):
-    """Home Root / handler — Serves the Product Landing Page for unauthenticated visitors, or redirects authenticated users to their Vault Dashboard."""
+    """Home Root / handler - Serves the Product Landing Page for unauthenticated visitors, or redirects authenticated users to their Vault Dashboard."""
     if request.user.is_authenticated:
         return redirect("dashboard")
     return render(request, "quotes/landing.html")
 
 
 def landing_page(request):
-    """Product Landing Page for Memora — Showcase features, design, and vault entry."""
+    """Product Landing Page for Memora - Showcase features, design, and vault entry."""
     return render(request, "quotes/landing.html")
 
 
 def health_check(request):
-    """Health check endpoint — returns JSON for API/cron pings or a glassmorphic UI for browser visits."""
+    """Health check endpoint - returns JSON for API/cron pings or a glassmorphic UI for browser visits."""
     if "application/json" in request.headers.get("Accept", ""):
         return JsonResponse({"status": "ok", "app": "Memora", "service": "awake"}, status=200)
     
@@ -220,7 +223,7 @@ def vault_logout(request):
 # ── Dashboard ──────────────────────────────────────────────────────────
 @login_required(login_url="login")
 def dashboard(request):
-    """Main dashboard — shows recent memories, pinned items, upcoming."""
+    """Main dashboard - shows recent memories, pinned items, upcoming."""
     categories = get_user_categories(request.user)
     user_memories = Memory.objects.filter(user=request.user, is_archived=False)
 
@@ -821,27 +824,46 @@ def category_manage(request):
 @login_required(login_url="login")
 @require_http_methods(["POST"])
 def category_create(request):
-    """Create a new category."""
+    """Create a new category with strict uniqueness validation."""
     name = request.POST.get("name", "").strip()
     color = request.POST.get("color", "#a78bfa").strip()
 
     if not name:
+        messages.error(request, "Category name cannot be empty.")
         return redirect("category_manage")
 
-    slug = name.lower().replace(" ", "-")
-    slug = re.sub(r"[^a-z0-9-]", "", slug)
+    slug = re.sub(r"[^a-z0-9-]", "", name.lower().replace(" ", "-"))
+    if not slug:
+        messages.error(request, "Please provide a valid category name.")
+        return redirect("category_manage")
+
+    # Enforce uniqueness against default categories and current user's categories
+    existing = Category.objects.filter(
+        Q(is_default=True) | Q(user=request.user)
+    ).filter(
+        Q(name__iexact=name) | Q(slug=slug)
+    ).first()
+
+    if existing:
+        messages.error(request, f'Duplicate detected: A category named "{existing.name}" already exists. Category names must be unique.')
+        return redirect("category_manage")
 
     max_order = Category.objects.filter(Q(is_default=True) | Q(user=request.user)).count()
 
-    Category.objects.create(
-        user=request.user,
-        name=name,
-        slug=slug,
-        emoji="",
-        color=color,
-        is_default=False,
-        order=max_order + 1
-    )
+    try:
+        Category.objects.create(
+            user=request.user,
+            name=name,
+            slug=slug,
+            emoji="",
+            color=color,
+            is_default=False,
+            order=max_order + 1
+        )
+        messages.success(request, f'Category "{name}" created successfully.')
+    except Exception:
+        logger.exception("Category creation failed for user %s", request.user.id)
+        messages.error(request, "Could not create category. Please try again.")
 
     return redirect("category_manage")
 
@@ -849,16 +871,38 @@ def category_create(request):
 @login_required(login_url="login")
 @require_http_methods(["POST"])
 def category_edit(request, pk):
-    """Edit an existing category."""
-    category = get_object_or_404(Category, pk=pk)
+    """Edit an existing category with strict uniqueness validation."""
+    category = get_object_or_404(Category.objects.filter(Q(is_default=True) | Q(user=request.user)), pk=pk)
     name = request.POST.get("name", "").strip()
     color = request.POST.get("color", category.color).strip()
 
     if name:
+        slug = re.sub(r"[^a-z0-9-]", "", name.lower().replace(" ", "-"))
+        if not slug:
+            messages.error(request, "Please provide a valid category name.")
+            return redirect("category_manage")
+
+        # Enforce uniqueness against other categories accessible by user
+        existing = Category.objects.filter(
+            Q(is_default=True) | Q(user=request.user)
+        ).exclude(pk=category.pk).filter(
+            Q(name__iexact=name) | Q(slug=slug)
+        ).first()
+
+        if existing:
+            messages.error(request, f'Duplicate detected: A category named "{existing.name}" already exists. Category names must be unique.')
+            return redirect("category_manage")
+
         category.name = name
-        category.slug = re.sub(r"[^a-z0-9-]", "", name.lower().replace(" ", "-"))
+        category.slug = slug
+
     category.color = color
-    category.save()
+    try:
+        category.save()
+        messages.success(request, f'Category "{category.name}" updated successfully.')
+    except Exception:
+        logger.exception("Category update failed for user %s on category %s", request.user.id, pk)
+        messages.error(request, "Could not update category. Please try again.")
 
     return redirect("category_manage")
 
@@ -867,9 +911,14 @@ def category_edit(request, pk):
 @require_http_methods(["POST"])
 def category_delete(request, pk):
     """Delete a category; associated memories default to Inbox."""
-    category = get_object_or_404(Category, pk=pk)
+    category = get_object_or_404(Category.objects.filter(Q(is_default=True) | Q(user=request.user)), pk=pk)
+    if category.is_default:
+        messages.error(request, f'Default category "{category.name}" is a core system category and cannot be deleted.')
+        return redirect("category_manage")
+
     Memory.objects.filter(category=category).update(category=None, status=Memory.Status.INBOX)
     category.delete()
+    messages.success(request, f'Category "{category.name}" deleted. Associated memories moved to Inbox.')
     return redirect("category_manage")
 
 
@@ -935,12 +984,18 @@ def seed_categories():
     """Create default categories if they don't exist."""
     Category.objects.all().update(emoji="")
 
-    shows_cat = Category.objects.filter(slug="shows", is_default=True).first()
-    cinema_cat = Category.objects.filter(slug="cinema", is_default=True).first()
-    if shows_cat:
-        if cinema_cat:
-            Memory.objects.filter(category=shows_cat).update(category=cinema_cat)
-        shows_cat.delete()
+    # Ensure Cinema category exists first as the canonical media category
+    cinema_cat, _ = Category.objects.get_or_create(
+        is_default=True,
+        slug="cinema",
+        defaults={"name": "Cinema", "slug": "cinema", "emoji": "", "color": "#e11d48", "order": 7, "is_default": True}
+    )
+
+    # Safely migrate memories from legacy 'shows' and 'watch' categories into 'cinema'
+    for legacy_slug in ["shows", "watch"]:
+        for legacy_cat in Category.objects.filter(slug=legacy_slug, is_default=True):
+            Memory.objects.filter(category=legacy_cat).update(category=cinema_cat)
+            legacy_cat.delete()
 
     defaults = [
         {"name": "Quotes", "slug": "quotes", "emoji": "", "color": "#f59e0b", "order": 1},
@@ -949,23 +1004,31 @@ def seed_categories():
         {"name": "Learn", "slug": "learn", "emoji": "", "color": "#34d399", "order": 4},
         {"name": "Save", "slug": "save", "emoji": "", "color": "#60a5fa", "order": 5},
         {"name": "Links", "slug": "links", "emoji": "", "color": "#38bdf8", "order": 6},
-        {"name": "Watch", "slug": "watch", "emoji": "", "color": "#f87171", "order": 7},
-        {"name": "Cinema", "slug": "cinema", "emoji": "", "color": "#e11d48", "order": 8},
-        {"name": "Read", "slug": "read", "emoji": "", "color": "#fb923c", "order": 9},
-        {"name": "Buy", "slug": "buy", "emoji": "", "color": "#4ade80", "order": 10},
-        {"name": "Tasks", "slug": "tasks", "emoji": "", "color": "#22d3ee", "order": 11},
-        {"name": "Reminders", "slug": "reminders", "emoji": "", "color": "#e879f9", "order": 12},
-        {"name": "Places", "slug": "places", "emoji": "", "color": "#2dd4bf", "order": 13},
-        {"name": "Code", "slug": "code", "emoji": "", "color": "#a3e635", "order": 14},
-        {"name": "People", "slug": "people", "emoji": "", "color": "#f472b6", "order": 15},
-        {"name": "Projects", "slug": "projects", "emoji": "", "color": "#818cf8", "order": 16},
-        {"name": "Important", "slug": "important", "emoji": "", "color": "#ef4444", "order": 17},
+        {"name": "Cinema", "slug": "cinema", "emoji": "", "color": "#e11d48", "order": 7},
+        {"name": "Read", "slug": "read", "emoji": "", "color": "#fb923c", "order": 8},
+        {"name": "Buy", "slug": "buy", "emoji": "", "color": "#4ade80", "order": 9},
+        {"name": "Tasks", "slug": "tasks", "emoji": "", "color": "#22d3ee", "order": 10},
+        {"name": "Reminders", "slug": "reminders", "emoji": "", "color": "#e879f9", "order": 11},
+        {"name": "Places", "slug": "places", "emoji": "", "color": "#2dd4bf", "order": 12},
+        {"name": "Code", "slug": "code", "emoji": "", "color": "#a3e635", "order": 13},
+        {"name": "People", "slug": "people", "emoji": "", "color": "#f472b6", "order": 14},
+        {"name": "Projects", "slug": "projects", "emoji": "", "color": "#818cf8", "order": 15},
+        {"name": "Important", "slug": "important", "emoji": "", "color": "#ef4444", "order": 16},
     ]
     for cat_data in defaults:
-        Category.objects.get_or_create(
+        cat, created = Category.objects.get_or_create(
             slug=cat_data["slug"],
+            is_default=True,
             defaults={**cat_data, "is_default": True}
         )
+        # Deduplicate any custom user categories colliding with default categories
+        custom_dups = Category.objects.filter(
+            Q(slug=cat_data["slug"]) | Q(name__iexact=cat_data["name"]),
+            is_default=False
+        )
+        for dup in custom_dups:
+            Memory.objects.filter(category=dup).update(category=cat)
+            dup.delete()
 
 
 def favicon_view(request):
@@ -1229,6 +1292,5 @@ def trigger_due_reminders_view(request):
         "sent_notifications": sent_count,
         "errors": errors
     })
-
 
 

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Memora PWA Service Worker — Native Web Push Notifications & Offline Cache
+   Memora PWA Service Worker - Native Web Push Notifications & Offline Cache
    ========================================================================== */
 
 const CACHE_NAME = 'memora-v1.0';
@@ -11,7 +11,7 @@ const ASSETS_TO_CACHE = [
   '/static/manifest.json'
 ];
 
-// Install Event — Cache essential PWA assets
+// Install Event - Cache essential PWA assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -20,7 +20,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate Event — Clean up old caches
+// Activate Event - Clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -35,7 +35,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Event — Network-first strategy with cache fallback
+// Fetch Event - Network-first strategy with cache fallback
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   event.respondWith(
@@ -45,7 +45,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Push Event — Handle incoming Web Push Notifications from server
+// Push Event - Handle incoming Web Push Notifications from server
 self.addEventListener('push', (event) => {
   let data = {
     title: 'Memora Vault Notification',
@@ -81,7 +81,7 @@ self.addEventListener('push', (event) => {
   );
 });
 
-// Notification Click Event — Open target memory or vault page
+// Notification Click Event - Open target memory or vault page
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : '/app/';

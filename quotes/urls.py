@@ -65,7 +65,7 @@ urlpatterns = [
     path("categories/<int:pk>/delete/", views.category_delete, name="category_delete"),
     path("categories/<int:pk>/reorder/<str:direction>/", views.category_reorder, name="category_reorder"),
     
-    # Phase 5 — Memory Features
+    # Phase 5 - Memory Features
     path("random/", views.random_memory, name="random_memory"),
     path("on-this-day/", views.memory_list, {"filter_type": "on_this_day"}, name="on_this_day"),
     path("recently-viewed/", views.recently_viewed, name="recently_viewed"),

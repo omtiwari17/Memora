@@ -13,7 +13,7 @@
 <p align="center">
   <a href="https://github.com/omtiwari17/Memora/actions"><img src="https://img.shields.io/badge/CI%2FCD-4--Stage%20Pipeline-emerald?style=flat-square&logo=githubactions" alt="CI/CD"></a>
   <a href="https://github.com/omtiwari17/Memora"><img src="https://img.shields.io/badge/Tests-115%20Passed-purple?style=flat-square&logo=django" alt="Tests"></a>
-  <a href="https://omtiwari.tech/"><img src="https://img.shields.io/badge/Author-Om%20Tiwari-blue?style=flat-square" alt="Author"></a>
+  <a href="https://omtiwari.dev/"><img src="https://img.shields.io/badge/Author-Om%20Tiwari-blue?style=flat-square" alt="Author"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-amber?style=flat-square" alt="License"></a>
 </p>
 

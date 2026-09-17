@@ -20,6 +20,27 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        import re
+        if self.name:
+            clean_name = self.name.strip()
+            slug = self.slug or re.sub(r"[^a-z0-9-]", "", clean_name.lower().replace(" ", "-"))
+            qs = Category.objects.filter(
+                models.Q(is_default=True) | models.Q(user=self.user)
+            ).filter(
+                models.Q(name__iexact=clean_name) | models.Q(slug=slug)
+            )
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            if qs.exists():
+                existing = qs.first()
+                raise ValidationError(f'A category named "{existing.name}" already exists.')
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
 
 class Tag(models.Model):
     """Tags for cross-cutting concerns. Categories = what kind, Tags = what about."""
@@ -49,7 +70,7 @@ class Collection(models.Model):
 
 
 class Memory(models.Model):
-    """The core model — anything worth remembering."""
+    """The core model - anything worth remembering."""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="memories")
 
@@ -138,4 +159,3 @@ class PushSubscription(models.Model):
 
     def __str__(self):
         return f"PushSubscription for {self.user.username} ({self.created_at.strftime('%Y-%m-%d')})"
-

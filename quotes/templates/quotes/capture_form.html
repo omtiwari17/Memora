@@ -3,8 +3,8 @@
 <html lang="en" data-theme="dracula">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Capture — Memora</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Capture - Memora</title>
     <link rel="icon" type="image/svg+xml" href="{% static 'logo.svg' %}">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'apple-touch-icon.png' %}">
     <link rel="shortcut icon" href="{% url 'favicon' %}">
@@ -21,6 +21,14 @@
     <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Space Grotesk', 'sans-serif'] } } } }</script>
     <style>
         body { font-family: 'Space Grotesk', sans-serif; }
+
+        /* Prevent iOS Safari auto-zoom on input focus */
+        @media screen and (max-width: 640px) {
+            input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), select, textarea {
+                font-size: 16px !important;
+            }
+        }
+
         .aurora-blob { filter: blur(120px); opacity: 0.6; }
         @keyframes float { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(20px, -25px) scale(1.04); } }
         .float-1 { animation: float 16s ease-in-out infinite; }

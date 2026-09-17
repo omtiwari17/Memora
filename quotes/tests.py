@@ -176,6 +176,16 @@ class MemoryModelTest(TestCase):
         mem = Memory.objects.create(content="Urgent!", priority="urgent")
         self.assertEqual(mem.priority, "urgent")
 
+    def test_memory_preserves_em_dash_and_en_dash_content(self):
+        mem = Memory.objects.create(
+            title="Alpha — Beta",
+            content="Use – and — exactly as typed",
+            author="Jane — Doe",
+        )
+        self.assertEqual(mem.title, "Alpha — Beta")
+        self.assertEqual(mem.content, "Use – and — exactly as typed")
+        self.assertEqual(mem.author, "Jane — Doe")
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SEED CATEGORIES TEST
@@ -184,20 +194,20 @@ class MemoryModelTest(TestCase):
 class SeedCategoriesTest(TestCase):
     """Test that default categories are seeded correctly."""
 
-    def test_seed_creates_17_categories(self):
+    def test_seed_creates_16_categories(self):
         seed_categories()
-        self.assertEqual(Category.objects.filter(is_default=True).count(), 17)
+        self.assertEqual(Category.objects.filter(is_default=True).count(), 16)
 
     def test_seed_is_idempotent(self):
         seed_categories()
         seed_categories()  # Run twice
-        self.assertEqual(Category.objects.filter(is_default=True).count(), 17)
+        self.assertEqual(Category.objects.filter(is_default=True).count(), 16)
 
     def test_seeded_categories_have_correct_slugs(self):
         seed_categories()
         expected_slugs = [
             "quotes", "thoughts", "ideas", "learn", "save", "links",
-            "watch", "cinema", "read", "buy", "tasks", "reminders", "places",
+            "cinema", "read", "buy", "tasks", "reminders", "places",
             "code", "people", "projects", "important",
         ]
         for slug in expected_slugs:
@@ -205,6 +215,22 @@ class SeedCategoriesTest(TestCase):
                 Category.objects.filter(slug=slug).exists(),
                 f"Missing seeded category: {slug}"
             )
+
+    def test_seed_does_not_migrate_or_delete_custom_watch_category(self):
+        user = User.objects.create_user(username="watcher")
+        custom_watch = Category.objects.create(
+            name="Watchlist",
+            slug="watch",
+            user=user,
+            is_default=False,
+        )
+        memory = Memory.objects.create(user=user, content="Custom watch memory", category=custom_watch)
+
+        seed_categories()
+
+        custom_watch.refresh_from_db()
+        memory.refresh_from_db()
+        self.assertEqual(memory.category_id, custom_watch.id)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -232,8 +258,8 @@ class AutoCategorizationTest(TestCase):
     def test_detects_tasks(self):
         self.assertEqual(suggest_category("todo: finish CI pipeline"), "tasks")
 
-    def test_detects_watch(self):
-        self.assertEqual(suggest_category("watch youtube video documentary"), "watch")
+    def test_detects_watch_as_cinema(self):
+        self.assertEqual(suggest_category("watch youtube video documentary"), "cinema")
 
     def test_detects_cinema(self):
         self.assertEqual(suggest_category("watch Inception movie tonight"), "cinema")
@@ -708,12 +734,73 @@ class CategoryManagementTest(TestCase):
         self.assertIn(resp.status_code, [200, 302])
         self.assertTrue(Category.objects.filter(name="Custom Cat").exists())
 
+    def test_cannot_create_duplicate_matching_default_category(self):
+        """Cannot create a category with the same name or slug as a default category."""
+        resp = self.client.post(reverse("category_create"), {
+            "name": "Quotes",
+            "color": "#ee5253",
+        })
+        self.assertEqual(resp.status_code, 302)
+        # Should still be exactly 1 Quotes category (the default one)
+        self.assertEqual(Category.objects.filter(name__iexact="Quotes").count(), 1)
+
+    def test_cannot_create_duplicate_custom_category(self):
+        """Cannot create two custom categories with the same name."""
+        self.client.post(reverse("category_create"), {
+            "name": "Unique Tag Cat",
+            "color": "#38bdf8",
+        })
+        self.assertEqual(Category.objects.filter(name="Unique Tag Cat").count(), 1)
+
+        # Attempt to create duplicate (case-insensitive)
+        resp = self.client.post(reverse("category_create"), {
+            "name": "unique tag cat",
+            "color": "#f472b6",
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(Category.objects.filter(name__iexact="Unique Tag Cat").count(), 1)
+
+    def test_cannot_edit_category_to_duplicate_name(self):
+        """Cannot edit a category to a name that already exists."""
+        cat_a = Category.objects.create(name="Alpha", slug="alpha", user=self.user)
+        cat_b = Category.objects.create(name="Beta", slug="beta", user=self.user)
+
+        resp = self.client.post(reverse("category_edit", args=[cat_b.pk]), {
+            "name": "Alpha",
+            "color": "#a78bfa",
+        })
+        self.assertEqual(resp.status_code, 302)
+        cat_b.refresh_from_db()
+        self.assertEqual(cat_b.name, "Beta")  # Name should remain Beta
+
     def test_delete_category(self):
         cat = Category.objects.create(
             name="Deletable", slug="deletable", user=self.user
         )
         resp = self.client.post(reverse("category_delete", args=[cat.pk]))
         self.assertFalse(Category.objects.filter(pk=cat.pk).exists())
+
+    def test_cannot_edit_another_users_category(self):
+        other_user = User.objects.create_user(username="othercat")
+        other_cat = Category.objects.create(name="Other", slug="other", user=other_user)
+
+        resp = self.client.post(reverse("category_edit", args=[other_cat.pk]), {
+            "name": "Renamed",
+            "color": "#a78bfa",
+        })
+
+        self.assertEqual(resp.status_code, 404)
+        other_cat.refresh_from_db()
+        self.assertEqual(other_cat.name, "Other")
+
+    def test_cannot_delete_another_users_category(self):
+        other_user = User.objects.create_user(username="otherdelete")
+        other_cat = Category.objects.create(name="OtherDelete", slug="other-delete", user=other_user)
+
+        resp = self.client.post(reverse("category_delete", args=[other_cat.pk]))
+
+        self.assertEqual(resp.status_code, 404)
+        self.assertTrue(Category.objects.filter(pk=other_cat.pk).exists())
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -876,14 +963,14 @@ class MovieWatchStatusTest(TestCase):
         self.user = User.objects.create_user(username="moviebuff", password="123456")
         self.client.login(username="moviebuff", password="123456")
         seed_categories()
-        self.watch_cat = Category.objects.get(slug="watch")
+        self.cinema_cat = Category.objects.get(slug="cinema")
 
     def test_create_movie_with_watch_status_and_rating(self):
         memory = Memory.objects.create(
             user=self.user,
             title="Inception",
             content="Great sci-fi thriller",
-            category=self.watch_cat,
+            category=self.cinema_cat,
             watch_status=Memory.WatchStatus.WATCHED,
             rating=5
         )
@@ -895,7 +982,7 @@ class MovieWatchStatusTest(TestCase):
             user=self.user,
             title="Interstellar",
             content="Space exploration movie",
-            category=self.watch_cat,
+            category=self.cinema_cat,
             watch_status=Memory.WatchStatus.WANT_TO_WATCH,
         )
         resp = self.client.post(
@@ -981,6 +1068,4 @@ class WebPushNotificationTest(TestCase):
         data = resp.json()
         self.assertEqual(data["count"], 1)
         self.assertEqual(data["due_reminders"][0]["title"], "Important Meeting")
-
-
 
