@@ -176,6 +176,16 @@ class MemoryModelTest(TestCase):
         mem = Memory.objects.create(content="Urgent!", priority="urgent")
         self.assertEqual(mem.priority, "urgent")
 
+    def test_memory_preserves_em_dash_and_en_dash_content(self):
+        mem = Memory.objects.create(
+            title="Alpha — Beta",
+            content="Use – and — exactly as typed",
+            author="Jane — Doe",
+        )
+        self.assertEqual(mem.title, "Alpha — Beta")
+        self.assertEqual(mem.content, "Use – and — exactly as typed")
+        self.assertEqual(mem.author, "Jane — Doe")
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SEED CATEGORIES TEST
@@ -205,6 +215,22 @@ class SeedCategoriesTest(TestCase):
                 Category.objects.filter(slug=slug).exists(),
                 f"Missing seeded category: {slug}"
             )
+
+    def test_seed_does_not_migrate_or_delete_custom_watch_category(self):
+        user = User.objects.create_user(username="watcher")
+        custom_watch = Category.objects.create(
+            name="Watchlist",
+            slug="watch",
+            user=user,
+            is_default=False,
+        )
+        memory = Memory.objects.create(user=user, content="Custom watch memory", category=custom_watch)
+
+        seed_categories()
+
+        custom_watch.refresh_from_db()
+        memory.refresh_from_db()
+        self.assertEqual(memory.category_id, custom_watch.id)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -754,6 +780,28 @@ class CategoryManagementTest(TestCase):
         resp = self.client.post(reverse("category_delete", args=[cat.pk]))
         self.assertFalse(Category.objects.filter(pk=cat.pk).exists())
 
+    def test_cannot_edit_another_users_category(self):
+        other_user = User.objects.create_user(username="othercat")
+        other_cat = Category.objects.create(name="Other", slug="other", user=other_user)
+
+        resp = self.client.post(reverse("category_edit", args=[other_cat.pk]), {
+            "name": "Renamed",
+            "color": "#a78bfa",
+        })
+
+        self.assertEqual(resp.status_code, 404)
+        other_cat.refresh_from_db()
+        self.assertEqual(other_cat.name, "Other")
+
+    def test_cannot_delete_another_users_category(self):
+        other_user = User.objects.create_user(username="otherdelete")
+        other_cat = Category.objects.create(name="OtherDelete", slug="other-delete", user=other_user)
+
+        resp = self.client.post(reverse("category_delete", args=[other_cat.pk]))
+
+        self.assertEqual(resp.status_code, 404)
+        self.assertTrue(Category.objects.filter(pk=other_cat.pk).exists())
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # API ENDPOINT TESTS
@@ -1020,6 +1068,4 @@ class WebPushNotificationTest(TestCase):
         data = resp.json()
         self.assertEqual(data["count"], 1)
         self.assertEqual(data["due_reminders"][0]["title"], "Important Meeting")
-
-
 
