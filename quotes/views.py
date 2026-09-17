@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 from datetime import timedelta
 
@@ -17,6 +18,8 @@ from django.contrib import messages
 from django.db.models import Q
 
 from .models import Memory, Category, Tag, Collection, PushSubscription
+
+logger = logging.getLogger(__name__)
 
 
 # ── Category suggestion (pattern + keyword matching) ──────────────────────
@@ -858,8 +861,9 @@ def category_create(request):
             order=max_order + 1
         )
         messages.success(request, f'Category "{name}" created successfully.')
-    except Exception as e:
-        messages.error(request, f"Could not create category: {e}")
+    except Exception:
+        logger.exception("Category creation failed for user %s", request.user.id)
+        messages.error(request, "Could not create category. Please try again.")
 
     return redirect("category_manage")
 
@@ -868,7 +872,7 @@ def category_create(request):
 @require_http_methods(["POST"])
 def category_edit(request, pk):
     """Edit an existing category with strict uniqueness validation."""
-    category = get_object_or_404(Category, pk=pk)
+    category = get_object_or_404(Category.objects.filter(Q(is_default=True) | Q(user=request.user)), pk=pk)
     name = request.POST.get("name", "").strip()
     color = request.POST.get("color", category.color).strip()
 
@@ -896,8 +900,9 @@ def category_edit(request, pk):
     try:
         category.save()
         messages.success(request, f'Category "{category.name}" updated successfully.')
-    except Exception as e:
-        messages.error(request, f"Could not update category: {e}")
+    except Exception:
+        logger.exception("Category update failed for user %s on category %s", request.user.id, pk)
+        messages.error(request, "Could not update category. Please try again.")
 
     return redirect("category_manage")
 
@@ -906,7 +911,7 @@ def category_edit(request, pk):
 @require_http_methods(["POST"])
 def category_delete(request, pk):
     """Delete a category; associated memories default to Inbox."""
-    category = get_object_or_404(Category, pk=pk)
+    category = get_object_or_404(Category.objects.filter(Q(is_default=True) | Q(user=request.user)), pk=pk)
     if category.is_default:
         messages.error(request, f'Default category "{category.name}" is a core system category and cannot be deleted.')
         return redirect("category_manage")
@@ -981,13 +986,14 @@ def seed_categories():
 
     # Ensure Cinema category exists first as the canonical media category
     cinema_cat, _ = Category.objects.get_or_create(
+        is_default=True,
         slug="cinema",
         defaults={"name": "Cinema", "slug": "cinema", "emoji": "", "color": "#e11d48", "order": 7, "is_default": True}
     )
 
     # Safely migrate memories from legacy 'shows' and 'watch' categories into 'cinema'
     for legacy_slug in ["shows", "watch"]:
-        for legacy_cat in Category.objects.filter(slug=legacy_slug):
+        for legacy_cat in Category.objects.filter(slug=legacy_slug, is_default=True):
             Memory.objects.filter(category=legacy_cat).update(category=cinema_cat)
             legacy_cat.delete()
 
@@ -1286,6 +1292,5 @@ def trigger_due_reminders_view(request):
         "sent_notifications": sent_count,
         "errors": errors
     })
-
 
 
