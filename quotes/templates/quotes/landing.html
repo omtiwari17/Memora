@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-[#0a0914] text-white">
+<html lang="en" class="h-full bg-[#0b0a14] text-white">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -10,14 +10,22 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'apple-touch-icon.png' %}">
     <link rel="shortcut icon" href="{% url 'favicon' %}">
     <link rel="manifest" href="{% static 'manifest.json' %}">
-    <meta name="theme-color" content="#0a0914">
+    <meta name="theme-color" content="#0b0a14">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         html { scroll-behavior: smooth; }
         body { font-family: 'Space Grotesk', sans-serif; }
+
+        /* Subtle architectural dot grid canvas matching dashboard.html */
+        .bg-grid-pattern {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+
+        /* Glassmorphism primitives */
         .glass {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(16px);
@@ -25,51 +33,73 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .glass-card {
-            background: rgba(255, 255, 255, 0.025);
+            background: rgba(18, 17, 28, 0.8);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.07);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .glass-card:hover {
-            border-color: rgba(168, 85, 247, 0.35);
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px -15px rgba(168, 85, 247, 0.15);
+            border-color: rgba(255, 255, 255, 0.18);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
         }
-        @keyframes purple-blue-pulse {
-            0%, 100% {
-                transform: scale(1) translate(0px, 0px);
-                opacity: 0.35;
-            }
-            50% {
-                transform: scale(1.12) translate(35px, -20px);
-                opacity: 0.50;
-            }
+
+        /* Multi-stop aurora lighting blobs */
+        .aurora-blob { filter: blur(120px); opacity: 0.6; }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(20px, -25px) scale(1.04); }
+            66% { transform: translate(-15px, 15px) scale(0.97); }
         }
-        .purple-blue-patch {
-            animation: purple-blue-pulse 10s ease-in-out infinite alternate;
-        }
+        .float-1 { animation: float 16s ease-in-out infinite; }
+        .float-2 { animation: float 22s ease-in-out infinite reverse; }
+        .float-3 { animation: float 19s ease-in-out infinite 3s; }
+
         @keyframes float-slow {
             0%, 100% { transform: translateY(0px) scale(1); }
-            50% { transform: translateY(-15px) scale(1.03); }
+            50% { transform: translateY(-10px) scale(1.02); }
         }
         .animate-float { animation: float-slow 6s ease-in-out infinite; }
-        @keyframes glow-pulse {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 0.4; }
+
+        /* Cinema Interactive Star Rating Group */
+        .star-rating-group:hover .star-icon {
+            color: rgba(255, 255, 255, 0.25) !important;
+            filter: none !important;
         }
-        .animate-glow { animation: glow-pulse 3s ease-in-out infinite; }
+        .star-rating-group .star-btn:hover .star-icon,
+        .star-rating-group .star-btn:hover ~ .star-btn .star-icon {
+            color: #fbbf24 !important;
+            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.9)) !important;
+        }
+        .star-rating-group .star-btn:active {
+            transform: scale(1.25);
+        }
+
+        /* Fade in for card transitions */
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fade-in 0.35s cubic-bezier(0.4, 0, 0.2, 1) both; }
+
+        /* Code-style container */
+        .code-font {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+        }
     </style>
 </head>
-<body class="min-h-screen bg-[#0a0914] text-white selection:bg-purple-500/30 overflow-x-hidden relative">
+<body class="min-h-screen bg-[#0b0a14] text-white selection:bg-purple-500/30 overflow-x-hidden relative bg-grid-pattern">
 
-    <!-- Balanced Minimal Dark Purple-Blue Ambient Glow Patch -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0 flex items-center justify-center">
-        <div class="purple-blue-patch w-[620px] h-[420px] rounded-full bg-gradient-to-tr from-purple-600/35 via-indigo-600/30 to-blue-600/25 filter blur-[100px]"></div>
+    <!-- Dark Aurora background with enhanced ambient lighting matching dashboard.html -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div class="aurora-blob float-1 absolute -top-44 -left-36 w-[620px] h-[620px] rounded-full bg-gradient-to-br from-purple-600/25 via-indigo-600/20 to-transparent"></div>
+        <div class="aurora-blob float-2 absolute top-1/3 -right-44 w-[680px] h-[680px] rounded-full bg-gradient-to-bl from-fuchsia-600/20 via-purple-900/15 to-transparent"></div>
+        <div class="aurora-blob float-3 absolute bottom-0 left-1/4 w-[520px] h-[520px] rounded-full bg-gradient-to-tr from-cyan-600/15 via-blue-600/10 to-transparent"></div>
     </div>
 
     <!-- Top Navigation Header -->
-    <nav class="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-[#0a0914]/80 backdrop-blur-xl">
+    <nav class="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-[#0b0a14]/80 backdrop-blur-xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             
             <!-- Logo Mark -->
@@ -77,13 +107,14 @@
                 <img src="{% static 'logo.svg' %}" alt="Memora Logo" class="w-10 h-10 rounded-xl group-hover:scale-105 transition-transform shadow-lg shadow-purple-500/20">
                 <div class="flex flex-col justify-center">
                     <span class="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-indigo-300 bg-clip-text text-transparent leading-tight">Memora</span>
-                    <span class="text-[10px] text-white/40 tracking-wider uppercase font-medium leading-tight">Your memory vault</span>
+                    <span class="text-[10px] text-white/40 tracking-wider uppercase font-medium leading-tight">Personal Vault</span>
                 </div>
             </a>
 
             <!-- Nav Links -->
             <div class="hidden md:flex items-center gap-8 text-xs font-semibold text-white/60">
                 <a href="#features" class="hover:text-purple-300 transition-colors">Features</a>
+                <a href="#showcase" class="hover:text-purple-300 transition-colors">Memory Cards</a>
                 <a href="#cinema" class="hover:text-purple-300 transition-colors">Cinema Tracker</a>
                 <a href="#security" class="hover:text-purple-300 transition-colors">Vault Security</a>
                 <a href="#tech-stack" class="hover:text-purple-300 transition-colors">Tech Stack</a>
@@ -107,7 +138,7 @@
                 </a>
                 {% else %}
                 <a href="{% url 'login' %}" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-xs font-semibold text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all flex items-center gap-2 hover:scale-[1.02]">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 00-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
                     <span class="hidden sm:inline">Unlock Vault</span>
                     <span class="sm:hidden">Unlock</span>
                 </a>
@@ -121,8 +152,9 @@
         </div>
 
         <!-- Mobile Navigation Menu -->
-        <div id="landing-mobile-menu" class="hidden md:hidden border-t border-white/[0.06] bg-[#0a0914]/95 backdrop-blur-2xl px-5 py-4 space-y-2">
+        <div id="landing-mobile-menu" class="hidden md:hidden border-t border-white/[0.06] bg-[#0b0a14]/95 backdrop-blur-2xl px-5 py-4 space-y-2">
             <a href="#features" onclick="toggleLandingMenu()" class="block text-sm font-medium text-white/70 hover:text-purple-300 py-1.5 transition-colors">Features</a>
+            <a href="#showcase" onclick="toggleLandingMenu()" class="block text-sm font-medium text-white/70 hover:text-purple-300 py-1.5 transition-colors">Memory Cards</a>
             <a href="#cinema" onclick="toggleLandingMenu()" class="block text-sm font-medium text-white/70 hover:text-purple-300 py-1.5 transition-colors">Cinema Tracker</a>
             <a href="#security" onclick="toggleLandingMenu()" class="block text-sm font-medium text-white/70 hover:text-purple-300 py-1.5 transition-colors">Vault Security</a>
             <a href="#tech-stack" onclick="toggleLandingMenu()" class="block text-sm font-medium text-white/70 hover:text-purple-300 py-1.5 transition-colors">Tech Stack</a>
@@ -166,13 +198,13 @@
             </a>
             {% else %}
             <a href="{% url 'login' %}" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-fuchsia-600 text-sm font-bold text-white shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-[1.03] transition-all flex items-center justify-center gap-2.5 group">
-                <svg class="w-5 h-5 text-purple-200 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                <svg class="w-5 h-5 text-purple-200 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
                 <span>Unlock Your Memory Vault</span>
             </a>
             {% endif %}
             <a href="#showcase" class="w-full sm:w-auto px-8 py-4 rounded-2xl glass hover:bg-white/10 text-sm font-semibold text-white/80 border border-white/15 transition-all flex items-center justify-center gap-2">
                 <svg class="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                <span>Explore Live Demo</span>
+                <span>Explore Live Cards</span>
             </a>
         </div>
 
@@ -195,66 +227,438 @@
         </div>
     </section>
 
-    <!-- LIVE MEMORY SHOWCASE DEMO -->
+    <!-- LIVE MEMORY SHOWCASE DEMO (MATCHING UPDATED INSIDE UI) -->
     <section id="showcase" class="scroll-mt-24 py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div class="text-center mb-12">
-            <h2 class="text-xs uppercase font-bold tracking-widest text-purple-400 mb-3">Type-Aware Design Engine</h2>
+        <div class="text-center mb-10">
+            <h2 class="text-xs uppercase font-bold tracking-widest text-purple-400 mb-3">Refined Ambient Memory Cards</h2>
             <h3 class="text-2xl sm:text-4xl font-bold text-white">Every Memory Has Its Own Visual Form</h3>
-            <p class="text-sm text-white/50 max-w-xl mx-auto mt-2">Memora dynamically renders specialized visual layouts tuned for quotes, code, tasks, movies, links, and places.</p>
+            <p class="text-sm text-white/50 max-w-xl mx-auto mt-2">Borderless ambient cards with category color glow accents, progressive disclosure action toolbars, and type-aware layouts.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Interactive Category Showcase Filter Rail -->
+        <div class="flex items-center justify-center gap-2 mb-10 overflow-x-auto py-2 px-2 max-w-full">
+            <button type="button" onclick="filterShowcase('all', this)" class="showcase-tab px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-purple-600 text-white border border-purple-500/50 shadow-md cursor-pointer">
+                All Memories (6)
+            </button>
+            <button type="button" onclick="filterShowcase('quotes', this)" class="showcase-tab px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.08] border border-white/[0.08] cursor-pointer">
+                Quotes
+            </button>
+            <button type="button" onclick="filterShowcase('cinema', this)" class="showcase-tab px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.08] border border-white/[0.08] cursor-pointer">
+                Cinema
+            </button>
+            <button type="button" onclick="filterShowcase('code', this)" class="showcase-tab px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.08] border border-white/[0.08] cursor-pointer">
+                Code
+            </button>
+            <button type="button" onclick="filterShowcase('tasks', this)" class="showcase-tab px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.08] border border-white/[0.08] cursor-pointer">
+                Tasks
+            </button>
+            <button type="button" onclick="filterShowcase('links', this)" class="showcase-tab px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.08] border border-white/[0.08] cursor-pointer">
+                Links
+            </button>
+            <button type="button" onclick="filterShowcase('ideas', this)" class="showcase-tab px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.08] border border-white/[0.08] cursor-pointer">
+                Ideas
+            </button>
+        </div>
+
+        <!-- 6 Type-Aware Showcase Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            <!-- Type 1: Golden Serif Quote -->
-            <div class="glass-card rounded-3xl p-6 relative overflow-hidden border-l-4 border-l-amber-400">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[11px] font-semibold flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
-                        Quote
-                    </span>
-                    <span class="text-[10px] text-white/30 font-mono">#wisdom</span>
+            <!-- CARD 1: GOLDEN SERIF QUOTE -->
+            <div class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="quotes">
+                <!-- Top 1.5px Glowing Category Accent Line -->
+                <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #f59e0baa 0%, #f59e0b22 70%, transparent 100%);"></div>
+
+                <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between w-full min-w-0">
+                    <div class="w-full min-w-0">
+                        <!-- Header: Category Badge + Pinned Icon + Floating Actions -->
+                        <div class="flex items-center justify-between gap-2 mb-3.5 w-full min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap min-w-0">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #f59e0b14; color: #f59e0b; border: 1px solid #f59e0b28;">
+                                    <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #f59e0b;"></span>
+                                    <span>Quotes</span>
+                                </span>
+                                <svg class="w-3.5 h-3.5 text-rose-400 fill-current" viewBox="0 0 24 24" title="Pinned"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </div>
+
+                            <!-- Progressive Disclosure Actions -->
+                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
+                                <button type="button" onclick="copyShowcaseContent(this, 'An unexamined life is not worth living. - Socrates')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer" title="Copy Content">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"/></svg>
+                                </button>
+                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                                </button>
+                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-rose-400 transition-colors cursor-pointer" title="Pinned">
+                                    <svg class="w-3.5 h-3.5 fill-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Quote Body with Corner Watermark -->
+                        <div class="relative my-1">
+                            <svg class="w-6 h-6 text-amber-400/20 absolute -top-1 right-0 pointer-events-none" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z"/>
+                            </svg>
+                            <p class="text-sm font-serif italic text-amber-100/90 leading-relaxed pr-7">
+                                "An unexamined life is not worth living."
+                            </p>
+                            <p class="text-xs font-semibold text-amber-400/90 mt-2.5">
+                                - Socrates
+                            </p>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.05]">
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#wisdom</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#philosophy</span>
+                        </div>
+                    </div>
+
+                    <!-- Footer: timestamp + detail link -->
+                    <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
+                        <span>2 hours ago</span>
+                        <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
+                            <span>View</span>
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                        </span>
+                    </div>
                 </div>
-                <blockquote class="text-base italic text-amber-100 font-serif leading-relaxed mb-4">
-                    “An unexamined life is not worth living.”
-                </blockquote>
-                <p class="text-xs font-bold text-amber-300">- Socrates</p>
             </div>
 
-            <!-- Type 2: Cinema Watch Status & Ratings -->
-            <div class="glass-card rounded-3xl p-6 relative overflow-hidden border-l-4 border-l-purple-400">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="px-2.5 py-1 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/30 text-[11px] font-semibold flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-8.625 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125h17.25c.621 0 1.125.504 1.125 1.125v1.5m0 0a1.125 1.125 0 01-1.125 1.125M21 5.625v12.75"/></svg>
-                        Cinema
-                    </span>
-                    <!-- Watch status pill -->
-                    <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
-                        Watched
-                    </span>
+            <!-- CARD 2: CINEMA WATCH STATUS & 5-STAR RATING -->
+            <div id="demo-cinema-card" class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="cinema">
+                <!-- Top 1.5px Glowing Category Accent Line -->
+                <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #e11d48aa 0%, #e11d4822 70%, transparent 100%);"></div>
+
+                <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between w-full min-w-0">
+                    <div class="w-full min-w-0">
+                        <!-- Header: Category Badge + Floating Actions -->
+                        <div class="flex items-center justify-between gap-2 mb-3.5 w-full min-w-0">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #e11d4814; color: #e11d48; border: 1px solid #e11d4828;">
+                                <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #e11d48;"></span>
+                                <span>Cinema</span>
+                            </span>
+
+                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
+                                <button type="button" onclick="copyShowcaseContent(this, 'Interstellar (2014)')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer" title="Copy Title">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"/></svg>
+                                </button>
+                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Cinema Content -->
+                        <div class="space-y-2.5">
+                            <p class="text-sm font-bold text-white flex items-center gap-2">
+                                <svg class="w-4 h-4 text-purple-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-8.625 1.125l.892-14.276A1.125 1.125 0 015.637 4.15h12.726a1.125 1.125 0 011.12 1.074l.892 14.276m-16.5 0h16.5m-16.5 0V6a2.25 2.25 0 012.25-2.25h12A2.25 2.25 0 0121 6v13.5m-18 0h18"/></svg>
+                                <span>Interstellar (2014)</span>
+                            </p>
+                            <p class="text-xs text-white/60 leading-relaxed">
+                                Christopher Nolan masterpiece. Unbelievable Hans Zimmer score and wormhole visualization.
+                            </p>
+
+                            <!-- SVG Watch Status Pills -->
+                            <div class="pt-1 flex items-center gap-1.5 flex-wrap">
+                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-card', 'want_to_watch')" data-status="want_to_watch" data-active-class="bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5">
+                                    <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"/></svg>
+                                    <span>Want to Watch</span>
+                                </button>
+                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-card', 'watching')" data-status="watching" data-active-class="bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5">
+                                    <svg class="w-3.5 h-3.5 text-sky-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z"/></svg>
+                                    <span>Watching</span>
+                                </button>
+                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-card', 'watched')" data-status="watched" data-active-class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm">
+                                    <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span>Watched</span>
+                                </button>
+                            </div>
+
+                            <!-- Interactive Star Rating -->
+                            <div class="pt-2 flex items-center justify-between gap-2 bg-black/30 p-2.5 rounded-xl border border-white/10 w-full">
+                                <span class="text-xs text-white/60 font-medium shrink-0">Rating:</span>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <div class="star-rating-group flex flex-row-reverse items-center">
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-card', 5)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-card', 4)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-card', 3)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-card', 2)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-card', 1)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
+                                        </button>
+                                    </div>
+                                    <span class="rating-score-label text-xs font-bold text-amber-300 ml-1.5 font-mono">5/5</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.05]">
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#movie</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#scifi</span>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
+                        <span>Yesterday</span>
+                        <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
+                            <span>View</span>
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                        </span>
+                    </div>
                 </div>
-                <h4 class="text-base font-bold text-white mb-2">Interstellar (2014)</h4>
-                <div class="flex items-center gap-1 mb-3 text-amber-400">
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                </div>
-                <p class="text-xs text-white/60">Christopher Nolan masterpiece. Unbelievable Hans Zimmer score.</p>
             </div>
 
-            <!-- Type 3: Monospace Syntax Snippet -->
-            <div class="glass-card rounded-3xl p-6 relative overflow-hidden border-l-4 border-l-emerald-400">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/></svg>
-                        Code
-                    </span>
-                    <span class="text-[10px] text-white/30 font-mono">python</span>
+            <!-- CARD 3: CODE SNIPPET TERMINAL -->
+            <div class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="code">
+                <!-- Top 1.5px Glowing Category Accent Line -->
+                <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #a3e635aa 0%, #a3e63522 70%, transparent 100%);"></div>
+
+                <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between w-full min-w-0">
+                    <div class="w-full min-w-0">
+                        <!-- Header: Category Badge + Floating Actions -->
+                        <div class="flex items-center justify-between gap-2 mb-3.5 w-full min-w-0">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #a3e63514; color: #a3e635; border: 1px solid #a3e63528;">
+                                <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #a3e635;"></span>
+                                <span>Code</span>
+                            </span>
+
+                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
+                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                                </button>
+                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-sky-300 transition-colors cursor-pointer" title="Archive">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Mac Developer Terminal Window -->
+                        <div class="my-1 rounded-xl overflow-hidden border border-white/[0.08] bg-[#07070f] shadow-lg">
+                            <div class="flex items-center justify-between px-3 py-2 border-b border-white/[0.06] bg-white/[0.02]">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-rose-500/80 inline-block"></span>
+                                    <span class="w-2 h-2 rounded-full bg-amber-500/80 inline-block"></span>
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500/80 inline-block"></span>
+                                    <span class="text-[11px] font-mono text-white/60 ml-2 truncate">capture.py</span>
+                                </div>
+                                <button type="button" onclick="copyShowcaseContent(this, 'def capture_api(request):\n    data = json.loads(request.body)\n    return Memory.create(data[\'text\'])')" class="text-[10px] font-mono text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 cursor-pointer" title="Copy code">
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>
+                                    <span>Copy</span>
+                                </button>
+                            </div>
+                            <div class="p-3 bg-black/40">
+                                <pre class="text-xs text-emerald-300/90 whitespace-pre-wrap break-words leading-relaxed overflow-hidden code-font">def capture_api(request):
+    data = json.loads(request.body)
+    return Memory.create(data['text'])</pre>
+                            </div>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.05]">
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#python</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#django</span>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
+                        <span>3 days ago</span>
+                        <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
+                            <span>View</span>
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                        </span>
+                    </div>
                 </div>
-                <pre class="bg-black/40 p-3 rounded-xl text-xs font-mono text-emerald-200 overflow-x-auto border border-white/10 mb-2"><code>def capture(text):
-    return Memory.create(text)</code></pre>
-                <p class="text-xs text-white/50">One-line helper function for rapid background memory capture.</p>
+            </div>
+
+            <!-- CARD 4: INTERACTIVE TASK PRODUCTIVITY CARD -->
+            <div class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="tasks">
+                <!-- Top 1.5px Glowing Category Accent Line -->
+                <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #22d3eeaa 0%, #22d3ee22 70%, transparent 100%);"></div>
+
+                <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between w-full min-w-0">
+                    <div class="w-full min-w-0">
+                        <!-- Header: Category Badge + Priority Pill + Floating Actions -->
+                        <div class="flex items-center justify-between gap-2 mb-3.5 w-full min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap min-w-0">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #22d3ee14; color: #22d3ee; border: 1px solid #22d3ee28;">
+                                    <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #22d3ee;"></span>
+                                    <span>Tasks</span>
+                                </span>
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium tracking-wide uppercase bg-red-500/10 text-red-400 border border-red-500/20">
+                                    <span class="w-1.5 h-1.5 rounded-full inline-block bg-red-400 animate-ping"></span>
+                                    Urgent
+                                </span>
+                            </div>
+
+                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
+                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                                </button>
+                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-sky-300 transition-colors cursor-pointer" title="Archive">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Task Body with Interactive Checkbox -->
+                        <div class="flex items-start gap-3 my-1">
+                            <button type="button" onclick="toggleTaskDemo(this)" class="task-done mt-0.5 w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer shadow-sm border-emerald-400 bg-emerald-500/20 text-emerald-300 shadow-[0_0_10px_rgba(52,211,153,0.3)] hover:scale-110" title="Toggle Status">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                            </button>
+                            <div class="flex-1 min-w-0">
+                                <p class="task-title text-xs font-bold mb-0.5 line-through text-white/40 transition-colors">Ship Memora v5.0 Production Release</p>
+                                <p class="task-content text-sm font-medium leading-relaxed line-through text-white/40 transition-colors">
+                                    Execute complete 139-test CI guard, verify keep-alive health ping, and deploy to live production.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.05]">
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#release</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#milestone</span>
+                        </div>
+                    </div>
+
+                    <!-- Footer: due date + detail link -->
+                    <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
+                        <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-cyan-500/15 text-cyan-300 font-semibold flex items-center gap-1 border border-cyan-500/25">
+                            <svg class="w-3 h-3 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5"/></svg>
+                            <span>Due Today</span>
+                        </span>
+                        <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
+                            <span>View</span>
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD 5: RICH URL / LINK CARD -->
+            <div class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="links">
+                <!-- Top 1.5px Glowing Category Accent Line -->
+                <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #38bdf8aa 0%, #38bdf822 70%, transparent 100%);"></div>
+
+                <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between w-full min-w-0">
+                    <div class="w-full min-w-0">
+                        <!-- Header: Category Badge + Floating Actions -->
+                        <div class="flex items-center justify-between gap-2 mb-3.5 w-full min-w-0">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #38bdf814; color: #38bdf8; border: 1px solid #38bdf828;">
+                                <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #38bdf8;"></span>
+                                <span>Links</span>
+                            </span>
+
+                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
+                                <button type="button" onclick="copyShowcaseContent(this, 'https://htmx.org/reference/')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer" title="Copy URL">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"/></svg>
+                                </button>
+                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Link Body -->
+                        <div class="my-0.5">
+                            <p class="text-sm font-bold text-white/95 mb-1.5">HTMX - High Power Tools for HTML</p>
+                            <div class="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] transition-all group/link mb-2 cursor-pointer">
+                                <div class="flex items-center justify-between gap-2 text-xs text-sky-300 hover:text-sky-200 transition-colors truncate font-mono">
+                                    <div class="flex items-center gap-1.5 truncate">
+                                        <svg class="w-3.5 h-3.5 text-sky-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.06a4.5 4.5 0 00-1.242-7.244l-4.5-4.5a4.5 4.5 0 00-6.364 6.364l1.757 1.757"/></svg>
+                                        <span class="truncate">https://htmx.org/reference/</span>
+                                    </div>
+                                    <svg class="w-3.5 h-3.5 text-white/40 group-hover/link:text-sky-300 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-all shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-xs text-white/60 leading-relaxed">
+                                Access AJAX, CSS Transitions, WebSockets and Server Sent Events directly in HTML, using attributes.
+                            </p>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.05]">
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#webdev</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#htmx</span>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
+                        <span>4 days ago</span>
+                        <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
+                            <span>View</span>
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD 6: IDEAS / THOUGHTS CARD -->
+            <div class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="ideas">
+                <!-- Top 1.5px Glowing Category Accent Line -->
+                <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #fbbf24aa 0%, #fbbf2422 70%, transparent 100%);"></div>
+
+                <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between w-full min-w-0">
+                    <div class="w-full min-w-0">
+                        <!-- Header: Category Badge + Priority Pill + Floating Actions -->
+                        <div class="flex items-center justify-between gap-2 mb-3.5 w-full min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap min-w-0">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #fbbf2414; color: #fbbf24; border: 1px solid #fbbf2428;">
+                                    <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #fbbf24;"></span>
+                                    <span>Ideas</span>
+                                </span>
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium tracking-wide uppercase bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                                    <span class="w-1.5 h-1.5 rounded-full inline-block bg-orange-400"></span>
+                                    High
+                                </span>
+                            </div>
+
+                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
+                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                                </button>
+                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-sky-300 transition-colors cursor-pointer" title="Archive">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Idea Body -->
+                        <div>
+                            <p class="text-sm font-bold text-white mb-1 tracking-tight">The Capture-First Philosophy</p>
+                            <p class="text-sm text-white/[0.88] leading-relaxed">
+                                Zero-friction capture saves cognitive energy. Record thoughts in seconds without filing taxonomy or mandatory tagging. Let search and intelligent algorithms handle retrieval later.
+                            </p>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.05]">
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#secondbrain</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#productivity</span>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
+                        <span>1 week ago</span>
+                        <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
+                            <span>View</span>
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                        </span>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -270,7 +674,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             <!-- Feature 1 -->
-            <div class="glass-card rounded-3xl p-8 space-y-4">
+            <div class="glass-card rounded-2xl sm:rounded-3xl p-8 space-y-4">
                 <div class="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
                 </div>
@@ -279,7 +683,7 @@
             </div>
 
             <!-- Feature 2 -->
-            <div class="glass-card rounded-3xl p-8 space-y-4">
+            <div class="glass-card rounded-2xl sm:rounded-3xl p-8 space-y-4">
                 <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-300">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/></svg>
                 </div>
@@ -288,7 +692,7 @@
             </div>
 
             <!-- Feature 3 -->
-            <div class="glass-card rounded-3xl p-8 space-y-4">
+            <div class="glass-card rounded-2xl sm:rounded-3xl p-8 space-y-4">
                 <div class="w-12 h-12 rounded-2xl bg-fuchsia-500/20 border border-fuchsia-500/30 flex items-center justify-center text-fuchsia-300">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
                 </div>
@@ -299,7 +703,7 @@
         </div>
     </section>
 
-    <!-- CINEMA & WATCH TRACKER SHOWCASE -->
+    <!-- CINEMA & WATCH TRACKER SHOWCASE (UPDATED INSIDE CARDS) -->
     <section id="cinema" class="scroll-mt-24 py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
         <div class="text-center mb-12">
             <h2 class="text-xs uppercase font-bold tracking-widest text-amber-400 mb-3">Entertainment & Media</h2>
@@ -308,68 +712,133 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
             <!-- Cinema Card 1: Watched -->
-            <div class="glass-card rounded-3xl p-6 border-l-4 border-l-purple-400 space-y-3">
-                <div class="flex items-center justify-between">
-                    <span class="px-2.5 py-1 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/30 text-[11px] font-semibold">Cinema</span>
-                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">Watched</span>
-                </div>
-                <h4 class="text-lg font-bold text-white">Oppenheimer (2023)</h4>
-                <div class="flex items-center gap-1 text-amber-400">
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                </div>
-                <p class="text-xs text-white/60">Phenomenal cinematography and Ludwig Göransson soundtrack.</p>
-                <div class="flex items-center gap-2 pt-2 text-[10px] text-white/40 font-mono">
-                    <span class="px-2 py-0.5 rounded bg-white/5">#movie</span>
-                    <span class="px-2 py-0.5 rounded bg-white/5">#biography</span>
+            <div class="group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0">
+                <!-- Top 1.5px Glowing Category Accent Line -->
+                <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #e11d48aa 0%, #e11d4822 70%, transparent 100%);"></div>
+
+                <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between w-full min-w-0">
+                    <div class="w-full min-w-0 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #e11d4814; color: #e11d48; border: 1px solid #e11d4828;">
+                                <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #e11d48;"></span>
+                                <span>Cinema</span>
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
+                                Watched
+                            </span>
+                        </div>
+                        <h4 class="text-base font-bold text-white">Oppenheimer (2023)</h4>
+                        <div class="flex items-center gap-1 text-amber-400">
+                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <span class="text-xs font-bold text-amber-300 ml-1.5 font-mono">5/5</span>
+                        </div>
+                        <p class="text-xs text-white/60 leading-relaxed">Phenomenal cinematography and Ludwig Göransson soundtrack.</p>
+                        <div class="flex items-center gap-1.5 pt-2 text-[10px] text-white/40 font-mono">
+                            <span class="px-2 py-0.5 rounded bg-white/5">#movie</span>
+                            <span class="px-2 py-0.5 rounded bg-white/5">#biography</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
+                        <span>2 days ago</span>
+                        <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
+                            <span>View</span>
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                        </span>
+                    </div>
                 </div>
             </div>
 
             <!-- Cinema Card 2: Watching -->
-            <div class="glass-card rounded-3xl p-6 border-l-4 border-l-purple-400 space-y-3">
-                <div class="flex items-center justify-between">
-                    <span class="px-2.5 py-1 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/30 text-[11px] font-semibold">Cinema</span>
-                    <span class="px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30 text-[10px] font-bold">Watching</span>
-                </div>
-                <h4 class="text-lg font-bold text-white">Severance (Season 2)</h4>
-                <div class="flex items-center gap-1 text-amber-400">
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current text-white/20" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                </div>
-                <p class="text-xs text-white/60">Mind-bending corporate sci-fi thriller series on Apple TV+.</p>
-                <div class="flex items-center gap-2 pt-2 text-[10px] text-white/40 font-mono">
-                    <span class="px-2 py-0.5 rounded bg-white/5">#series</span>
-                    <span class="px-2 py-0.5 rounded bg-white/5">#scifi</span>
+            <div class="group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0">
+                <!-- Top 1.5px Glowing Category Accent Line -->
+                <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #e11d48aa 0%, #e11d4822 70%, transparent 100%);"></div>
+
+                <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between w-full min-w-0">
+                    <div class="w-full min-w-0 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #e11d4814; color: #e11d48; border: 1px solid #e11d4828;">
+                                <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #e11d48;"></span>
+                                <span>Cinema</span>
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30 text-[10px] font-bold">
+                                Watching
+                            </span>
+                        </div>
+                        <h4 class="text-base font-bold text-white">Severance (Season 2)</h4>
+                        <div class="flex items-center gap-1 text-amber-400">
+                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg class="w-4 h-4 fill-current text-white/20" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <span class="text-xs font-bold text-amber-300 ml-1.5 font-mono">4/5</span>
+                        </div>
+                        <p class="text-xs text-white/60 leading-relaxed">Mind-bending corporate sci-fi thriller series on Apple TV+.</p>
+                        <div class="flex items-center gap-1.5 pt-2 text-[10px] text-white/40 font-mono">
+                            <span class="px-2 py-0.5 rounded bg-white/5">#series</span>
+                            <span class="px-2 py-0.5 rounded bg-white/5">#scifi</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
+                        <span>4 days ago</span>
+                        <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
+                            <span>View</span>
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                        </span>
+                    </div>
                 </div>
             </div>
 
             <!-- Cinema Card 3: Want to Watch -->
-            <div class="glass-card rounded-3xl p-6 border-l-4 border-l-purple-400 space-y-3">
-                <div class="flex items-center justify-between">
-                    <span class="px-2.5 py-1 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/30 text-[11px] font-semibold">Cinema</span>
-                    <span class="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-bold">Want to Watch</span>
-                </div>
-                <h4 class="text-lg font-bold text-white">Dune: Part Two (2024)</h4>
-                <div class="flex items-center gap-1 text-amber-400">
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                </div>
-                <p class="text-xs text-white/60">Epic sci-fi spectacle directed by Denis Villeneuve.</p>
-                <div class="flex items-center gap-2 pt-2 text-[10px] text-white/40 font-mono">
-                    <span class="px-2 py-0.5 rounded bg-white/5">#movie</span>
-                    <span class="px-2 py-0.5 rounded bg-white/5">#sci-fi</span>
+            <div class="group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0">
+                <!-- Top 1.5px Glowing Category Accent Line -->
+                <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #e11d48aa 0%, #e11d4822 70%, transparent 100%);"></div>
+
+                <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between w-full min-w-0">
+                    <div class="w-full min-w-0 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #e11d4814; color: #e11d48; border: 1px solid #e11d4828;">
+                                <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #e11d48;"></span>
+                                <span>Cinema</span>
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-bold">
+                                Want to Watch
+                            </span>
+                        </div>
+                        <h4 class="text-base font-bold text-white">Dune: Part Two (2024)</h4>
+                        <div class="flex items-center gap-1 text-amber-400">
+                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <span class="text-xs font-bold text-amber-300 ml-1.5 font-mono">5/5</span>
+                        </div>
+                        <p class="text-xs text-white/60 leading-relaxed">Epic sci-fi spectacle directed by Denis Villeneuve.</p>
+                        <div class="flex items-center gap-1.5 pt-2 text-[10px] text-white/40 font-mono">
+                            <span class="px-2 py-0.5 rounded bg-white/5">#movie</span>
+                            <span class="px-2 py-0.5 rounded bg-white/5">#sci-fi</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
+                        <span>1 week ago</span>
+                        <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
+                            <span>View</span>
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                        </span>
+                    </div>
                 </div>
             </div>
+
         </div>
     </section>
 
@@ -382,17 +851,17 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="glass-card rounded-3xl p-8 space-y-3">
+            <div class="glass-card rounded-2xl sm:rounded-3xl p-8 space-y-3">
                 <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold">@</div>
                 <h4 class="text-lg font-bold text-white">Niche Vault Handle</h4>
                 <p class="text-xs text-white/60 leading-relaxed">Choose a memorable Vault Handle (e.g. <span class="font-mono text-purple-300">@om</span>). No email verification delays or password reset traps.</p>
             </div>
-            <div class="glass-card rounded-3xl p-8 space-y-3">
+            <div class="glass-card rounded-2xl sm:rounded-3xl p-8 space-y-3">
                 <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-300 font-mono font-bold">***</div>
                 <h4 class="text-lg font-bold text-white">6-Digit Vault Key PIN</h4>
                 <p class="text-xs text-white/60 leading-relaxed">Unlock your vault in under 2 seconds using a 6-digit numeric PIN, securely salted and hashed via Django PBKDF2 algorithm.</p>
             </div>
-            <div class="glass-card rounded-3xl p-8 space-y-3">
+            <div class="glass-card rounded-2xl sm:rounded-3xl p-8 space-y-3">
                 <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-300 font-bold">🔒</div>
                 <h4 class="text-lg font-bold text-white">100% User Data Isolation</h4>
                 <p class="text-xs text-white/60 leading-relaxed">All memories, custom categories, collections, and tag suggestions are strictly scoped to your private user account.</p>
@@ -431,7 +900,7 @@
             </div>
             <div class="glass p-5 rounded-2xl text-center space-y-2">
                 <span class="text-xs uppercase font-bold text-amber-300 block">Testing</span>
-                <span class="text-base font-bold text-white block">118 Tests</span>
+                <span class="text-base font-bold text-white block">139 Tests</span>
                 <span class="text-[11px] text-white/40 block">100% Pass Rate</span>
             </div>
             <div class="glass p-5 rounded-2xl text-center space-y-2">
@@ -444,11 +913,12 @@
 
     <!-- CALL TO ACTION BANNER -->
     <section class="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
-        <div class="glass-card rounded-3xl p-10 sm:p-16 relative overflow-hidden border border-purple-500/30">
+        <div class="glass-card rounded-3xl p-10 sm:p-16 relative overflow-hidden border border-purple-500/30 shadow-2xl shadow-purple-950/40">
+            <div class="h-[1.5px] w-full absolute top-0 left-0" style="background: linear-gradient(90deg, #c084fcaa 0%, #818cf8aa 50%, #22d3eeaa 100%);"></div>
             <h2 class="text-3xl sm:text-5xl font-bold text-white mb-4">Start Saving Your Thoughts Today</h2>
             <p class="text-base text-white/60 max-w-xl mx-auto mb-8">Create your private memory vault in 5 seconds with a custom Vault Handle and 6-Digit PIN.</p>
             <a href="{% url 'login' %}" class="inline-flex items-center gap-2.5 px-9 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-sm font-bold text-white shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-[1.03] transition-all">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 00-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
                 <span>Unlock Private Memory Vault</span>
             </a>
         </div>
@@ -528,6 +998,99 @@
     function toggleLandingMenu() {
         const menu = document.getElementById('landing-mobile-menu');
         if (menu) menu.classList.toggle('hidden');
+    }
+
+    // Showcase Category Filter Function
+    function filterShowcase(category, element) {
+        document.querySelectorAll('.showcase-tab').forEach(tab => {
+            tab.className = 'showcase-tab px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.08] border border-white/[0.08] cursor-pointer';
+        });
+        element.className = 'showcase-tab px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-purple-600 text-white border border-purple-500/50 shadow-md cursor-pointer';
+
+        const cards = document.querySelectorAll('.showcase-card');
+        cards.forEach(card => {
+            if (category === 'all' || card.dataset.category === category) {
+                card.classList.remove('hidden');
+                card.classList.add('fade-in');
+            } else {
+                card.classList.add('hidden');
+                card.classList.remove('fade-in');
+            }
+        });
+    }
+
+    // Showcase Interactive Helpers
+    function copyShowcaseContent(button, text) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHtml = button.innerHTML;
+                button.innerHTML = '<svg class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
+                setTimeout(() => { button.innerHTML = originalHtml; }, 1600);
+            });
+        }
+    }
+
+    function toggleTaskDemo(button) {
+        const isDone = button.classList.contains('task-done');
+        const card = button.closest('.showcase-card');
+        const taskTitle = card ? card.querySelector('.task-title') : null;
+        const taskContent = card ? card.querySelector('.task-content') : null;
+
+        if (isDone) {
+            button.classList.remove('task-done', 'border-emerald-400', 'bg-emerald-500/20', 'text-emerald-300', 'shadow-[0_0_10px_rgba(52,211,153,0.3)]');
+            button.classList.add('border-white/25', 'bg-white/5');
+            button.innerHTML = '';
+            if (taskTitle) {
+                taskTitle.classList.remove('line-through', 'text-white/40');
+                taskTitle.classList.add('text-white/90');
+            }
+            if (taskContent) {
+                taskContent.classList.remove('line-through', 'text-white/40');
+                taskContent.classList.add('text-white/90');
+            }
+        } else {
+            button.classList.add('task-done', 'border-emerald-400', 'bg-emerald-500/20', 'text-emerald-300', 'shadow-[0_0_10px_rgba(52,211,153,0.3)]');
+            button.classList.remove('border-white/25', 'bg-white/5');
+            button.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
+            if (taskTitle) {
+                taskTitle.classList.add('line-through', 'text-white/40');
+                taskTitle.classList.remove('text-white/90');
+            }
+            if (taskContent) {
+                taskContent.classList.add('line-through', 'text-white/40');
+                taskContent.classList.remove('text-white/90');
+            }
+        }
+    }
+
+    function setWatchStatusDemo(cardId, status) {
+        const card = document.getElementById(cardId);
+        if (!card) return;
+        const buttons = card.querySelectorAll('.watch-status-btn');
+        buttons.forEach(btn => {
+            if (btn.dataset.status === status) {
+                btn.className = 'watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none ' + btn.dataset.activeClass;
+            } else {
+                btn.className = 'watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5';
+            }
+        });
+    }
+
+    function setRatingDemo(cardId, rating) {
+        const card = document.getElementById(cardId);
+        if (!card) return;
+        const starBtns = card.querySelectorAll('.star-btn');
+        starBtns.forEach((btn, index) => {
+            const starIcon = btn.querySelector('.star-icon');
+            const starVal = 5 - index;
+            if (starVal <= rating) {
+                starIcon.className = 'star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors';
+            } else {
+                starIcon.className = 'star-icon text-white/30 transition-colors';
+            }
+        });
+        const label = card.querySelector('.rating-score-label');
+        if (label) label.textContent = rating + '/5';
     }
     </script>
 </body>
