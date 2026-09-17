@@ -1069,3 +1069,192 @@ class WebPushNotificationTest(TestCase):
         self.assertEqual(data["count"], 1)
         self.assertEqual(data["due_reminders"][0]["title"], "Important Meeting")
 
+
+class CinemaWatchStatusSortAndFilterTests(TestCase):
+    """Test suite for Cinema watch status filtering and sorting."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="cinemafan", password="testpassword123")
+        self.other_user = User.objects.create_user(username="othercritic", password="testpassword123")
+        self.client.force_login(self.user)
+
+        self.cinema_cat, _ = Category.objects.get_or_create(
+            slug="cinema",
+            defaults={"name": "Cinema", "color": "#e11d48", "is_default": True}
+        )
+
+        self.movie_want = Memory.objects.create(
+            user=self.user,
+            title="Dune: Part Two",
+            content="Epic sci-fi continuation by Denis Villeneuve",
+            category=self.cinema_cat,
+            watch_status=Memory.WatchStatus.WANT_TO_WATCH,
+            rating=None
+        )
+        self.movie_watching = Memory.objects.create(
+            user=self.user,
+            title="Shogun",
+            content="Historical drama series set in feudal Japan",
+            category=self.cinema_cat,
+            watch_status=Memory.WatchStatus.WATCHING,
+            rating=None
+        )
+        self.movie_watched_top = Memory.objects.create(
+            user=self.user,
+            title="Oppenheimer",
+            content="Biographical drama masterpiece",
+            category=self.cinema_cat,
+            watch_status=Memory.WatchStatus.WATCHED,
+            rating=5
+        )
+        self.movie_watched_mid = Memory.objects.create(
+            user=self.user,
+            title="Random Action Movie",
+            content="Average weekend popcorn flick",
+            category=self.cinema_cat,
+            watch_status=Memory.WatchStatus.WATCHED,
+            rating=3
+        )
+
+        # Other user's memory (for isolation tests)
+        self.other_movie = Memory.objects.create(
+            user=self.other_user,
+            title="Secret Movie",
+            content="Private watchlist item",
+            category=self.cinema_cat,
+            watch_status=Memory.WatchStatus.WATCHING,
+            rating=5
+        )
+
+    def test_cinema_view_stats_and_context(self):
+        """Cinema category view provides cinema_stats and is_cinema_view flag."""
+        resp = self.client.get(reverse("category_filter", kwargs={"filter_value": "cinema"}))
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.context["is_cinema_view"])
+        stats = resp.context["cinema_stats"]
+        self.assertEqual(stats["all"], 4)
+        self.assertEqual(stats["want_to_watch"], 1)
+        self.assertEqual(stats["watching"], 1)
+        self.assertEqual(stats["watched"], 2)
+        self.assertContains(resp, "Want to Watch")
+        self.assertContains(resp, "Watching")
+        self.assertContains(resp, "Watched")
+
+    def test_cinema_filter_by_want_to_watch(self):
+        """Filtering by watch_status=want_to_watch returns only want_to_watch movies."""
+        resp = self.client.get(
+            reverse("category_filter", kwargs={"filter_value": "cinema"}),
+            {"watch_status": "want_to_watch"}
+        )
+        self.assertEqual(resp.status_code, 200)
+        memories = list(resp.context["memories"])
+        self.assertEqual(len(memories), 1)
+        self.assertEqual(memories[0].id, self.movie_want.id)
+
+    def test_cinema_filter_by_watching(self):
+        """Filtering by watch_status=watching returns only currently watching movies."""
+        resp = self.client.get(
+            reverse("category_filter", kwargs={"filter_value": "cinema"}),
+            {"watch_status": "watching"}
+        )
+        self.assertEqual(resp.status_code, 200)
+        memories = list(resp.context["memories"])
+        self.assertEqual(len(memories), 1)
+        self.assertEqual(memories[0].id, self.movie_watching.id)
+
+    def test_cinema_filter_by_watched(self):
+        """Filtering by watch_status=watched returns only watched movies."""
+        resp = self.client.get(
+            reverse("category_filter", kwargs={"filter_value": "cinema"}),
+            {"watch_status": "watched"}
+        )
+        self.assertEqual(resp.status_code, 200)
+        memories = list(resp.context["memories"])
+        self.assertEqual(len(memories), 2)
+        self.assertIn(self.movie_watched_top, memories)
+        self.assertIn(self.movie_watched_mid, memories)
+
+    def test_cinema_sort_by_want_to_watch_first(self):
+        """Sorting with sort=want_to_watch orders want_to_watch first, then watching, then watched."""
+        resp = self.client.get(
+            reverse("category_filter", kwargs={"filter_value": "cinema"}),
+            {"sort": "want_to_watch"}
+        )
+        self.assertEqual(resp.status_code, 200)
+        memories = list(resp.context["memories"])
+        self.assertEqual(memories[0].id, self.movie_want.id)
+        self.assertEqual(memories[1].id, self.movie_watching.id)
+        self.assertEqual(memories[2].watch_status, Memory.WatchStatus.WATCHED)
+        self.assertEqual(memories[3].watch_status, Memory.WatchStatus.WATCHED)
+
+    def test_cinema_sort_by_watching_first(self):
+        """Sorting with sort=watching orders watching first, then want_to_watch, then watched."""
+        resp = self.client.get(
+            reverse("category_filter", kwargs={"filter_value": "cinema"}),
+            {"sort": "watching"}
+        )
+        self.assertEqual(resp.status_code, 200)
+        memories = list(resp.context["memories"])
+        self.assertEqual(memories[0].id, self.movie_watching.id)
+        self.assertEqual(memories[1].id, self.movie_want.id)
+        self.assertEqual(memories[2].watch_status, Memory.WatchStatus.WATCHED)
+        self.assertEqual(memories[3].watch_status, Memory.WatchStatus.WATCHED)
+
+    def test_cinema_sort_by_watched_first(self):
+        """Sorting with sort=watched orders watched first, then watching, then want_to_watch."""
+        resp = self.client.get(
+            reverse("category_filter", kwargs={"filter_value": "cinema"}),
+            {"sort": "watched"}
+        )
+        self.assertEqual(resp.status_code, 200)
+        memories = list(resp.context["memories"])
+        self.assertEqual(memories[0].watch_status, Memory.WatchStatus.WATCHED)
+        self.assertEqual(memories[1].watch_status, Memory.WatchStatus.WATCHED)
+        self.assertEqual(memories[2].id, self.movie_watching.id)
+        self.assertEqual(memories[3].id, self.movie_want.id)
+
+    def test_cinema_sort_by_rating(self):
+        """Sorting by rating orders highest rated first (5 stars before 3 stars)."""
+        resp = self.client.get(
+            reverse("category_filter", kwargs={"filter_value": "cinema"}),
+            {"sort": "rating"}
+        )
+        self.assertEqual(resp.status_code, 200)
+        memories = list(resp.context["memories"])
+        self.assertEqual(memories[0].id, self.movie_watched_top.id)
+        self.assertEqual(memories[1].id, self.movie_watched_mid.id)
+
+    def test_cinema_htmx_partial_swap(self):
+        """HTMX requests targeted at cinema-container return cinema_container.html partial."""
+        resp = self.client.get(
+            reverse("category_filter", kwargs={"filter_value": "cinema"}),
+            {"watch_status": "watching"},
+            HTTP_HX_REQUEST="true",
+            HTTP_HX_TARGET="cinema-container"
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, "quotes/partials/cinema_container.html")
+        self.assertContains(resp, "Shogun")
+
+    def test_cinema_search_with_watch_status_and_sort(self):
+        """Search inside cinema respects watch_status filter."""
+        resp = self.client.get(
+            reverse("search_memories"),
+            {"q": "drama", "category": "cinema", "watch_status": "watched"}
+        )
+        self.assertEqual(resp.status_code, 200)
+        memories = list(resp.context["memories"])
+        # Oppenheimer and Random Action Movie both might match or Oppenheimer matches 'drama'
+        self.assertIn(self.movie_watched_top, memories)
+        self.assertNotIn(self.movie_watching, memories)  # Shogun is watching, not watched
+
+    def test_cinema_user_data_isolation(self):
+        """Cinema memories and stats are strictly user-isolated."""
+        resp = self.client.get(reverse("category_filter", kwargs={"filter_value": "cinema"}))
+        self.assertEqual(resp.status_code, 200)
+        memories = list(resp.context["memories"])
+        self.assertNotIn(self.other_movie, memories)
+        stats = resp.context["cinema_stats"]
+        self.assertEqual(stats["watching"], 1)  # Only self.movie_watching, not other_user's
+
+

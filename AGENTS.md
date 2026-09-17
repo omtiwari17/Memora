@@ -30,8 +30,8 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 | **Database** | **SQLite** (local dev) / **Neon PostgreSQL** (production) | 100% Free forever PostgreSQL via `dj-database-url` |
 | **Hosting** | **Render** (Free Web Service) + **cron-job.org** (Keep-Alive Ping) | 100% Free production hosting, stays awake 24/7 without cold starts |
 | **Static Files** | WhiteNoise | Compressed static assets served directly by Django WSGI |
-| **CI/CD** | GitHub Actions | 4-stage pipeline: Lint → Django Checks → 135 Tests → Deploy Readiness |
-| **Testing** | Django TestCase (135 tests) | Models, auth, views, URLs, CRUD, APIs, custom admin, movie watch ratings, HTMX in-place updates, category uniqueness, data isolation |
+| **CI/CD** | GitHub Actions | 4-stage pipeline: Lint → Django Checks → 150 Tests → Deploy Readiness |
+| **Testing** | Django TestCase (150 tests) | Models, auth, views, URLs, CRUD, APIs, custom admin, movie watch ratings, HTMX in-place updates, category uniqueness, data isolation, cinema watch status sorting & filtering |
 
 **Explicitly Excluded:** React, Node.js, npm build pipelines, heavy SPA frameworks. Tailwind and DaisyUI are loaded directly via CDN.
 
@@ -44,10 +44,11 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 - **Niche Authentication: Vault Handle + 6-Digit PIN** - Zero email or password friction. Users register and unlock their personal private memory vault using a unique **Vault Handle** (e.g. `@om`) and a secure **6-Digit PIN** (hashed via Django's PBKDF2). All memories, categories, and collections are strictly user-scoped (`user=request.user`). Login page features a clear **Unlock Vault / Create New Vault** toggle so new users immediately see the registration option.
 - **Custom Admin Console (`/ctrl/`)** - Dedicated glassmorphic Admin Command Console at route `/ctrl/` with dedicated login portal (`/ctrl/login/`), session isolation (`request.session["admin_unlocked"] = True`), Amber Gold Command Console visual theme, dynamic HTMX handle filtering, rich empty state card, and management command `create_admin --handle <handle> --pin <pin>`.
 - **Interactive Movie / Cinema Watch Status & 5-Star Rating System** - `Memory.watch_status` (`want_to_watch`, `watching`, `watched`) and `Memory.rating` (1-5 stars) with SVG icon watch status pills (`Want to Watch`, `Watching`, `Watched`) and interactive CSS hover fill with glowing spring scale animation (`drop-shadow(0 0 8px rgba(251,191,36,0.9))`) directly on memory cards.
+- **Cinema Watch Status Sorting & Filtering Engine** - Comprehensive sorting and filtering directly within the Cinema workspace (`/category/cinema/`). Segmented status filter tabs (`All Cinema`, `Want to Watch`, `Watching`, `Watched`) with dynamic badge counters and a glassmorphic Sort selector (`Newest First`, `Sort: Want to Watch First`, `Sort: Watching First`, `Sort: Watched First`, `Highest Rated 5★`, `Oldest First`) powered by Django `Case`/`When` conditional expressions, full URL query parameter synchronization (`HX-Push-Url`), and 0ms HTMX partial swaps (`quotes/partials/cinema_container.html`).
 - **Unified Cinema Category & Tag-Based Media** - Consolidated media categories under **Cinema** (`slug: cinema`), organizing movies vs TV series via tags (`#movie`, `#series`, `#anime`, `#documentary`).
 - **Developer Profile Links Footer** - Glassmorphic **Created by Om Tiwari** developer badge in left navigation sidebar (`dashboard.html`, `memory_list.html`) and login screen (`login.html`) linking to Portfolio (`https://omtiwari.dev/`), GitHub (`https://github.com/omtiwari17`), and LinkedIn (`https://www.linkedin.com/in/tiwariom/`).
 - **Production Security Hardening & CI Guard** - In `quotevault/settings.py`, security flags (`SECURE_SSL_REDIRECT`, `SECURE_HSTS_SECONDS=31536000`, `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`, `SECURE_PROXY_SSL_HEADER`) activate when `not DEBUG and "test" not in sys.argv:`. This prevents local port redirects during development while ensuring GitHub Actions `--deploy` checks and live production deployments enforce strict HTTPS with zero warnings.
-- **CI/CD Safety Net (GitHub Actions)** - 4-stage pipeline runs on every push/PR to `main`: (1) Lint & syntax compile, (2) Django system check + migration integrity, (3) 135-test suite covering models, auth, views, URLs, CRUD, APIs, favicon, admin console, category uniqueness, and user data isolation, (4) Production deploy readiness with Gunicorn startup verification.
+- **CI/CD Safety Net (GitHub Actions)** - 4-stage pipeline runs on every push/PR to `main`: (1) Lint & syntax compile, (2) Django system check + migration integrity, (3) 150-test suite covering models, auth, views, URLs, CRUD, APIs, favicon, admin console, category uniqueness, cinema watch status sorting & filtering, and user data isolation, (4) Production deploy readiness with Gunicorn startup verification.
 - **Executive Header Bar & Compact Metrics** - Eliminated tall marketing hero banners. Dashboard features a streamlined executive top bar with memory total pill (`{{ total_count }}`), live vault status indicator (`@username`), inline stat counters (Inbox, Done, Due Soon), and primary `+ Capture Memory` button (`Ctrl+K`).
 - **Fluid Horizontal Navigation Rail with Triple-Action Scroll** - Unified filter tabs and 17 categories into a single, space-efficient horizontal carousel across both `dashboard.html` and `memory_list.html`. Solved the desktop mouse horizontal scrolling limitation with:
   1. **Chevron Arrows**: Floating frosted left (`‹`) and right (`›`) navigation arrows with dynamic boundary detection and gradient edge masks.
@@ -264,7 +265,19 @@ Quotes • Thoughts • Ideas • Learn • Save • Links • Cinema • Read �
 
 ---
 
-## 8. Completed Work (Phases 1 to 13 Complete)
+## 8. Completed Work (Phases 1 to 14 Complete)
+
+### Phase 14 - Cinema Watch Status Sorting & Filtering Engine
+- [x] **Cinema Watch Status Sorting & Sub-Filter Engine**:
+  - Implemented segmented watch status filter pills (`All Cinema`, `Want to Watch`, `Watching`, `Watched`) directly in the Cinema category view (`quotes/templates/quotes/partials/cinema_container.html`).
+  - Added live dynamic count badges for each watch status (`cinema_stats`), updated case-insensitively with user isolation.
+  - Implemented custom database sorting using Django's `Case`/`When` conditional expressions for `sort=want_to_watch` (want to watch first), `sort=watching` (watching first), `sort=watched` (watched first), `sort=rating` (highest rated 5★ to 1★ first), `newest`, and `oldest`.
+  - Added HTMX zero-reload partial swaps (`HX-Target="cinema-container"`) with browser URL synchronization (`HX-Push-Url`).
+  - Added support for `watch_status` and `sort` parameters to search handler (`search_memories`).
+- [x] **Cinema-Specific Contextual Empty States**:
+  - Tailored empty state messaging and Rose-tinted cinema clapperboard SVG in `quotes/templates/quotes/partials/memory_grid.html` for empty "Want to Watch", "Watching", and "Watched" filtered views.
+- [x] **100% Automated Test Suite Verification (150 Tests)**:
+  - Added 11 automated unit and integration tests in `CinemaWatchStatusSortAndFilterTests` covering stats calculation, each status filter, each sort permutation, rating ordering, HTMX partial swaps, search integration, and strict user data isolation. All 150 tests passing with 0 errors.
 
 ### Phase 13 - Mobile Profile Parity & Vector Icon Restoration
 - [x] **Mobile Profile Avatar & Handle Parity**:

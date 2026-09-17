@@ -320,7 +320,7 @@
                                     hx-target="#memory-grid"
                                     hx-swap="innerHTML"
                                     hx-indicator="#search-spinner"
-                                    hx-include="[name='q']"
+                                    hx-include="[name='q'], [name='watch_status'], [name='sort']"
                                     oninput="toggleClearListSearch(this.value)"
                                 >
                                 <button type="button" id="clear-list-search-btn" onclick="clearListSearch()" class="hidden p-0.5 rounded hover:bg-white/10 text-white/40 hover:text-white mr-1.5" title="Clear search">
@@ -398,10 +398,14 @@
                     </div>
                 </div>
 
-                <!-- De-congested Memory Grid (gap-5) -->
-                <div id="memory-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full max-w-full min-w-0">
-                    {% include "quotes/partials/memory_grid.html" %}
-                </div>
+                {% if is_cinema_view %}
+                    {% include "quotes/partials/cinema_container.html" %}
+                {% else %}
+                    <!-- De-congested Memory Grid (gap-5) -->
+                    <div id="memory-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full max-w-full min-w-0">
+                        {% include "quotes/partials/memory_grid.html" %}
+                    </div>
+                {% endif %}
                 <!-- Mobile Footer Card: User Handle, Sign Out & Developer Links -->
                 <div class="lg:hidden mt-10 p-4 rounded-2xl glass border border-white/[0.08] text-center space-y-3 w-full max-w-full min-w-0">
                     <div class="flex items-center justify-between pb-3 border-b border-white/[0.06]">
