@@ -15,7 +15,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Case, When, Value, IntegerField, F
 
 from .models import Memory, Category, Tag, Collection, PushSubscription
 
@@ -258,15 +258,69 @@ def dashboard(request):
 # ── Memory list (filtered by category, tag, collection, status) ───────
 @login_required(login_url="login")
 def memory_list(request, filter_type=None, filter_value=None):
-    """Filtered memory list view."""
+    """Filtered memory list view with Cinema watch status sorting and filtering."""
     memories = Memory.objects.filter(user=request.user, is_archived=False)
     title = "All Memories"
     active_filter = filter_type
+    cinema_stats = None
+    is_cinema_view = False
+    selected_watch_status = request.GET.get("watch_status", "").strip()
+    selected_sort = request.GET.get("sort", "").strip()
 
     if filter_type == "category":
         category = get_object_or_404(Category, slug=filter_value)
         memories = memories.filter(category=category)
         title = category.name
+
+        if category.slug in ["cinema", "watch", "shows"]:
+            is_cinema_view = True
+            # Compute category breakdown counts for all cinema memories
+            cinema_stats = {
+                "all": memories.count(),
+                "want_to_watch": memories.filter(watch_status=Memory.WatchStatus.WANT_TO_WATCH).count(),
+                "watching": memories.filter(watch_status=Memory.WatchStatus.WATCHING).count(),
+                "watched": memories.filter(watch_status=Memory.WatchStatus.WATCHED).count(),
+            }
+
+            # Filter by watch status if specified
+            if selected_watch_status in Memory.WatchStatus.values:
+                memories = memories.filter(watch_status=selected_watch_status)
+
+            # Sort cinema memories
+            if selected_sort == "want_to_watch":
+                order_logic = Case(
+                    When(watch_status=Memory.WatchStatus.WANT_TO_WATCH, then=Value(1)),
+                    When(watch_status=Memory.WatchStatus.WATCHING, then=Value(2)),
+                    When(watch_status=Memory.WatchStatus.WATCHED, then=Value(3)),
+                    default=Value(4),
+                    output_field=IntegerField(),
+                )
+                memories = memories.order_by(order_logic, "-created_at")
+            elif selected_sort == "watching":
+                order_logic = Case(
+                    When(watch_status=Memory.WatchStatus.WATCHING, then=Value(1)),
+                    When(watch_status=Memory.WatchStatus.WANT_TO_WATCH, then=Value(2)),
+                    When(watch_status=Memory.WatchStatus.WATCHED, then=Value(3)),
+                    default=Value(4),
+                    output_field=IntegerField(),
+                )
+                memories = memories.order_by(order_logic, "-created_at")
+            elif selected_sort == "watched":
+                order_logic = Case(
+                    When(watch_status=Memory.WatchStatus.WATCHED, then=Value(1)),
+                    When(watch_status=Memory.WatchStatus.WATCHING, then=Value(2)),
+                    When(watch_status=Memory.WatchStatus.WANT_TO_WATCH, then=Value(3)),
+                    default=Value(4),
+                    output_field=IntegerField(),
+                )
+                memories = memories.order_by(order_logic, "-created_at")
+            elif selected_sort == "rating":
+                memories = memories.order_by(F("rating").desc(nulls_last=True), "-created_at")
+            elif selected_sort == "oldest":
+                memories = memories.order_by("created_at")
+            elif selected_sort == "newest":
+                memories = memories.order_by("-created_at")
+
     elif filter_type == "tag":
         tag = get_object_or_404(Tag, slug=filter_value)
         memories = memories.filter(tags=tag)
@@ -315,7 +369,7 @@ def memory_list(request, filter_type=None, filter_value=None):
     inbox_count = Memory.objects.filter(user=request.user, status=Memory.Status.INBOX, is_archived=False).count()
     all_tags = Tag.objects.filter(memories__user=request.user).distinct().order_by("name")
 
-    return render(request, "quotes/memory_list.html", {
+    context = {
         "memories": memories,
         "title": title,
         "categories": categories,
@@ -323,20 +377,38 @@ def memory_list(request, filter_type=None, filter_value=None):
         "inbox_count": inbox_count,
         "active_filter": active_filter,
         "filter_value": filter_value,
-    })
+        "is_cinema_view": is_cinema_view,
+        "cinema_stats": cinema_stats,
+        "selected_watch_status": selected_watch_status,
+        "selected_sort": selected_sort,
+    }
+
+    if request.headers.get("HX-Request") and not request.headers.get("HX-Boosted"):
+        target = request.headers.get("HX-Target", "")
+        if target == "cinema-container":
+            return render(request, "quotes/partials/cinema_container.html", context)
+        elif target == "memory-grid":
+            return render(request, "quotes/partials/memory_grid.html", context)
+
+    return render(request, "quotes/memory_list.html", context)
 
 
 # ── Search ─────────────────────────────────────────────────────────────
 @login_required(login_url="login")
 def search_memories(request):
-    """HTMX search handler."""
+    """HTMX search handler with Cinema watch status support."""
     query = request.GET.get("q", "").strip()
     category_slug = request.GET.get("category", "").strip()
+    watch_status = request.GET.get("watch_status", "").strip()
+    sort = request.GET.get("sort", "").strip()
 
     memories = Memory.objects.filter(user=request.user, is_archived=False)
 
     if category_slug:
         memories = memories.filter(category__slug=category_slug)
+
+    if watch_status in Memory.WatchStatus.values:
+        memories = memories.filter(watch_status=watch_status)
 
     if query:
         memories = memories.filter(
@@ -347,9 +419,46 @@ def search_memories(request):
             Q(source_url__icontains=query)
         ).distinct()
 
+    if sort == "want_to_watch":
+        order_logic = Case(
+            When(watch_status=Memory.WatchStatus.WANT_TO_WATCH, then=Value(1)),
+            When(watch_status=Memory.WatchStatus.WATCHING, then=Value(2)),
+            When(watch_status=Memory.WatchStatus.WATCHED, then=Value(3)),
+            default=Value(4),
+            output_field=IntegerField(),
+        )
+        memories = memories.order_by(order_logic, "-created_at")
+    elif sort == "watching":
+        order_logic = Case(
+            When(watch_status=Memory.WatchStatus.WATCHING, then=Value(1)),
+            When(watch_status=Memory.WatchStatus.WANT_TO_WATCH, then=Value(2)),
+            When(watch_status=Memory.WatchStatus.WATCHED, then=Value(3)),
+            default=Value(4),
+            output_field=IntegerField(),
+        )
+        memories = memories.order_by(order_logic, "-created_at")
+    elif sort == "watched":
+        order_logic = Case(
+            When(watch_status=Memory.WatchStatus.WATCHED, then=Value(1)),
+            When(watch_status=Memory.WatchStatus.WATCHING, then=Value(2)),
+            When(watch_status=Memory.WatchStatus.WANT_TO_WATCH, then=Value(3)),
+            default=Value(4),
+            output_field=IntegerField(),
+        )
+        memories = memories.order_by(order_logic, "-created_at")
+    elif sort == "rating":
+        memories = memories.order_by(F("rating").desc(nulls_last=True), "-created_at")
+    elif sort == "oldest":
+        memories = memories.order_by("created_at")
+    elif sort == "newest":
+        memories = memories.order_by("-created_at")
+
     return render(request, "quotes/partials/memory_grid.html", {
         "memories": memories[:30],
         "query": query,
+        "selected_watch_status": watch_status,
+        "active_filter": "category" if category_slug in ["cinema", "watch", "shows"] else None,
+        "filter_value": category_slug,
     })
 
 

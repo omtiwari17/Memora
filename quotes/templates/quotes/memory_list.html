@@ -227,7 +227,7 @@
                 <div class="flex items-center justify-between text-[10px] text-white/40 px-1">
                     <span>Om Tiwari</span>
                     <div class="flex items-center gap-1.5">
-                        <a href="https://omtiwari.tech/" target="_blank" rel="noopener" class="hover:text-purple-300 transition-colors" title="Portfolio">Portfolio</a>
+                        <a href="https://omtiwari.dev/" target="_blank" rel="noopener" class="hover:text-purple-300 transition-colors" title="Portfolio">Portfolio</a>
                         <span>•</span>
                         <a href="https://github.com/omtiwari17" target="_blank" rel="noopener" class="hover:text-white transition-colors" title="GitHub">GitHub</a>
                         <span>•</span>
@@ -320,7 +320,7 @@
                                     hx-target="#memory-grid"
                                     hx-swap="innerHTML"
                                     hx-indicator="#search-spinner"
-                                    hx-include="[name='q']"
+                                    hx-include="[name='q'], [name='watch_status'], [name='sort']"
                                     oninput="toggleClearListSearch(this.value)"
                                 >
                                 <button type="button" id="clear-list-search-btn" onclick="clearListSearch()" class="hidden p-0.5 rounded hover:bg-white/10 text-white/40 hover:text-white mr-1.5" title="Clear search">
@@ -398,10 +398,14 @@
                     </div>
                 </div>
 
-                <!-- De-congested Memory Grid (gap-5) -->
-                <div id="memory-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full max-w-full min-w-0">
-                    {% include "quotes/partials/memory_grid.html" %}
-                </div>
+                {% if is_cinema_view %}
+                    {% include "quotes/partials/cinema_container.html" %}
+                {% else %}
+                    <!-- De-congested Memory Grid (gap-5) -->
+                    <div id="memory-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full max-w-full min-w-0">
+                        {% include "quotes/partials/memory_grid.html" %}
+                    </div>
+                {% endif %}
                 <!-- Mobile Footer Card: User Handle, Sign Out & Developer Links -->
                 <div class="lg:hidden mt-10 p-4 rounded-2xl glass border border-white/[0.08] text-center space-y-3 w-full max-w-full min-w-0">
                     <div class="flex items-center justify-between pb-3 border-b border-white/[0.06]">
@@ -420,7 +424,7 @@
                         Created by <span class="font-bold text-purple-300">Om Tiwari</span>
                     </p>
                     <div class="flex items-center justify-center gap-3 text-xs text-white/50">
-                        <a href="https://omtiwari.tech/" target="_blank" rel="noopener" class="hover:text-purple-300 transition-colors flex items-center gap-1">
+                        <a href="https://omtiwari.dev/" target="_blank" rel="noopener" class="hover:text-purple-300 transition-colors flex items-center gap-1">
                             <svg class="w-3.5 h-3.5 text-purple-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path stroke-linecap="round" stroke-linejoin="round" d="M3.6 9h16.8M3.6 15h16.8"/><path stroke-linecap="round" stroke-linejoin="round" d="M11.5 3a17 17 0 000 18M12.5 3a17 17 0 010 18"/></svg>
                             <span>Portfolio</span>
                         </a>
