@@ -36,17 +36,77 @@
 
     let vapidPublicKey = null;
     let swRegistration = null;
-    // In-Memory Notification Tracker (prevents spam from 60s interval, but resets on reload so uncompleted reminders show again)
     let notifiedMemoryIds = new Set();
-    
+
+    function getNotifiedCache() {
+        try {
+            const data = sessionStorage.getItem('memora_notified_reminders');
+            return data ? JSON.parse(data) : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
     function addNotifiedId(id) {
         notifiedMemoryIds.add(id);
+        try {
+            const cache = getNotifiedCache();
+            cache[id] = Date.now();
+            sessionStorage.setItem('memora_notified_reminders', JSON.stringify(cache));
+        } catch (e) {}
+    }
+
+    function isRecentlyNotified(id) {
+        if (notifiedMemoryIds.has(id)) return true;
+        try {
+            const cache = getNotifiedCache();
+            const ts = cache[id];
+            // 15-minute grace period across page reloads in the same session
+            if (ts && (Date.now() - ts < 15 * 60 * 1000)) {
+                notifiedMemoryIds.add(id);
+                return true;
+            }
+        } catch (e) {}
+        return false;
+    }
+
+    async function ensurePushSubscription() {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window) || !vapidPublicKey) return;
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        try {
+            const swReg = await navigator.serviceWorker.ready;
+            let subscription = await swReg.pushManager.getSubscription();
+            if (!subscription) {
+                subscription = await swReg.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlB64ToUint8Array(vapidPublicKey)
+                });
+            }
+            if (subscription) {
+                await fetch('/api/push-subscribe/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken') || ''
+                    },
+                    body: JSON.stringify(subscription)
+                });
+                console.log('[Memora Push] Push subscription verified and synced with server.');
+            }
+        } catch (e) {
+            console.warn('[Memora Push] Auto-subscription sync failed:', e);
+        }
     }
 
     async function registerServiceWorker() {
         if ('serviceWorker' in navigator) {
             try {
-                swRegistration = await navigator.serviceWorker.register('/static/sw.js');
+                try {
+                    swRegistration = await navigator.serviceWorker.register('/sw.js');
+                } catch (e1) {
+                    console.log('[Memora Push] Root /sw.js registration failed, falling back to /static/sw.js:', e1);
+                    swRegistration = await navigator.serviceWorker.register('/static/sw.js');
+                }
                 console.log('[Memora Push] Service Worker registered successfully.');
                 
                 // Fetch VAPID Key for subscription
@@ -54,6 +114,9 @@
                 if (response.ok) {
                     const data = await response.json();
                     vapidPublicKey = data.public_key;
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        ensurePushSubscription();
+                    }
                 }
             } catch (error) {
                 console.warn('[Memora Push] Service Worker registration failed:', error);
@@ -164,9 +227,8 @@
 
             if (data.due_reminders && data.due_reminders.length > 0) {
                 data.due_reminders.forEach(async (item) => {
-                    if (!notifiedMemoryIds.has(item.id)) {
+                    if (!isRecentlyNotified(item.id)) {
                         addNotifiedId(item.id);
-                        notifiedMemoryIds.add(item.id);
 
                         // Trigger native OS notification if permission granted
                         if ('Notification' in window && Notification.permission === 'granted') {

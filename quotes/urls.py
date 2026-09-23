@@ -71,6 +71,7 @@ urlpatterns = [
     path("recently-viewed/", views.recently_viewed, name="recently_viewed"),
     
     # PWA & Web Push Notifications
+    path("sw.js", views.service_worker_view, name="service_worker"),
     path("share/", views.share_target, name="share_target"),
     path("api/vapid-public-key/", views.vapid_public_key_view, name="vapid_public_key"),
     path("api/push-subscribe/", views.push_subscribe_view, name="push_subscribe"),

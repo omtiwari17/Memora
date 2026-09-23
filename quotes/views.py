@@ -3,7 +3,7 @@ import logging
 import re
 from datetime import timedelta
 
-from django.http import JsonResponse, HttpResponseBadRequest, FileResponse
+from django.http import JsonResponse, HttpResponseBadRequest, FileResponse, HttpResponse, HttpResponseNotFound
 from django.conf import settings
 from django.urls import reverse
 import os
@@ -530,13 +530,27 @@ def memory_edit(request, pk):
         else:
             memory.category = None
 
+        old_due = memory.due_date
+        old_reminder = memory.reminder_at
+
         if due_date_str:
             try:
-                memory.due_date = timezone.datetime.strptime(due_date_str, "%Y-%m-%d")
+                dt = timezone.datetime.strptime(due_date_str, "%Y-%m-%d")
+                memory.due_date = timezone.make_aware(dt) if timezone.is_naive(dt) else dt
             except ValueError:
                 pass
         else:
             memory.due_date = None
+
+        reminder_at_str = request.POST.get("reminder_at", "").strip()
+        if reminder_at_str:
+            try:
+                memory.reminder_at = timezone.datetime.fromisoformat(reminder_at_str)
+            except ValueError:
+                pass
+
+        if memory.due_date != old_due or memory.reminder_at != old_reminder:
+            memory.reminder_sent = False
 
         memory.save()
 
@@ -598,7 +612,8 @@ def capture(request):
         due_date = None
         if due_date_str:
             try:
-                due_date = timezone.datetime.strptime(due_date_str, "%Y-%m-%d")
+                dt = timezone.datetime.strptime(due_date_str, "%Y-%m-%d")
+                due_date = timezone.make_aware(dt) if timezone.is_naive(dt) else dt
             except ValueError:
                 pass
 
@@ -795,6 +810,9 @@ def memory_status(request, pk):
 
     if new_status in Memory.Status.values:
         memory.status = new_status
+        if new_status != Memory.Status.DONE:
+            if (memory.reminder_at and memory.reminder_at > timezone.now()) or (memory.due_date and memory.due_date > timezone.now()):
+                memory.reminder_sent = False
         memory.save()
 
     if "application/json" in request.headers.get("Accept", "") or "application/json" in request.headers.get("Content-Type", ""):
@@ -1339,29 +1357,42 @@ def due_reminders_api(request):
     return JsonResponse({"due_reminders": due_list, "count": len(due_list)})
 
 
-@csrf_exempt
-def trigger_due_reminders_view(request):
-    """Trigger Web Push notifications for due memories across registered subscriptions."""
+def dispatch_due_reminders():
+    """Core logic to dispatch Web Push notifications for due memories."""
     now = timezone.now()
     due_memories = Memory.objects.filter(
-        is_archived=False
+        is_archived=False,
+        reminder_sent=False,
     ).filter(
         Q(reminder_at__lte=now) | Q(due_date__lte=now)
     ).exclude(status=Memory.Status.DONE).select_related("user", "category")
 
-    sent_count = 0
-    errors = 0
-
-    if not due_memories.exists():
-        return JsonResponse({"status": "ok", "sent": 0, "message": "No due reminders"})
+    due_count = due_memories.count()
+    if due_count == 0:
+        return {"status": "ok", "due_memories": 0, "sent_notifications": 0, "errors": 0, "message": "No due reminders"}
 
     try:
         from pywebpush import webpush, WebPushException
+        from py_vapid import Vapid
+
         vapid_private_key = getattr(settings, "VAPID_PRIVATE_KEY", "")
+        if isinstance(vapid_private_key, str) and "-----BEGIN" in vapid_private_key:
+            vapid_instance = Vapid.from_pem(vapid_private_key.encode("utf-8"))
+        else:
+            vapid_instance = vapid_private_key
+
         vapid_claims = {"sub": f"mailto:{getattr(settings, 'VAPID_CLAIM_EMAIL', 'admin@memora.vault')}"}
+
+        sent_count = 0
+        errors = 0
 
         for memory in due_memories:
             subscriptions = PushSubscription.objects.filter(user=memory.user)
+            if not subscriptions.exists():
+                memory.reminder_sent = True
+                memory.save(update_fields=["reminder_sent"])
+                continue
+
             payload = json.dumps({
                 "title": f"🔔 Memora Reminder: {memory.title or 'Memory Reminder'}",
                 "body": memory.content[:140],
@@ -1380,26 +1411,53 @@ def trigger_due_reminders_view(request):
                             }
                         },
                         data=payload,
-                        vapid_private_key=vapid_private_key,
+                        vapid_private_key=vapid_instance,
                         vapid_claims=vapid_claims,
                         timeout=5
                     )
                     sent_count += 1
                 except WebPushException as ex:
                     errors += 1
-                    if ex.response and ex.response.status_code in [404, 410]:
+                    if ex.response is not None and ex.response.status_code in [404, 410]:
                         sub.delete()
                 except Exception:
                     errors += 1
 
-    except ImportError:
-        return JsonResponse({"error": "pywebpush not installed"}, status=500)
+            memory.reminder_sent = True
+            memory.save(update_fields=["reminder_sent"])
 
-    return JsonResponse({
-        "status": "ok",
-        "due_memories": due_memories.count(),
-        "sent_notifications": sent_count,
-        "errors": errors
-    })
+        return {
+            "status": "ok",
+            "due_memories": due_count,
+            "sent_notifications": sent_count,
+            "errors": errors
+        }
+
+    except ImportError:
+        return {"status": "error", "error": "pywebpush not installed"}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def trigger_due_reminders_view(request):
+    """Trigger Web Push notifications for due memories across registered subscriptions."""
+    result = dispatch_due_reminders()
+    status_code = 500 if result.get("status") == "error" else 200
+    return JsonResponse(result, status=status_code)
+
+
+def service_worker_view(request):
+    """Serve sw.js from root domain with Service-Worker-Allowed header."""
+    sw_path = settings.BASE_DIR / "static" / "sw.js"
+    if not sw_path.exists():
+        return HttpResponseNotFound("Service worker not found")
+    with open(sw_path, "r", encoding="utf-8") as f:
+        content = f.read()
+    response = HttpResponse(content, content_type="application/javascript")
+    response["Service-Worker-Allowed"] = "/"
+    response["Cache-Control"] = "no-cache"
+    return response
 
 
