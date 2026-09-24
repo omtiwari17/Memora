@@ -119,6 +119,7 @@ class Memory(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     due_date = models.DateTimeField(null=True, blank=True)
     reminder_at = models.DateTimeField(null=True, blank=True)
+    reminder_sent = models.BooleanField(default=False, db_index=True)
 
     # State
     status = models.CharField(

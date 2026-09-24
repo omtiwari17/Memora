@@ -12,6 +12,8 @@ urlpatterns = [
     path("login/", views.vault_login, name="login"),
     path("logout/", views.vault_logout, name="logout"),
     path("favicon.ico", views.favicon_view, name="favicon"),
+    path("robots.txt", views.robots_txt_view, name="robots_txt"),
+    path("sitemap.xml", views.sitemap_xml_view, name="sitemap_xml"),
 
     # Preview Error Pages (Works in Dev & Prod)
     path("404/", views.custom_404_view, name="preview_404"),
@@ -71,6 +73,7 @@ urlpatterns = [
     path("recently-viewed/", views.recently_viewed, name="recently_viewed"),
     
     # PWA & Web Push Notifications
+    path("sw.js", views.service_worker_view, name="service_worker"),
     path("share/", views.share_target, name="share_target"),
     path("api/vapid-public-key/", views.vapid_public_key_view, name="vapid_public_key"),
     path("api/push-subscribe/", views.push_subscribe_view, name="push_subscribe"),

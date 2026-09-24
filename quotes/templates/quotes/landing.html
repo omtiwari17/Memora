@@ -6,6 +6,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Memora - Your Memory, Outside Your Head | Personal External Memory System</title>
     <meta name="description" content="Capture quotes, ideas, code snippets, tasks, links, movies, and thoughts instantly with Memora. Zero-friction capture, high-confidence auto-categorization, universal search, and vault PIN security.">
+    <link rel="canonical" href="https://memora.omtiwari.dev/">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://memora.omtiwari.dev/">
+    <meta property="og:title" content="Memora - Your Memory, Outside Your Head">
+    <meta property="og:description" content="Capture quotes, ideas, code snippets, tasks, links, movies, and thoughts instantly with Memora. Zero-friction capture, auto-categorization, and vault PIN security.">
+    <meta property="og:image" content="https://memora.omtiwari.dev/static/icon-512.png">
+    <meta property="og:site_name" content="Memora">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:url" content="https://memora.omtiwari.dev/">
+    <meta name="twitter:title" content="Memora - Your Memory, Outside Your Head">
+    <meta name="twitter:description" content="Capture anything worth remembering with Memora. Zero-friction capture, instant search, vault privacy.">
+    <meta name="twitter:image" content="https://memora.omtiwari.dev/static/icon-512.png">
+
+    <!-- Schema.org JSON-LD Structured Data for Google Search Rich Cards -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Memora",
+      "url": "https://memora.omtiwari.dev/",
+      "description": "A cross-device personal external memory system with zero-friction capture, high-confidence auto-categorization, universal search, and vault PIN security.",
+      "applicationCategory": "ProductivityApplication",
+      "operatingSystem": "All",
+      "author": {
+        "@type": "Person",
+        "name": "Om Tiwari",
+        "url": "https://omtiwari.dev/"
+      }
+    }
+    </script>
+
     <link rel="icon" type="image/svg+xml" href="{% static 'logo.svg' %}">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'apple-touch-icon.png' %}">
     <link rel="shortcut icon" href="{% url 'favicon' %}">
@@ -264,7 +300,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
             <!-- CARD 1: GOLDEN SERIF QUOTE -->
-            <div class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="quotes">
+            <div id="demo-card-quotes" class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="quotes">
                 <!-- Top 1.5px Glowing Category Accent Line -->
                 <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #f59e0baa 0%, #f59e0b22 70%, transparent 100%);"></div>
 
@@ -273,54 +309,60 @@
                         <!-- Header: Category Badge + Pinned Icon + Floating Actions -->
                         <div class="flex items-center justify-between gap-2 mb-3.5 w-full min-w-0">
                             <div class="flex items-center gap-2 flex-wrap min-w-0">
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #f59e0b14; color: #f59e0b; border: 1px solid #f59e0b28;">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium transition-colors hover:brightness-125 cursor-pointer" style="background: #f59e0b14; color: #f59e0b; border: 1px solid #f59e0b28;">
                                     <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #f59e0b;"></span>
                                     <span>Quotes</span>
                                 </span>
-                                <svg class="w-3.5 h-3.5 text-rose-400 fill-current" viewBox="0 0 24 24" title="Pinned"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                <svg class="demo-pin-icon w-3.5 h-3.5 text-rose-400 fill-current" viewBox="0 0 24 24" title="Pinned"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                             </div>
 
-                            <!-- Progressive Disclosure Actions -->
-                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
+                            <!-- Progressive Disclosure Actions (Parity with memory_card.html) -->
+                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
                                 <button type="button" onclick="copyShowcaseContent(this, 'An unexamined life is not worth living. - Socrates')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer" title="Copy Content">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"/></svg>
                                 </button>
-                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
+                                <button type="button" onclick="showDemoToast('Editing memory in vault modal...')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
                                 </button>
-                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-rose-400 transition-colors cursor-pointer" title="Pinned">
+                                <button type="button" onclick="toggleDemoPin('demo-card-quotes')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-rose-400 transition-colors cursor-pointer" title="Pin / Unpin">
                                     <svg class="w-3.5 h-3.5 fill-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
+                                </button>
+                                <button type="button" onclick="showDemoToast('Memory archived to vault!')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-sky-300 transition-colors cursor-pointer" title="Archive">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+                                </button>
+                                <button type="button" onclick="showDemoToast('Delete action confirmed in vault')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-red-500/20 text-white/60 hover:text-red-400 transition-colors cursor-pointer" title="Delete">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Quote Body with Corner Watermark -->
-                        <div class="relative my-1">
+                        <!-- Quote Body with Corner Watermark (Parity with memory_card.html) -->
+                        <div class="relative my-0.5">
                             <svg class="w-6 h-6 text-amber-400/20 absolute -top-1 right-0 pointer-events-none" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z"/>
                             </svg>
                             <p class="text-sm font-serif italic text-amber-100/90 leading-relaxed pr-7">
                                 "An unexamined life is not worth living."
                             </p>
-                            <p class="text-xs font-semibold text-amber-400/90 mt-2.5">
+                            <p class="text-xs font-semibold text-amber-400/90 mt-2">
                                 - Socrates
                             </p>
                         </div>
 
-                        <!-- Tags -->
+                        <!-- Tags (Interactive styling with purple hover parity) -->
                         <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.05]">
-                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#wisdom</span>
-                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#philosophy</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 hover:text-purple-300 hover:bg-purple-500/15 border border-white/[0.04] hover:border-purple-500/30 transition-all font-mono cursor-pointer">#wisdom</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 hover:text-purple-300 hover:bg-purple-500/15 border border-white/[0.04] hover:border-purple-500/30 transition-all font-mono cursor-pointer">#philosophy</span>
                         </div>
                     </div>
 
                     <!-- Footer: timestamp + detail link -->
                     <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
                         <span>2 hours ago</span>
-                        <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
+                        <a href="{% url 'login' %}" class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-pointer">
                             <span>View</span>
                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
-                        </span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -334,23 +376,35 @@
                     <div class="w-full min-w-0">
                         <!-- Header: Category Badge + Floating Actions -->
                         <div class="flex items-center justify-between gap-2 mb-3.5 w-full min-w-0">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #e11d4814; color: #e11d48; border: 1px solid #e11d4828;">
-                                <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #e11d48;"></span>
-                                <span>Cinema</span>
-                            </span>
+                            <div class="flex items-center gap-2 flex-wrap min-w-0">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium transition-colors hover:brightness-125 cursor-pointer" style="background: #e11d4814; color: #e11d48; border: 1px solid #e11d4828;">
+                                    <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #e11d48;"></span>
+                                    <span>Cinema</span>
+                                </span>
+                                <svg class="demo-pin-icon hidden w-3.5 h-3.5 text-rose-400 fill-current" viewBox="0 0 24 24" title="Pinned"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </div>
 
-                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
+                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
                                 <button type="button" onclick="copyShowcaseContent(this, 'Interstellar (2014)')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer" title="Copy Title">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"/></svg>
                                 </button>
-                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
+                                <button type="button" onclick="showDemoToast('Editing movie details in vault modal...')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                                </button>
+                                <button type="button" onclick="toggleDemoPin('demo-cinema-card')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-rose-400 transition-colors cursor-pointer" title="Pin / Unpin">
+                                    <svg class="w-3.5 h-3.5 fill-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
+                                </button>
+                                <button type="button" onclick="showDemoToast('Cinema memory archived')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-sky-300 transition-colors cursor-pointer" title="Archive">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+                                </button>
+                                <button type="button" onclick="showDemoToast('Delete confirmed in vault')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-red-500/20 text-white/60 hover:text-red-400 transition-colors cursor-pointer" title="Delete">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Cinema Content -->
-                        <div class="space-y-2.5">
+                        <!-- Cinema Content (Exact spacing & typography parity with memory_card.html) -->
+                        <div class="space-y-3">
                             <p class="text-sm font-bold text-white flex items-center gap-2">
                                 <svg class="w-4 h-4 text-purple-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-8.625 1.125l.892-14.276A1.125 1.125 0 015.637 4.15h12.726a1.125 1.125 0 011.12 1.074l.892 14.276m-16.5 0h16.5m-16.5 0V6a2.25 2.25 0 012.25-2.25h12A2.25 2.25 0 0121 6v13.5m-18 0h18"/></svg>
                                 <span>Interstellar (2014)</span>
@@ -359,40 +413,40 @@
                                 Christopher Nolan masterpiece. Unbelievable Hans Zimmer score and wormhole visualization.
                             </p>
 
-                            <!-- SVG Watch Status Pills -->
-                            <div class="pt-1 flex items-center gap-1.5 flex-wrap">
-                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-card', 'want_to_watch')" data-status="want_to_watch" data-active-class="bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5">
+                            <!-- SVG Watch Status Pills (Touch-Friendly, Live Interactive Toggle) -->
+                            <div class="pt-1 flex items-center gap-1.5 flex-wrap w-full min-w-0">
+                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-card', 'want_to_watch')" data-status="want_to_watch" data-active-class="bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none shrink-0 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5">
                                     <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"/></svg>
                                     <span>Want to Watch</span>
                                 </button>
-                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-card', 'watching')" data-status="watching" data-active-class="bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5">
+                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-card', 'watching')" data-status="watching" data-active-class="bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none shrink-0 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5">
                                     <svg class="w-3.5 h-3.5 text-sky-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z"/></svg>
                                     <span>Watching</span>
                                 </button>
-                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-card', 'watched')" data-status="watched" data-active-class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm">
+                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-card', 'watched')" data-status="watched" data-active-class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none shrink-0 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm">
                                     <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     <span>Watched</span>
                                 </button>
                             </div>
 
-                            <!-- Interactive Star Rating -->
-                            <div class="pt-2 flex items-center justify-between gap-2 bg-black/30 p-2.5 rounded-xl border border-white/10 w-full">
+                            <!-- Star Rating (Shown when Watched - Dynamic parity with memory_card.html) -->
+                            <div class="demo-rating-container pt-2 flex items-center justify-between gap-2 bg-black/30 p-2.5 rounded-xl border border-white/10 w-full min-w-0">
                                 <span class="text-xs text-white/60 font-medium shrink-0">Rating:</span>
                                 <div class="flex items-center gap-1 shrink-0">
                                     <div class="star-rating-group flex flex-row-reverse items-center">
-                                        <button type="button" onclick="setRatingDemo('demo-cinema-card', 5)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-card', 5)" class="star-btn p-1 min-w-[28px] min-h-[28px] flex items-center justify-center text-sm sm:text-xs rounded-lg hover:bg-white/10 focus:outline-none cursor-pointer transition-all active:scale-125" title="Rate 5/5">
                                             <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
                                         </button>
-                                        <button type="button" onclick="setRatingDemo('demo-cinema-card', 4)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-card', 4)" class="star-btn p-1 min-w-[28px] min-h-[28px] flex items-center justify-center text-sm sm:text-xs rounded-lg hover:bg-white/10 focus:outline-none cursor-pointer transition-all active:scale-125" title="Rate 4/5">
                                             <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
                                         </button>
-                                        <button type="button" onclick="setRatingDemo('demo-cinema-card', 3)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-card', 3)" class="star-btn p-1 min-w-[28px] min-h-[28px] flex items-center justify-center text-sm sm:text-xs rounded-lg hover:bg-white/10 focus:outline-none cursor-pointer transition-all active:scale-125" title="Rate 3/5">
                                             <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
                                         </button>
-                                        <button type="button" onclick="setRatingDemo('demo-cinema-card', 2)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-card', 2)" class="star-btn p-1 min-w-[28px] min-h-[28px] flex items-center justify-center text-sm sm:text-xs rounded-lg hover:bg-white/10 focus:outline-none cursor-pointer transition-all active:scale-125" title="Rate 2/5">
                                             <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
                                         </button>
-                                        <button type="button" onclick="setRatingDemo('demo-cinema-card', 1)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-card', 1)" class="star-btn p-1 min-w-[28px] min-h-[28px] flex items-center justify-center text-sm sm:text-xs rounded-lg hover:bg-white/10 focus:outline-none cursor-pointer transition-all active:scale-125" title="Rate 1/5">
                                             <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
                                         </button>
                                     </div>
@@ -401,26 +455,26 @@
                             </div>
                         </div>
 
-                        <!-- Tags -->
+                        <!-- Tags (Interactive styling with purple hover parity) -->
                         <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.05]">
-                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#movie</span>
-                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#scifi</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 hover:text-purple-300 hover:bg-purple-500/15 border border-white/[0.04] hover:border-purple-500/30 transition-all font-mono cursor-pointer">#movie</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 hover:text-purple-300 hover:bg-purple-500/15 border border-white/[0.04] hover:border-purple-500/30 transition-all font-mono cursor-pointer">#scifi</span>
                         </div>
                     </div>
 
                     <!-- Footer -->
                     <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
                         <span>Yesterday</span>
-                        <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
+                        <a href="{% url 'login' %}" class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-pointer">
                             <span>View</span>
                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
-                        </span>
+                        </a>
                     </div>
                 </div>
             </div>
 
             <!-- CARD 3: CODE SNIPPET TERMINAL -->
-            <div class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="code">
+            <div id="demo-card-code" class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="code">
                 <!-- Top 1.5px Glowing Category Accent Line -->
                 <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #a3e635aa 0%, #a3e63522 70%, transparent 100%);"></div>
 
@@ -428,28 +482,40 @@
                     <div class="w-full min-w-0">
                         <!-- Header: Category Badge + Floating Actions -->
                         <div class="flex items-center justify-between gap-2 mb-3.5 w-full min-w-0">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #a3e63514; color: #a3e635; border: 1px solid #a3e63528;">
-                                <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #a3e635;"></span>
-                                <span>Code</span>
-                            </span>
+                            <div class="flex items-center gap-2 flex-wrap min-w-0">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium transition-colors hover:brightness-125 cursor-pointer" style="background: #a3e63514; color: #a3e635; border: 1px solid #a3e63528;">
+                                    <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #a3e635;"></span>
+                                    <span>Code</span>
+                                </span>
+                                <svg class="demo-pin-icon hidden w-3.5 h-3.5 text-rose-400 fill-current" viewBox="0 0 24 24" title="Pinned"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </div>
 
-                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
-                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
+                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
+                                <button type="button" onclick="copyShowcaseContent(this, 'def capture_api(request):\n    data = json.loads(request.body)\n    return Memory.create(data[\'text\'])')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer" title="Copy Code">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"/></svg>
+                                </button>
+                                <button type="button" onclick="showDemoToast('Editing snippet in vault modal...')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
                                 </button>
-                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-sky-300 transition-colors cursor-pointer" title="Archive">
+                                <button type="button" onclick="toggleDemoPin('demo-card-code')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-rose-400 transition-colors cursor-pointer" title="Pin / Unpin">
+                                    <svg class="w-3.5 h-3.5 fill-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
+                                </button>
+                                <button type="button" onclick="showDemoToast('Code snippet archived')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-sky-300 transition-colors cursor-pointer" title="Archive">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+                                </button>
+                                <button type="button" onclick="showDemoToast('Delete confirmed in vault')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-red-500/20 text-white/60 hover:text-red-400 transition-colors cursor-pointer" title="Delete">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Mac Developer Terminal Window -->
-                        <div class="my-1 rounded-xl overflow-hidden border border-white/[0.08] bg-[#07070f] shadow-lg">
+                        <!-- Mac Developer Terminal Window (Exact parity with memory_card.html) -->
+                        <div class="code-card my-1 rounded-xl overflow-hidden border border-white/[0.08] bg-[#07070f] shadow-lg">
                             <div class="flex items-center justify-between px-3 py-2 border-b border-white/[0.06] bg-white/[0.02]">
                                 <div class="flex items-center gap-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-rose-500/80 inline-block"></span>
-                                    <span class="w-2 h-2 rounded-full bg-amber-500/80 inline-block"></span>
-                                    <span class="w-2 h-2 rounded-full bg-emerald-500/80 inline-block"></span>
+                                    <span class="w-2 h-2 rounded-full bg-rose-500/70 inline-block"></span>
+                                    <span class="w-2 h-2 rounded-full bg-amber-500/70 inline-block"></span>
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500/70 inline-block"></span>
                                     <span class="text-[11px] font-mono text-white/60 ml-2 truncate">capture.py</span>
                                 </div>
                                 <button type="button" onclick="copyShowcaseContent(this, 'def capture_api(request):\n    data = json.loads(request.body)\n    return Memory.create(data[\'text\'])')" class="text-[10px] font-mono text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 cursor-pointer" title="Copy code">
@@ -457,33 +523,33 @@
                                     <span>Copy</span>
                                 </button>
                             </div>
-                            <div class="p-3 bg-black/40">
-                                <pre class="text-xs text-emerald-300/90 whitespace-pre-wrap break-words leading-relaxed overflow-hidden code-font">def capture_api(request):
+                            <div class="p-3.5 bg-black/40">
+                                <pre class="text-xs text-emerald-300/90 whitespace-pre-wrap break-words leading-relaxed overflow-hidden font-mono" style="max-height: 180px;">def capture_api(request):
     data = json.loads(request.body)
     return Memory.create(data['text'])</pre>
                             </div>
                         </div>
 
-                        <!-- Tags -->
+                        <!-- Tags (Interactive styling with purple hover parity) -->
                         <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.05]">
-                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#python</span>
-                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#django</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 hover:text-purple-300 hover:bg-purple-500/15 border border-white/[0.04] hover:border-purple-500/30 transition-all font-mono cursor-pointer">#python</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 hover:text-purple-300 hover:bg-purple-500/15 border border-white/[0.04] hover:border-purple-500/30 transition-all font-mono cursor-pointer">#django</span>
                         </div>
                     </div>
 
                     <!-- Footer -->
                     <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
                         <span>3 days ago</span>
-                        <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
+                        <a href="{% url 'login' %}" class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-pointer">
                             <span>View</span>
                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
-                        </span>
+                        </a>
                     </div>
                 </div>
             </div>
 
             <!-- CARD 4: INTERACTIVE TASK PRODUCTIVITY CARD -->
-            <div class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="tasks">
+            <div id="demo-card-tasks" class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="tasks">
                 <!-- Top 1.5px Glowing Category Accent Line -->
                 <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #22d3eeaa 0%, #22d3ee22 70%, transparent 100%);"></div>
 
@@ -492,7 +558,7 @@
                         <!-- Header: Category Badge + Priority Pill + Floating Actions -->
                         <div class="flex items-center justify-between gap-2 mb-3.5 w-full min-w-0">
                             <div class="flex items-center gap-2 flex-wrap min-w-0">
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #22d3ee14; color: #22d3ee; border: 1px solid #22d3ee28;">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium transition-colors hover:brightness-125 cursor-pointer" style="background: #22d3ee14; color: #22d3ee; border: 1px solid #22d3ee28;">
                                     <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #22d3ee;"></span>
                                     <span>Tasks</span>
                                 </span>
@@ -500,54 +566,67 @@
                                     <span class="w-1.5 h-1.5 rounded-full inline-block bg-red-400 animate-ping"></span>
                                     Urgent
                                 </span>
+                                <svg class="demo-pin-icon hidden w-3.5 h-3.5 text-rose-400 fill-current" viewBox="0 0 24 24" title="Pinned"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                             </div>
 
-                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
-                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
+                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
+                                <button type="button" onclick="copyShowcaseContent(this, 'Ship Memora v5.0 Production Release')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer" title="Copy Content">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"/></svg>
+                                </button>
+                                <button type="button" onclick="showDemoToast('Editing task in vault modal...')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
                                 </button>
-                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-sky-300 transition-colors cursor-pointer" title="Archive">
+                                <button type="button" onclick="toggleDemoPin('demo-card-tasks')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-rose-400 transition-colors cursor-pointer" title="Pin / Unpin">
+                                    <svg class="w-3.5 h-3.5 fill-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
+                                </button>
+                                <button type="button" onclick="showDemoToast('Task archived to vault')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-sky-300 transition-colors cursor-pointer" title="Archive">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+                                </button>
+                                <button type="button" onclick="showDemoToast('Delete confirmed in vault')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-red-500/20 text-white/60 hover:text-red-400 transition-colors cursor-pointer" title="Delete">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Task Body with Interactive Checkbox -->
-                        <div class="flex items-start gap-3 my-1">
+                        <!-- Task Body with Interactive Checkbox (Parity with memory_card.html) -->
+                        <div class="flex items-start gap-3 my-0.5">
                             <button type="button" onclick="toggleTaskDemo(this)" class="task-done mt-0.5 w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer shadow-sm border-emerald-400 bg-emerald-500/20 text-emerald-300 shadow-[0_0_10px_rgba(52,211,153,0.3)] hover:scale-110" title="Toggle Status">
                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                             </button>
                             <div class="flex-1 min-w-0">
-                                <p class="task-title text-xs font-bold mb-0.5 line-through text-white/40 transition-colors">Ship Memora v5.0 Production Release</p>
+                                <p class="task-title text-xs font-bold text-white/90 mb-0.5 line-through text-white/40 transition-colors">Ship Memora v5.0 Production Release</p>
                                 <p class="task-content text-sm font-medium leading-relaxed line-through text-white/40 transition-colors">
-                                    Execute complete 139-test CI guard, verify keep-alive health ping, and deploy to live production.
+                                    Execute complete 150-test CI guard, verify keep-alive health ping, and deploy to live production.
                                 </p>
                             </div>
                         </div>
 
-                        <!-- Tags -->
+                        <!-- Tags (Interactive styling with purple hover parity) -->
                         <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.05]">
-                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#release</span>
-                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#milestone</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 hover:text-purple-300 hover:bg-purple-500/15 border border-white/[0.04] hover:border-purple-500/30 transition-all font-mono cursor-pointer">#release</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 hover:text-purple-300 hover:bg-purple-500/15 border border-white/[0.04] hover:border-purple-500/30 transition-all font-mono cursor-pointer">#milestone</span>
                         </div>
                     </div>
 
                     <!-- Footer: due date + detail link -->
                     <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
-                        <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-cyan-500/15 text-cyan-300 font-semibold flex items-center gap-1 border border-cyan-500/25">
-                            <svg class="w-3 h-3 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5"/></svg>
-                            <span>Due Today</span>
-                        </span>
-                        <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-blue-500/15 text-blue-400 font-semibold flex items-center gap-1 border border-blue-500/20">
+                                <svg class="w-3 h-3 text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5"/></svg>
+                                <span>Due Today</span>
+                            </span>
+                            <span>Today</span>
+                        </div>
+                        <a href="{% url 'login' %}" class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-pointer">
                             <span>View</span>
                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
-                        </span>
+                        </a>
                     </div>
                 </div>
             </div>
 
             <!-- CARD 5: RICH URL / LINK CARD -->
-            <div class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="links">
+            <div id="demo-card-links" class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="links">
                 <!-- Top 1.5px Glowing Category Accent Line -->
                 <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #38bdf8aa 0%, #38bdf822 70%, transparent 100%);"></div>
 
@@ -555,22 +634,34 @@
                     <div class="w-full min-w-0">
                         <!-- Header: Category Badge + Floating Actions -->
                         <div class="flex items-center justify-between gap-2 mb-3.5 w-full min-w-0">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #38bdf814; color: #38bdf8; border: 1px solid #38bdf828;">
-                                <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #38bdf8;"></span>
-                                <span>Links</span>
-                            </span>
+                            <div class="flex items-center gap-2 flex-wrap min-w-0">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium transition-colors hover:brightness-125 cursor-pointer" style="background: #38bdf814; color: #38bdf8; border: 1px solid #38bdf828;">
+                                    <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #38bdf8;"></span>
+                                    <span>Links</span>
+                                </span>
+                                <svg class="demo-pin-icon hidden w-3.5 h-3.5 text-rose-400 fill-current" viewBox="0 0 24 24" title="Pinned"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </div>
 
-                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
+                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
                                 <button type="button" onclick="copyShowcaseContent(this, 'https://htmx.org/reference/')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer" title="Copy URL">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"/></svg>
                                 </button>
-                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
+                                <button type="button" onclick="showDemoToast('Editing link memory in vault modal...')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                                </button>
+                                <button type="button" onclick="toggleDemoPin('demo-card-links')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-rose-400 transition-colors cursor-pointer" title="Pin / Unpin">
+                                    <svg class="w-3.5 h-3.5 fill-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
+                                </button>
+                                <button type="button" onclick="showDemoToast('Link archived to vault')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-sky-300 transition-colors cursor-pointer" title="Archive">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+                                </button>
+                                <button type="button" onclick="showDemoToast('Delete confirmed in vault')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-red-500/20 text-white/60 hover:text-red-400 transition-colors cursor-pointer" title="Delete">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Link Body -->
+                        <!-- Link Body (Parity with memory_card.html) -->
                         <div class="my-0.5">
                             <p class="text-sm font-bold text-white/95 mb-1.5">HTMX - High Power Tools for HTML</p>
                             <div class="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] transition-all group/link mb-2 cursor-pointer">
@@ -587,26 +678,26 @@
                             </p>
                         </div>
 
-                        <!-- Tags -->
+                        <!-- Tags (Interactive styling with purple hover parity) -->
                         <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.05]">
-                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#webdev</span>
-                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#htmx</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 hover:text-purple-300 hover:bg-purple-500/15 border border-white/[0.04] hover:border-purple-500/30 transition-all font-mono cursor-pointer">#webdev</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 hover:text-purple-300 hover:bg-purple-500/15 border border-white/[0.04] hover:border-purple-500/30 transition-all font-mono cursor-pointer">#htmx</span>
                         </div>
                     </div>
 
                     <!-- Footer -->
                     <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
                         <span>4 days ago</span>
-                        <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
+                        <a href="{% url 'login' %}" class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-pointer">
                             <span>View</span>
                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
-                        </span>
+                        </a>
                     </div>
                 </div>
             </div>
 
             <!-- CARD 6: IDEAS / THOUGHTS CARD -->
-            <div class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="ideas">
+            <div id="demo-card-ideas" class="showcase-card group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0" data-category="ideas">
                 <!-- Top 1.5px Glowing Category Accent Line -->
                 <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #fbbf24aa 0%, #fbbf2422 70%, transparent 100%);"></div>
 
@@ -615,7 +706,7 @@
                         <!-- Header: Category Badge + Priority Pill + Floating Actions -->
                         <div class="flex items-center justify-between gap-2 mb-3.5 w-full min-w-0">
                             <div class="flex items-center gap-2 flex-wrap min-w-0">
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #fbbf2414; color: #fbbf24; border: 1px solid #fbbf2428;">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium transition-colors hover:brightness-125 cursor-pointer" style="background: #fbbf2414; color: #fbbf24; border: 1px solid #fbbf2428;">
                                     <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #fbbf24;"></span>
                                     <span>Ideas</span>
                                 </span>
@@ -623,19 +714,29 @@
                                     <span class="w-1.5 h-1.5 rounded-full inline-block bg-orange-400"></span>
                                     High
                                 </span>
+                                <svg class="demo-pin-icon hidden w-3.5 h-3.5 text-rose-400 fill-current" viewBox="0 0 24 24" title="Pinned"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                             </div>
 
-                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
-                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
+                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
+                                <button type="button" onclick="copyShowcaseContent(this, 'The Capture-First Philosophy: Zero-friction capture saves cognitive energy.')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer" title="Copy Content">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"/></svg>
+                                </button>
+                                <button type="button" onclick="showDemoToast('Editing idea in vault modal...')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
                                 </button>
-                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-sky-300 transition-colors cursor-pointer" title="Archive">
+                                <button type="button" onclick="toggleDemoPin('demo-card-ideas')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-rose-400 transition-colors cursor-pointer" title="Pin / Unpin">
+                                    <svg class="w-3.5 h-3.5 fill-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
+                                </button>
+                                <button type="button" onclick="showDemoToast('Idea archived to vault')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-sky-300 transition-colors cursor-pointer" title="Archive">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+                                </button>
+                                <button type="button" onclick="showDemoToast('Delete confirmed in vault')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-red-500/20 text-white/60 hover:text-red-400 transition-colors cursor-pointer" title="Delete">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Idea Body -->
+                        <!-- Idea Body (Parity with memory_card.html) -->
                         <div>
                             <p class="text-sm font-bold text-white mb-1 tracking-tight">The Capture-First Philosophy</p>
                             <p class="text-sm text-white/[0.88] leading-relaxed">
@@ -643,20 +744,20 @@
                             </p>
                         </div>
 
-                        <!-- Tags -->
+                        <!-- Tags (Interactive styling with purple hover parity) -->
                         <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.05]">
-                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#secondbrain</span>
-                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#productivity</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 hover:text-purple-300 hover:bg-purple-500/15 border border-white/[0.04] hover:border-purple-500/30 transition-all font-mono cursor-pointer">#secondbrain</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 hover:text-purple-300 hover:bg-purple-500/15 border border-white/[0.04] hover:border-purple-500/30 transition-all font-mono cursor-pointer">#productivity</span>
                         </div>
                     </div>
 
                     <!-- Footer -->
                     <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
                         <span>1 week ago</span>
-                        <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
+                        <a href="{% url 'login' %}" class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-pointer">
                             <span>View</span>
                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
-                        </span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -714,37 +815,89 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             <!-- Cinema Card 1: Watched -->
-            <div class="group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0">
+            <div id="demo-cinema-oppenheimer" class="group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0">
                 <!-- Top 1.5px Glowing Category Accent Line -->
                 <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #e11d48aa 0%, #e11d4822 70%, transparent 100%);"></div>
 
                 <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between w-full min-w-0">
-                    <div class="w-full min-w-0 space-y-3">
-                        <div class="flex items-center justify-between">
+                    <div class="w-full min-w-0">
+                        <!-- Header: Category Badge + Floating Actions -->
+                        <div class="flex items-center justify-between gap-2 mb-3.5 w-full min-w-0">
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #e11d4814; color: #e11d48; border: 1px solid #e11d4828;">
                                 <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #e11d48;"></span>
                                 <span>Cinema</span>
                             </span>
-                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
-                                Watched
-                            </span>
+
+                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
+                                <button type="button" onclick="copyShowcaseContent(this, 'Oppenheimer (2023)')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer" title="Copy Title">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"/></svg>
+                                </button>
+                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                                </button>
+                            </div>
                         </div>
-                        <h4 class="text-base font-bold text-white">Oppenheimer (2023)</h4>
-                        <div class="flex items-center gap-1 text-amber-400">
-                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <span class="text-xs font-bold text-amber-300 ml-1.5 font-mono">5/5</span>
+
+                        <!-- Cinema Content -->
+                        <div class="space-y-2.5">
+                            <p class="text-sm font-bold text-white flex items-center gap-2">
+                                <svg class="w-4 h-4 text-purple-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-8.625 1.125l.892-14.276A1.125 1.125 0 015.637 4.15h12.726a1.125 1.125 0 011.12 1.074l.892 14.276m-16.5 0h16.5m-16.5 0V6a2.25 2.25 0 012.25-2.25h12A2.25 2.25 0 0121 6v13.5m-18 0h18"/></svg>
+                                <span>Oppenheimer (2023)</span>
+                            </p>
+                            <p class="text-xs text-white/60 leading-relaxed">
+                                Phenomenal cinematography and Ludwig Göransson soundtrack.
+                            </p>
+
+                            <!-- SVG Watch Status Pills -->
+                            <div class="pt-1 flex items-center gap-1.5 flex-wrap">
+                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-oppenheimer', 'want_to_watch')" data-status="want_to_watch" data-active-class="bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5">
+                                    <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"/></svg>
+                                    <span>Want to Watch</span>
+                                </button>
+                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-oppenheimer', 'watching')" data-status="watching" data-active-class="bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5">
+                                    <svg class="w-3.5 h-3.5 text-sky-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z"/></svg>
+                                    <span>Watching</span>
+                                </button>
+                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-oppenheimer', 'watched')" data-status="watched" data-active-class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm">
+                                    <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span>Watched</span>
+                                </button>
+                            </div>
+
+                            <!-- Interactive Star Rating -->
+                            <div class="pt-2 flex items-center justify-between gap-2 bg-black/30 p-2.5 rounded-xl border border-white/10 w-full">
+                                <span class="text-xs text-white/60 font-medium shrink-0">Rating:</span>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <div class="star-rating-group flex flex-row-reverse items-center">
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-oppenheimer', 5)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-oppenheimer', 4)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-oppenheimer', 3)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-oppenheimer', 2)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-oppenheimer', 1)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
+                                        </button>
+                                    </div>
+                                    <span class="rating-score-label text-xs font-bold text-amber-300 ml-1.5 font-mono">5/5</span>
+                                </div>
+                            </div>
                         </div>
-                        <p class="text-xs text-white/60 leading-relaxed">Phenomenal cinematography and Ludwig Göransson soundtrack.</p>
-                        <div class="flex items-center gap-1.5 pt-2 text-[10px] text-white/40 font-mono">
-                            <span class="px-2 py-0.5 rounded bg-white/5">#movie</span>
-                            <span class="px-2 py-0.5 rounded bg-white/5">#biography</span>
+
+                        <!-- Tags -->
+                        <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.05]">
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#movie</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#biography</span>
                         </div>
                     </div>
 
+                    <!-- Footer -->
                     <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
                         <span>2 days ago</span>
                         <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
@@ -756,37 +909,89 @@
             </div>
 
             <!-- Cinema Card 2: Watching -->
-            <div class="group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0">
+            <div id="demo-cinema-severance" class="group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0">
                 <!-- Top 1.5px Glowing Category Accent Line -->
                 <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #e11d48aa 0%, #e11d4822 70%, transparent 100%);"></div>
 
                 <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between w-full min-w-0">
-                    <div class="w-full min-w-0 space-y-3">
-                        <div class="flex items-center justify-between">
+                    <div class="w-full min-w-0">
+                        <!-- Header: Category Badge + Floating Actions -->
+                        <div class="flex items-center justify-between gap-2 mb-3.5 w-full min-w-0">
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #e11d4814; color: #e11d48; border: 1px solid #e11d4828;">
                                 <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #e11d48;"></span>
                                 <span>Cinema</span>
                             </span>
-                            <span class="px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30 text-[10px] font-bold">
-                                Watching
-                            </span>
+
+                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
+                                <button type="button" onclick="copyShowcaseContent(this, 'Severance (Season 2)')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer" title="Copy Title">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"/></svg>
+                                </button>
+                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                                </button>
+                            </div>
                         </div>
-                        <h4 class="text-base font-bold text-white">Severance (Season 2)</h4>
-                        <div class="flex items-center gap-1 text-amber-400">
-                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg class="w-4 h-4 fill-current text-white/20" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <span class="text-xs font-bold text-amber-300 ml-1.5 font-mono">4/5</span>
+
+                        <!-- Cinema Content -->
+                        <div class="space-y-2.5">
+                            <p class="text-sm font-bold text-white flex items-center gap-2">
+                                <svg class="w-4 h-4 text-purple-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-8.625 1.125l.892-14.276A1.125 1.125 0 015.637 4.15h12.726a1.125 1.125 0 011.12 1.074l.892 14.276m-16.5 0h16.5m-16.5 0V6a2.25 2.25 0 012.25-2.25h12A2.25 2.25 0 0121 6v13.5m-18 0h18"/></svg>
+                                <span>Severance (Season 2)</span>
+                            </p>
+                            <p class="text-xs text-white/60 leading-relaxed">
+                                Mind-bending corporate sci-fi thriller series on Apple TV+.
+                            </p>
+
+                            <!-- SVG Watch Status Pills -->
+                            <div class="pt-1 flex items-center gap-1.5 flex-wrap">
+                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-severance', 'want_to_watch')" data-status="want_to_watch" data-active-class="bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5">
+                                    <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"/></svg>
+                                    <span>Want to Watch</span>
+                                </button>
+                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-severance', 'watching')" data-status="watching" data-active-class="bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm">
+                                    <svg class="w-3.5 h-3.5 text-sky-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z"/></svg>
+                                    <span>Watching</span>
+                                </button>
+                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-severance', 'watched')" data-status="watched" data-active-class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5">
+                                    <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span>Watched</span>
+                                </button>
+                            </div>
+
+                            <!-- Interactive Star Rating -->
+                            <div class="pt-2 flex items-center justify-between gap-2 bg-black/30 p-2.5 rounded-xl border border-white/10 w-full">
+                                <span class="text-xs text-white/60 font-medium shrink-0">Rating:</span>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <div class="star-rating-group flex flex-row-reverse items-center">
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-severance', 5)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-white/30 transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-severance', 4)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-severance', 3)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-severance', 2)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-severance', 1)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.85)] transition-colors">★</span>
+                                        </button>
+                                    </div>
+                                    <span class="rating-score-label text-xs font-bold text-amber-300 ml-1.5 font-mono">4/5</span>
+                                </div>
+                            </div>
                         </div>
-                        <p class="text-xs text-white/60 leading-relaxed">Mind-bending corporate sci-fi thriller series on Apple TV+.</p>
-                        <div class="flex items-center gap-1.5 pt-2 text-[10px] text-white/40 font-mono">
-                            <span class="px-2 py-0.5 rounded bg-white/5">#series</span>
-                            <span class="px-2 py-0.5 rounded bg-white/5">#scifi</span>
+
+                        <!-- Tags -->
+                        <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.05]">
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#series</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#scifi</span>
                         </div>
                     </div>
 
+                    <!-- Footer -->
                     <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
                         <span>4 days ago</span>
                         <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
@@ -798,37 +1003,89 @@
             </div>
 
             <!-- Cinema Card 3: Want to Watch -->
-            <div class="group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0">
+            <div id="demo-cinema-dune" class="group relative rounded-2xl bg-[#12111c]/80 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.18] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between w-full min-w-0">
                 <!-- Top 1.5px Glowing Category Accent Line -->
                 <div class="h-[1.5px] w-full shrink-0" style="background: linear-gradient(90deg, #e11d48aa 0%, #e11d4822 70%, transparent 100%);"></div>
 
                 <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between w-full min-w-0">
-                    <div class="w-full min-w-0 space-y-3">
-                        <div class="flex items-center justify-between">
+                    <div class="w-full min-w-0">
+                        <!-- Header: Category Badge + Floating Actions -->
+                        <div class="flex items-center justify-between gap-2 mb-3.5 w-full min-w-0">
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-medium" style="background: #e11d4814; color: #e11d48; border: 1px solid #e11d4828;">
                                 <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #e11d48;"></span>
                                 <span>Cinema</span>
                             </span>
-                            <span class="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-bold">
-                                Want to Watch
-                            </span>
+
+                            <div class="opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 sm:gap-0.5 bg-[#1a1829]/95 backdrop-blur-md px-1.5 py-1 sm:px-1 sm:py-0.5 rounded-xl sm:rounded-lg border border-white/10 shadow-lg shrink-0">
+                                <button type="button" onclick="copyShowcaseContent(this, 'Dune: Part Two (2024)')" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer" title="Copy Title">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"/></svg>
+                                </button>
+                                <button type="button" class="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/10 text-white/60 hover:text-purple-300 transition-colors cursor-pointer" title="Edit">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                                </button>
+                            </div>
                         </div>
-                        <h4 class="text-base font-bold text-white">Dune: Part Two (2024)</h4>
-                        <div class="flex items-center gap-1 text-amber-400">
-                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg class="w-4 h-4 fill-current drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <span class="text-xs font-bold text-amber-300 ml-1.5 font-mono">5/5</span>
+
+                        <!-- Cinema Content -->
+                        <div class="space-y-2.5">
+                            <p class="text-sm font-bold text-white flex items-center gap-2">
+                                <svg class="w-4 h-4 text-purple-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-8.625 1.125l.892-14.276A1.125 1.125 0 015.637 4.15h12.726a1.125 1.125 0 011.12 1.074l.892 14.276m-16.5 0h16.5m-16.5 0V6a2.25 2.25 0 012.25-2.25h12A2.25 2.25 0 0121 6v13.5m-18 0h18"/></svg>
+                                <span>Dune: Part Two (2024)</span>
+                            </p>
+                            <p class="text-xs text-white/60 leading-relaxed">
+                                Epic sci-fi spectacle directed by Denis Villeneuve.
+                            </p>
+
+                            <!-- SVG Watch Status Pills -->
+                            <div class="pt-1 flex items-center gap-1.5 flex-wrap">
+                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-dune', 'want_to_watch')" data-status="want_to_watch" data-active-class="bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm">
+                                    <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"/></svg>
+                                    <span>Want to Watch</span>
+                                </button>
+                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-dune', 'watching')" data-status="watching" data-active-class="bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5">
+                                    <svg class="w-3.5 h-3.5 text-sky-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z"/></svg>
+                                    <span>Watching</span>
+                                </button>
+                                <button type="button" onclick="setWatchStatusDemo('demo-cinema-dune', 'watched')" data-status="watched" data-active-class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm" class="watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5">
+                                    <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span>Watched</span>
+                                </button>
+                            </div>
+
+                            <!-- Interactive Star Rating (no rating yet) -->
+                            <div class="pt-2 flex items-center justify-between gap-2 bg-black/30 p-2.5 rounded-xl border border-white/10 w-full">
+                                <span class="text-xs text-white/60 font-medium shrink-0">Rating:</span>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <div class="star-rating-group flex flex-row-reverse items-center">
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-dune', 5)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-white/30 transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-dune', 4)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-white/30 transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-dune', 3)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-white/30 transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-dune', 2)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-white/30 transition-colors">★</span>
+                                        </button>
+                                        <button type="button" onclick="setRatingDemo('demo-cinema-dune', 1)" class="star-btn p-1 min-w-[26px] min-h-[26px] flex items-center justify-center text-xs rounded hover:bg-white/10 cursor-pointer transition-all">
+                                            <span class="star-icon text-white/30 transition-colors">★</span>
+                                        </button>
+                                    </div>
+                                    <span class="rating-score-label text-xs font-bold text-white/40 ml-1.5 font-mono">-/5</span>
+                                </div>
+                            </div>
                         </div>
-                        <p class="text-xs text-white/60 leading-relaxed">Epic sci-fi spectacle directed by Denis Villeneuve.</p>
-                        <div class="flex items-center gap-1.5 pt-2 text-[10px] text-white/40 font-mono">
-                            <span class="px-2 py-0.5 rounded bg-white/5">#movie</span>
-                            <span class="px-2 py-0.5 rounded bg-white/5">#sci-fi</span>
+
+                        <!-- Tags -->
+                        <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.05]">
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#movie</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.04] font-mono">#sci-fi</span>
                         </div>
                     </div>
 
+                    <!-- Footer -->
                     <div class="mt-3.5 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-white/40">
                         <span>1 week ago</span>
                         <span class="px-2 py-0.5 rounded-md hover:bg-white/5 text-white/40 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-default">
@@ -900,7 +1157,7 @@
             </div>
             <div class="glass p-5 rounded-2xl text-center space-y-2">
                 <span class="text-xs uppercase font-bold text-amber-300 block">Testing</span>
-                <span class="text-base font-bold text-white block">139 Tests</span>
+                <span class="text-base font-bold text-white block">157 Tests</span>
                 <span class="text-[11px] text-white/40 block">100% Pass Rate</span>
             </div>
             <div class="glass p-5 rounded-2xl text-center space-y-2">
@@ -1069,11 +1326,55 @@
         const buttons = card.querySelectorAll('.watch-status-btn');
         buttons.forEach(btn => {
             if (btn.dataset.status === status) {
-                btn.className = 'watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none ' + btn.dataset.activeClass;
+                btn.className = 'watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none shrink-0 ' + btn.dataset.activeClass;
             } else {
-                btn.className = 'watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5';
+                btn.className = 'watch-status-btn px-2.5 py-1.5 min-h-[30px] rounded-lg text-[11px] sm:text-[10px] font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95 select-none shrink-0 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5';
             }
         });
+
+        // Toggle rating container disclosure to match memory_card.html (rating only visible when watched)
+        const ratingContainer = card.querySelector('.demo-rating-container');
+        if (ratingContainer) {
+            if (status === 'watched') {
+                ratingContainer.classList.remove('hidden');
+                ratingContainer.classList.add('fade-in');
+            } else {
+                ratingContainer.classList.add('hidden');
+                ratingContainer.classList.remove('fade-in');
+            }
+        }
+    }
+
+    function toggleDemoPin(cardId) {
+        const card = document.getElementById(cardId);
+        if (!card) return;
+        const pinIcon = card.querySelector('.demo-pin-icon');
+        if (pinIcon) {
+            pinIcon.classList.toggle('hidden');
+            if (!pinIcon.classList.contains('hidden')) {
+                showDemoToast('Memory pinned to top of vault');
+            } else {
+                showDemoToast('Memory unpinned');
+            }
+        }
+    }
+
+    function showDemoToast(message) {
+        let toast = document.getElementById('demo-landing-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'demo-landing-toast';
+            toast.className = 'fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl bg-[#1a1829]/95 backdrop-blur-xl border border-white/15 text-xs text-white/90 shadow-2xl shadow-black/60 flex items-center gap-2.5 transition-all duration-300 transform translate-y-10 opacity-0 pointer-events-none';
+            document.body.appendChild(toast);
+        }
+        toast.innerHTML = `<span class="w-2 h-2 rounded-full bg-purple-400"></span><span>${message}</span>`;
+        toast.classList.remove('translate-y-10', 'opacity-0', 'pointer-events-none');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        clearTimeout(window._demoToastTimer);
+        window._demoToastTimer = setTimeout(() => {
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-10', 'opacity-0', 'pointer-events-none');
+        }, 2400);
     }
 
     function setRatingDemo(cardId, rating) {

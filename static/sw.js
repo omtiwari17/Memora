@@ -52,7 +52,7 @@ self.addEventListener('push', (event) => {
     body: 'You have a memory reminder waiting.',
     icon: '/static/icon-192.png',
     badge: '/static/icon-192.png',
-    url: '/app/'
+    url: '/'
   };
 
   if (event.data) {
@@ -69,7 +69,7 @@ self.addEventListener('push', (event) => {
     badge: data.badge || '/static/icon-192.png',
     vibrate: [100, 50, 100],
     data: {
-      url: data.url || '/app/'
+      url: data.url || '/'
     },
     actions: [
       { action: 'open', title: 'Open Vault' }
@@ -84,7 +84,7 @@ self.addEventListener('push', (event) => {
 // Notification Click Event - Open target memory or vault page
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : '/app/';
+  const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : '/';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {

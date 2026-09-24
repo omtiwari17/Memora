@@ -30,8 +30,8 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 | **Database** | **SQLite** (local dev) / **Neon PostgreSQL** (production) | 100% Free forever PostgreSQL via `dj-database-url` |
 | **Hosting** | **Render** (Free Web Service) + **cron-job.org** (Keep-Alive Ping) | 100% Free production hosting, stays awake 24/7 without cold starts |
 | **Static Files** | WhiteNoise | Compressed static assets served directly by Django WSGI |
-| **CI/CD** | GitHub Actions | 4-stage pipeline: Lint → Django Checks → 150 Tests → Deploy Readiness |
-| **Testing** | Django TestCase (150 tests) | Models, auth, views, URLs, CRUD, APIs, custom admin, movie watch ratings, HTMX in-place updates, category uniqueness, data isolation, cinema watch status sorting & filtering |
+| **CI/CD** | GitHub Actions | 4-stage pipeline: Lint → Django Checks → 157 Tests → Deploy Readiness |
+| **Testing** | Django TestCase (157 tests) | Models, auth, views, URLs, CRUD, APIs, custom admin, movie watch ratings, HTMX in-place updates, category uniqueness, data isolation, cinema watch status sorting & filtering, web push background dispatch, robots.txt, sitemap.xml, SEO rich snippets |
 
 **Explicitly Excluded:** React, Node.js, npm build pipelines, heavy SPA frameworks. Tailwind and DaisyUI are loaded directly via CDN.
 
@@ -48,7 +48,7 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 - **Unified Cinema Category & Tag-Based Media** - Consolidated media categories under **Cinema** (`slug: cinema`), organizing movies vs TV series via tags (`#movie`, `#series`, `#anime`, `#documentary`).
 - **Developer Profile Links Footer** - Glassmorphic **Created by Om Tiwari** developer badge in left navigation sidebar (`dashboard.html`, `memory_list.html`) and login screen (`login.html`) linking to Portfolio (`https://omtiwari.dev/`), GitHub (`https://github.com/omtiwari17`), and LinkedIn (`https://www.linkedin.com/in/tiwariom/`).
 - **Production Security Hardening & CI Guard** - In `quotevault/settings.py`, security flags (`SECURE_SSL_REDIRECT`, `SECURE_HSTS_SECONDS=31536000`, `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`, `SECURE_PROXY_SSL_HEADER`) activate when `not DEBUG and "test" not in sys.argv:`. This prevents local port redirects during development while ensuring GitHub Actions `--deploy` checks and live production deployments enforce strict HTTPS with zero warnings.
-- **CI/CD Safety Net (GitHub Actions)** - 4-stage pipeline runs on every push/PR to `main`: (1) Lint & syntax compile, (2) Django system check + migration integrity, (3) 150-test suite covering models, auth, views, URLs, CRUD, APIs, favicon, admin console, category uniqueness, cinema watch status sorting & filtering, and user data isolation, (4) Production deploy readiness with Gunicorn startup verification.
+- **CI/CD Safety Net (GitHub Actions)** - 4-stage pipeline runs on every push/PR to `main`: (1) Lint & syntax compile, (2) Django system check + migration integrity, (3) 157-test suite covering models, auth, views, URLs, CRUD, APIs, favicon, admin console, category uniqueness, cinema watch status sorting & filtering, web push background dispatch, robots.txt, sitemap.xml, SEO rich snippets, and user data isolation, (4) Production deploy readiness with Gunicorn startup verification.
 - **Executive Header Bar & Compact Metrics** - Eliminated tall marketing hero banners. Dashboard features a streamlined executive top bar with memory total pill (`{{ total_count }}`), live vault status indicator (`@username`), inline stat counters (Inbox, Done, Due Soon), and primary `+ Capture Memory` button (`Ctrl+K`).
 - **Fluid Horizontal Navigation Rail with Triple-Action Scroll** - Unified filter tabs and 17 categories into a single, space-efficient horizontal carousel across both `dashboard.html` and `memory_list.html`. Solved the desktop mouse horizontal scrolling limitation with:
   1. **Chevron Arrows**: Floating frosted left (`‹`) and right (`›`) navigation arrows with dynamic boundary detection and gradient edge masks.
@@ -124,7 +124,8 @@ Memora/
 │   ├── management/
 │   │   └── commands/
 │   │       ├── seed_categories.py
-│   │       └── create_admin.py  # Management command to create/promote admin accounts (--handle, --pin)
+│   │       ├── create_admin.py      # Management command to create/promote admin accounts (--handle, --pin)
+│   │       └── trigger_reminders.py # Management command to dispatch Web Push reminders (--once, --daemon)
 │   └── templates/
 │       ├── 400.html         # Custom 400 Bad Request error page
 │       ├── 403.html         # Custom 403 Permission Denied error page
@@ -158,6 +159,8 @@ Memora/
 │   ├── bookmarklet.js       # Desktop browser bookmarklet script
 │   ├── sw.js                # Service Worker for Web Push & PWA offline caching
 │   ├── push_notifications.js# Client Web Push subscription & toast alert engine
+│   ├── robots.txt           # Search engine crawl directives & sitemap pointer
+│   ├── sitemap.xml          # XML sitemap for Google Search indexing
 │   ├── logo.svg             # Handcrafted Synapse Infinity M vector SVG logo
 │   ├── icon-192.png
 │   └── icon-512.png
@@ -175,7 +178,7 @@ Memora/
 - `tags` (M2M → Tag)
 - `collections` (M2M → Collection)
 - `source_url`, `source_title`, `author`
-- `created_at`, `updated_at`, `due_date`, `reminder_at`
+- `created_at`, `updated_at`, `due_date`, `reminder_at`, `reminder_sent`
 - `status` (`inbox`, `active`, `done`, `archived`)
 - `priority` (`none`, `low`, `medium`, `high`, `urgent`)
 - `watch_status` (`want_to_watch`, `watching`, `watched`)
@@ -221,6 +224,8 @@ Quotes • Thoughts • Ideas • Learn • Save • Links • Cinema • Read �
 | `/login/` | `login` | Vault Handle + 6-Digit PIN unlock and registration screen |
 | `/logout/` | `logout` | Lock memory vault session |
 | `/favicon.ico` | `favicon` | Vector SVG favicon endpoint serving `logo.svg` directly |
+| `/robots.txt` | `robots_txt` | Search engine crawl directives & sitemap pointer |
+| `/sitemap.xml` | `sitemap_xml` | Search engine XML sitemap containing canonical pages |
 | `/ctrl/` | `custom_admin_panel` | Custom Admin Command Console with handle filtering |
 | `/ctrl/login/` | `admin_vault_login` | Dedicated Admin Vault Login Portal |
 | `/ctrl/logout/` | `admin_vault_logout` | Admin Logout & session lock |
@@ -265,7 +270,16 @@ Quotes • Thoughts • Ideas • Learn • Save • Links • Cinema • Read �
 
 ---
 
-## 8. Completed Work (Phases 1 to 14 Complete)
+## 8. Completed Work (Phases 1 to 15 Complete)
+
+### Phase 15 - Landing Page Card UI Parity & Showcase Overhaul
+- [x] **Complete Visual & Functional Parity with Internal Memory Cards (`memory_card.html`)**:
+  - Upgraded all 6 showcase cards in `landing.html` (Quotes, Cinema, Code, Tasks, Links, Ideas) to 100% visual parity with the internal application's refined borderless ambient cards.
+  - Implemented the full 5-action floating progressive disclosure toolbar across all showcase cards (Copy, Edit, Pin, Archive, Delete) with `opacity-90 sm:opacity-0 sm:group-hover:opacity-100` and touch-target friendly geometry.
+  - Added live interactive Pin toggle with responsive heart icon visibility (`toggleDemoPin`), interactive copy feedback, and glassmorphic toast notifications (`showDemoToast`).
+  - Added interactive tag hover states (`hover:text-purple-300 hover:bg-purple-500/15 border-white/[0.04] hover:border-purple-500/30 font-mono`) and category badge brightness transitions.
+  - Upgraded the Cinema showcase cards and Cinema section cards with interactive watch status pills and dynamic star rating container disclosure (rating conditionally reveals when status is `watched`, matching `memory_card.html`).
+  - Replaced stale test counts (139 Tests) in the Task showcase card and Tech Stack grid with current **150 Tests** (100% pass rate).
 
 ### Phase 14 - Cinema Watch Status Sorting & Filtering Engine
 - [x] **Cinema Watch Status Sorting & Sub-Filter Engine**:
@@ -608,11 +622,35 @@ Render's free tier puts web services to sleep after 15 minutes of inactivity. To
 - [x] Landing page mobile slide-down navigation menu
 - [x] Push notification toast mobile boundary containment
 
-### Phase 13 - Mobile Profile Parity & Vector Icon Restoration
-- [x] Uppercase initial avatar parity in mobile footer cards (`dashboard.html`, `memory_list.html`)
-- [x] Clean `@username` handle display consistency across all screen layouts
-- [x] Restored official Heroicons `lock-open` vector geometry in `login.html` and `admin_login.html`
-- [x] All 135 automated tests passing cleanly
+### Phase 14 - Cinema Watch Status Sorting & Filtering Engine
+- [x] Segmented cinema watch status filter pills with dynamic count badges
+- [x] Multi-criteria database sorting (want to watch, watching, watched, 5★ rating) via Django Case/When
+- [x] Cinema-specific contextual empty state cards with clapperboard vector iconography
+- [x] All 150 automated tests passing cleanly
+
+### Phase 15 - Landing Page Card UI Parity & Showcase Overhaul
+- [x] 100% visual and functional parity of showcase cards with internal memory cards (`memory_card.html`)
+- [x] Full 5-action floating progressive disclosure toolbars across all showcase cards
+- [x] Interactive Pin toggling with responsive heart iconography and toast notification engine
+- [x] Dynamic cinema watch status star rating disclosure (rating conditionally reveals on `watched`)
+- [x] Upgraded test count display from 139 to 150 tests across landing page and architecture docs
+
+### Phase 16 - Background Web Push Notifications & Reminder Engine
+- [x] **VAPID Key PEM Deserialization Fix**: Resolved `pywebpush` ASN.1 parsing error by dynamically wrapping PEM private keys with `Vapid.from_pem(...)`, enabling 100% operational web push delivery to Google FCM / Push Services.
+- [x] **Database-Level Notification Tracking (`reminder_sent`)**: Added `reminder_sent = models.BooleanField(default=False, db_index=True)` to `Memory` model via migration `0005_memory_reminder_sent.py`, preventing repeat spamming across dispatch cycles.
+- [x] **Intelligent `reminder_sent` State Machine**: Automatically resets `reminder_sent = False` whenever a user updates a memory's due date or reminder timestamp, or reactivates a memory from `DONE` status.
+- [x] **Automatic Client Push Subscription Sync**: In `push_notifications.js` (`ensurePushSubscription()`), automatically verifies and registers the browser's Web Push subscription with `/api/push-subscribe/` on load when permission is already granted.
+- [x] **Session Toast Deduplication**: Persists recently alerted memories in `sessionStorage` with a 15-minute grace period, completely eliminating redundant re-alerts when users refresh or navigate the site.
+- [x] **Root Service Worker Route (`/sw.js`)**: Added Django route serving `sw.js` directly with `Service-Worker-Allowed: /` header and client fallback to `/static/sw.js`.
+- [x] **Background Management Command (`trigger_reminders`)**: Created `python manage.py trigger_reminders` supporting both single-pass scan (`--once`) and continuous background daemon (`--daemon --interval 60`).
+- [x] **Dual-Method Cron Endpoint (`/api/trigger-due-reminders/`)**: Supports both GET and POST requests for seamless integration with external cron pingers (`cron-job.org` / Render keep-alive).
+- [x] **All 154 Automated Tests Passing**: Extended `WebPushNotificationTest` with test cases for `/sw.js`, GET/POST push dispatch, `trigger_reminders` command, and `reminder_sent` lifecycle.
+
+### Phase 17 - SEO & Google Search Indexing Infrastructure
+- [x] **robots.txt Endpoint (`/robots.txt`)**: Search engine crawl directives allowing public pages, disallowing internal `/ctrl/` and `/api/`, and linking directly to the sitemap.
+- [x] **sitemap.xml Endpoint (`/sitemap.xml`)**: Standard XML sitemap pointing to `https://memora.omtiwari.dev/`, `/welcome/`, `/about/`, and `/login/` with daily/weekly change frequencies.
+- [x] **Landing Page SEO & Rich Snippets**: Integrated canonical link tag (`https://memora.omtiwari.dev/`), robots meta, Open Graph tags, Twitter Card tags, and Schema.org `WebApplication` JSON-LD structured data.
+- [x] **All 157 Automated Tests Passing**: Added `SEOSitemapRobotsTest` verifying robots.txt, sitemap.xml, headers, and landing page rich snippets.
 
 ---
 
@@ -633,7 +671,7 @@ dev branch  ──→  User tests locally  ──→  User says "merge"  ──�
 3. **User tests locally** on `dev` branch (`python manage.py runserver 8001`).
 4. **Only merge `dev` → `main`** when the user explicitly gives instructions to merge or deploy.
 5. **Render auto-deploys** from `main` - merging `dev` → `main` triggers production release.
-6. **GitHub Actions CI** runs 135 unit tests on both `push` and `pull_request` to `main`.
+6. **GitHub Actions CI** runs 157 unit tests on both `push` and `pull_request` to `main`.
 
 ### Exact Command Sequence:
 ```bash

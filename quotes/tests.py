@@ -1069,6 +1069,110 @@ class WebPushNotificationTest(TestCase):
         self.assertEqual(data["count"], 1)
         self.assertEqual(data["due_reminders"][0]["title"], "Important Meeting")
 
+    def test_service_worker_endpoint(self):
+        resp = self.client.get(reverse("service_worker"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Type"], "application/javascript")
+        self.assertEqual(resp["Service-Worker-Allowed"], "/")
+
+    def test_trigger_due_reminders_get_and_post(self):
+        # GET request
+        resp_get = self.client.get(reverse("trigger_due_reminders"))
+        self.assertEqual(resp_get.status_code, 200)
+        data_get = resp_get.json()
+        self.assertIn("status", data_get)
+
+        # POST request
+        resp_post = self.client.post(reverse("trigger_due_reminders"))
+        self.assertEqual(resp_post.status_code, 200)
+        data_post = resp_post.json()
+        self.assertIn("status", data_post)
+
+    def test_trigger_reminders_command(self):
+        from io import StringIO
+        from django.core.management import call_command
+        out = StringIO()
+        call_command("trigger_reminders", stdout=out)
+        self.assertIn("Reminders dispatched successfully", out.getvalue())
+
+    def test_reminder_sent_flag_and_reset(self):
+        from datetime import timedelta
+        from unittest.mock import patch
+        from quotes.views import dispatch_due_reminders
+
+        now = timezone.now()
+        mem = Memory.objects.create(
+            user=self.user,
+            title="Dentist Appointment",
+            content="Checkup at 3pm",
+            reminder_at=now - timedelta(minutes=5),
+            reminder_sent=False
+        )
+        PushSubscription.objects.create(
+            user=self.user,
+            endpoint="https://fcm.googleapis.com/fcm/send/test-token",
+            p256dh="test_p256dh",
+            auth="test_auth"
+        )
+
+        with patch("pywebpush.webpush") as mock_push:
+            mock_push.return_value = None
+            res = dispatch_due_reminders()
+            self.assertEqual(res["status"], "ok")
+            self.assertEqual(res["sent_notifications"], 1)
+
+        mem.refresh_from_db()
+        self.assertTrue(mem.reminder_sent)
+
+        # Updating reminder date resets reminder_sent
+        resp = self.client.post(reverse("memory_edit", args=[mem.id]), {
+            "content": "Checkup at 4pm",
+            "title": "Dentist Appointment",
+            "due_date": (now + timedelta(days=2)).strftime("%Y-%m-%d"),
+        })
+        self.assertEqual(resp.status_code, 200)
+        mem.refresh_from_db()
+        self.assertFalse(mem.reminder_sent)
+
+
+@override_settings(STORAGES=TEST_STORAGES)
+class SEOSitemapRobotsTest(TestCase):
+    """Test suite for search engine indexability (robots.txt, sitemap.xml, SEO tags)."""
+
+    def setUp(self):
+        self.client = Client()
+
+    def test_robots_txt_endpoint(self):
+        resp = self.client.get(reverse("robots_txt"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp["Content-Type"].startswith("text/plain"))
+        content = resp.content.decode("utf-8")
+        self.assertIn("User-agent: *", content)
+        self.assertIn("Allow: /", content)
+        self.assertIn("Disallow: /ctrl/", content)
+        self.assertIn("Sitemap: https://memora.omtiwari.dev/sitemap.xml", content)
+
+    def test_sitemap_xml_endpoint(self):
+        resp = self.client.get(reverse("sitemap_xml"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp["Content-Type"].startswith("application/xml"))
+        content = resp.content.decode("utf-8")
+        self.assertIn("<urlset", content)
+        self.assertIn("<loc>https://memora.omtiwari.dev/</loc>", content)
+        self.assertIn("<loc>https://memora.omtiwari.dev/welcome/</loc>", content)
+        self.assertIn("<loc>https://memora.omtiwari.dev/about/</loc>", content)
+        self.assertIn("<loc>https://memora.omtiwari.dev/login/</loc>", content)
+
+    def test_landing_page_seo_and_rich_snippets(self):
+        resp = self.client.get(reverse("landing"))
+        self.assertEqual(resp.status_code, 200)
+        content = resp.content.decode("utf-8")
+        self.assertIn('<link rel="canonical" href="https://memora.omtiwari.dev/">', content)
+        self.assertIn('<meta name="robots" content="index, follow">', content)
+        self.assertIn('<meta property="og:title"', content)
+        self.assertIn('"@type": "WebApplication"', content)
+        self.assertIn('"url": "https://memora.omtiwari.dev/"', content)
+
 
 class CinemaWatchStatusSortAndFilterTests(TestCase):
     """Test suite for Cinema watch status filtering and sorting."""
