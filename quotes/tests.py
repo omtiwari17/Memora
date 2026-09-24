@@ -1135,6 +1135,45 @@ class WebPushNotificationTest(TestCase):
         self.assertFalse(mem.reminder_sent)
 
 
+@override_settings(STORAGES=TEST_STORAGES)
+class SEOSitemapRobotsTest(TestCase):
+    """Test suite for search engine indexability (robots.txt, sitemap.xml, SEO tags)."""
+
+    def setUp(self):
+        self.client = Client()
+
+    def test_robots_txt_endpoint(self):
+        resp = self.client.get(reverse("robots_txt"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp["Content-Type"].startswith("text/plain"))
+        content = resp.content.decode("utf-8")
+        self.assertIn("User-agent: *", content)
+        self.assertIn("Allow: /", content)
+        self.assertIn("Disallow: /ctrl/", content)
+        self.assertIn("Sitemap: https://memora.omtiwari.dev/sitemap.xml", content)
+
+    def test_sitemap_xml_endpoint(self):
+        resp = self.client.get(reverse("sitemap_xml"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp["Content-Type"].startswith("application/xml"))
+        content = resp.content.decode("utf-8")
+        self.assertIn("<urlset", content)
+        self.assertIn("<loc>https://memora.omtiwari.dev/</loc>", content)
+        self.assertIn("<loc>https://memora.omtiwari.dev/welcome/</loc>", content)
+        self.assertIn("<loc>https://memora.omtiwari.dev/about/</loc>", content)
+        self.assertIn("<loc>https://memora.omtiwari.dev/login/</loc>", content)
+
+    def test_landing_page_seo_and_rich_snippets(self):
+        resp = self.client.get(reverse("landing"))
+        self.assertEqual(resp.status_code, 200)
+        content = resp.content.decode("utf-8")
+        self.assertIn('<link rel="canonical" href="https://memora.omtiwari.dev/">', content)
+        self.assertIn('<meta name="robots" content="index, follow">', content)
+        self.assertIn('<meta property="og:title"', content)
+        self.assertIn('"@type": "WebApplication"', content)
+        self.assertIn('"url": "https://memora.omtiwari.dev/"', content)
+
+
 class CinemaWatchStatusSortAndFilterTests(TestCase):
     """Test suite for Cinema watch status filtering and sorting."""
 

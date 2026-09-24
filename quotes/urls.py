@@ -12,6 +12,8 @@ urlpatterns = [
     path("login/", views.vault_login, name="login"),
     path("logout/", views.vault_logout, name="logout"),
     path("favicon.ico", views.favicon_view, name="favicon"),
+    path("robots.txt", views.robots_txt_view, name="robots_txt"),
+    path("sitemap.xml", views.sitemap_xml_view, name="sitemap_xml"),
 
     # Preview Error Pages (Works in Dev & Prod)
     path("404/", views.custom_404_view, name="preview_404"),

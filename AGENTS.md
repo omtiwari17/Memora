@@ -30,8 +30,8 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 | **Database** | **SQLite** (local dev) / **Neon PostgreSQL** (production) | 100% Free forever PostgreSQL via `dj-database-url` |
 | **Hosting** | **Render** (Free Web Service) + **cron-job.org** (Keep-Alive Ping) | 100% Free production hosting, stays awake 24/7 without cold starts |
 | **Static Files** | WhiteNoise | Compressed static assets served directly by Django WSGI |
-| **CI/CD** | GitHub Actions | 4-stage pipeline: Lint → Django Checks → 154 Tests → Deploy Readiness |
-| **Testing** | Django TestCase (154 tests) | Models, auth, views, URLs, CRUD, APIs, custom admin, movie watch ratings, HTMX in-place updates, category uniqueness, data isolation, cinema watch status sorting & filtering, web push background dispatch |
+| **CI/CD** | GitHub Actions | 4-stage pipeline: Lint → Django Checks → 157 Tests → Deploy Readiness |
+| **Testing** | Django TestCase (157 tests) | Models, auth, views, URLs, CRUD, APIs, custom admin, movie watch ratings, HTMX in-place updates, category uniqueness, data isolation, cinema watch status sorting & filtering, web push background dispatch, robots.txt, sitemap.xml, SEO rich snippets |
 
 **Explicitly Excluded:** React, Node.js, npm build pipelines, heavy SPA frameworks. Tailwind and DaisyUI are loaded directly via CDN.
 
@@ -48,7 +48,7 @@ Not a notes app, not a to-do app, not a bookmark manager. It's a **personal seco
 - **Unified Cinema Category & Tag-Based Media** - Consolidated media categories under **Cinema** (`slug: cinema`), organizing movies vs TV series via tags (`#movie`, `#series`, `#anime`, `#documentary`).
 - **Developer Profile Links Footer** - Glassmorphic **Created by Om Tiwari** developer badge in left navigation sidebar (`dashboard.html`, `memory_list.html`) and login screen (`login.html`) linking to Portfolio (`https://omtiwari.dev/`), GitHub (`https://github.com/omtiwari17`), and LinkedIn (`https://www.linkedin.com/in/tiwariom/`).
 - **Production Security Hardening & CI Guard** - In `quotevault/settings.py`, security flags (`SECURE_SSL_REDIRECT`, `SECURE_HSTS_SECONDS=31536000`, `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`, `SECURE_PROXY_SSL_HEADER`) activate when `not DEBUG and "test" not in sys.argv:`. This prevents local port redirects during development while ensuring GitHub Actions `--deploy` checks and live production deployments enforce strict HTTPS with zero warnings.
-- **CI/CD Safety Net (GitHub Actions)** - 4-stage pipeline runs on every push/PR to `main`: (1) Lint & syntax compile, (2) Django system check + migration integrity, (3) 154-test suite covering models, auth, views, URLs, CRUD, APIs, favicon, admin console, category uniqueness, cinema watch status sorting & filtering, web push background dispatch, and user data isolation, (4) Production deploy readiness with Gunicorn startup verification.
+- **CI/CD Safety Net (GitHub Actions)** - 4-stage pipeline runs on every push/PR to `main`: (1) Lint & syntax compile, (2) Django system check + migration integrity, (3) 157-test suite covering models, auth, views, URLs, CRUD, APIs, favicon, admin console, category uniqueness, cinema watch status sorting & filtering, web push background dispatch, robots.txt, sitemap.xml, SEO rich snippets, and user data isolation, (4) Production deploy readiness with Gunicorn startup verification.
 - **Executive Header Bar & Compact Metrics** - Eliminated tall marketing hero banners. Dashboard features a streamlined executive top bar with memory total pill (`{{ total_count }}`), live vault status indicator (`@username`), inline stat counters (Inbox, Done, Due Soon), and primary `+ Capture Memory` button (`Ctrl+K`).
 - **Fluid Horizontal Navigation Rail with Triple-Action Scroll** - Unified filter tabs and 17 categories into a single, space-efficient horizontal carousel across both `dashboard.html` and `memory_list.html`. Solved the desktop mouse horizontal scrolling limitation with:
   1. **Chevron Arrows**: Floating frosted left (`‹`) and right (`›`) navigation arrows with dynamic boundary detection and gradient edge masks.
@@ -159,6 +159,8 @@ Memora/
 │   ├── bookmarklet.js       # Desktop browser bookmarklet script
 │   ├── sw.js                # Service Worker for Web Push & PWA offline caching
 │   ├── push_notifications.js# Client Web Push subscription & toast alert engine
+│   ├── robots.txt           # Search engine crawl directives & sitemap pointer
+│   ├── sitemap.xml          # XML sitemap for Google Search indexing
 │   ├── logo.svg             # Handcrafted Synapse Infinity M vector SVG logo
 │   ├── icon-192.png
 │   └── icon-512.png
@@ -222,6 +224,8 @@ Quotes • Thoughts • Ideas • Learn • Save • Links • Cinema • Read �
 | `/login/` | `login` | Vault Handle + 6-Digit PIN unlock and registration screen |
 | `/logout/` | `logout` | Lock memory vault session |
 | `/favicon.ico` | `favicon` | Vector SVG favicon endpoint serving `logo.svg` directly |
+| `/robots.txt` | `robots_txt` | Search engine crawl directives & sitemap pointer |
+| `/sitemap.xml` | `sitemap_xml` | Search engine XML sitemap containing canonical pages |
 | `/ctrl/` | `custom_admin_panel` | Custom Admin Command Console with handle filtering |
 | `/ctrl/login/` | `admin_vault_login` | Dedicated Admin Vault Login Portal |
 | `/ctrl/logout/` | `admin_vault_logout` | Admin Logout & session lock |
@@ -642,6 +646,12 @@ Render's free tier puts web services to sleep after 15 minutes of inactivity. To
 - [x] **Dual-Method Cron Endpoint (`/api/trigger-due-reminders/`)**: Supports both GET and POST requests for seamless integration with external cron pingers (`cron-job.org` / Render keep-alive).
 - [x] **All 154 Automated Tests Passing**: Extended `WebPushNotificationTest` with test cases for `/sw.js`, GET/POST push dispatch, `trigger_reminders` command, and `reminder_sent` lifecycle.
 
+### Phase 17 - SEO & Google Search Indexing Infrastructure
+- [x] **robots.txt Endpoint (`/robots.txt`)**: Search engine crawl directives allowing public pages, disallowing internal `/ctrl/` and `/api/`, and linking directly to the sitemap.
+- [x] **sitemap.xml Endpoint (`/sitemap.xml`)**: Standard XML sitemap pointing to `https://memora.omtiwari.dev/`, `/welcome/`, `/about/`, and `/login/` with daily/weekly change frequencies.
+- [x] **Landing Page SEO & Rich Snippets**: Integrated canonical link tag (`https://memora.omtiwari.dev/`), robots meta, Open Graph tags, Twitter Card tags, and Schema.org `WebApplication` JSON-LD structured data.
+- [x] **All 157 Automated Tests Passing**: Added `SEOSitemapRobotsTest` verifying robots.txt, sitemap.xml, headers, and landing page rich snippets.
+
 ---
 
 ## 12. Git Branching & Deployment Workflow
@@ -661,7 +671,7 @@ dev branch  ──→  User tests locally  ──→  User says "merge"  ──�
 3. **User tests locally** on `dev` branch (`python manage.py runserver 8001`).
 4. **Only merge `dev` → `main`** when the user explicitly gives instructions to merge or deploy.
 5. **Render auto-deploys** from `main` - merging `dev` → `main` triggers production release.
-6. **GitHub Actions CI** runs 154 unit tests on both `push` and `pull_request` to `main`.
+6. **GitHub Actions CI** runs 157 unit tests on both `push` and `pull_request` to `main`.
 
 ### Exact Command Sequence:
 ```bash

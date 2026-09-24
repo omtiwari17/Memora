@@ -1461,3 +1461,51 @@ def service_worker_view(request):
     return response
 
 
+def robots_txt_view(request):
+    """Serve robots.txt for search engines."""
+    robots_path = settings.BASE_DIR / "static" / "robots.txt"
+    if not robots_path.exists():
+        content = "User-agent: *\nAllow: /\nDisallow: /ctrl/\nDisallow: /api/\n\nSitemap: https://memora.omtiwari.dev/sitemap.xml\n"
+    else:
+        with open(robots_path, "r", encoding="utf-8") as f:
+            content = f.read()
+    response = HttpResponse(content, content_type="text/plain; charset=utf-8")
+    response["Cache-Control"] = "public, max-age=86400"
+    return response
+
+
+def sitemap_xml_view(request):
+    """Serve sitemap.xml for Google Search and other search engines."""
+    sitemap_path = settings.BASE_DIR / "static" / "sitemap.xml"
+    if not sitemap_path.exists():
+        content = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://memora.omtiwari.dev/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://memora.omtiwari.dev/welcome/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://memora.omtiwari.dev/about/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://memora.omtiwari.dev/login/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+</urlset>"""
+    else:
+        with open(sitemap_path, "r", encoding="utf-8") as f:
+            content = f.read()
+    response = HttpResponse(content, content_type="application/xml; charset=utf-8")
+    response["Cache-Control"] = "public, max-age=86400"
+    return response
+
+
